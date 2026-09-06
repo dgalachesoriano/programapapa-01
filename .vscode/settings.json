@@ -1,0 +1,14 @@
+{
+    "dotnet.defaultSolution": "GestionFacturas.sln",
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/.vs": true
+    },
+    "search.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/.vs": true,
+        "**/packages": true
+    }
+}

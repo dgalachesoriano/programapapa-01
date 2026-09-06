@@ -1,0 +1,20 @@
+# Salidas de compilación
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Resultados de pruebas
+[Tt]est[Rr]esult*/
+
+# Logs de la aplicación (ver Servicios/RegistradorErrores.cs)
+[Ll]ogs/
+
+# Archivos de sistema
+Thumbs.db
+.DS_Store
