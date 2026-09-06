@@ -407,6 +407,66 @@ namespace GestionFacturas.Formularios
                 return false;
             }
 
+            decimal importeEstimado;
+
+            if (!string.IsNullOrWhiteSpace(txtImporteEstimado.Text) &&
+                !IntentarObtenerDecimal(txtImporteEstimado.Text, out importeEstimado))
+            {
+                MessageBox.Show(
+                    "El Importe Estimado no es un número válido.",
+                    "Validación",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+
+                txtImporteEstimado.Focus();
+
+                return false;
+            }
+
+            if (!ValidarUnidadesDetalle())
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Comprueba que, en las filas del detalle que no estén
+        /// completamente vacías, la columna "Unidades" (si está
+        /// informada) contenga un número válido. Antes, un valor no
+        /// numérico se descartaba en silencio y se grababa como
+        /// vacío; ahora se avisa y se bloquea el guardado hasta que
+        /// se corrija.
+        /// </summary>
+        private bool ValidarUnidadesDetalle()
+        {
+            foreach (DataGridViewRow fila in dgvDetalle.Rows)
+            {
+                if (fila.IsNewRow)
+                    continue;
+
+                string texto = ObtenerTextoCelda(fila, "Unidades");
+
+                if (string.IsNullOrWhiteSpace(texto))
+                    continue;
+
+                decimal valor;
+
+                if (!IntentarObtenerDecimal(texto, out valor))
+                {
+                    MessageBox.Show(
+                        "La fila " + (fila.Index + 1) + " del detalle tiene un " +
+                        "valor de Unidades no válido.",
+                        "Validación",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+
+                    dgvDetalle.CurrentCell = fila.Cells["Unidades"];
+                    dgvDetalle.Focus();
+
+                    return false;
+                }
+            }
+
             return true;
         }
 

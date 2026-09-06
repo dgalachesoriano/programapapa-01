@@ -43,6 +43,7 @@ namespace GestionFacturas
             CargarFiltroProyectos();
             CargarFiltroUsuarios();
             CargarUsuarioAsignado();
+            CargarNuevoEstado();
 
             BuscarTareas();
         }
@@ -185,6 +186,41 @@ namespace GestionFacturas
 
                 MessageBox.Show(
                     "No se han podido cargar los usuarios.\n\n" + ex.Message,
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Carga en el combo de nuevo estado (usado para el cambio de
+        /// estado en bloque) todos los estados existentes, sin la
+        /// opción "Todos": aquí siempre hay que elegir un estado
+        /// concreto al que mover las tareas seleccionadas. No hay
+        /// restricción de transición: se permite pasar de cualquier
+        /// estado a cualquier otro.
+        /// </summary>
+        private void CargarNuevoEstado()
+        {
+            try
+            {
+                List<EstadoFactura> estados = estadoRepositorio.ObtenerTodos();
+
+                cboNuevoEstado.DataSource = estados;
+                cboNuevoEstado.DisplayMember = "Estado";
+                cboNuevoEstado.ValueMember = "IdEstado";
+
+                if (estados.Count > 0)
+                {
+                    cboNuevoEstado.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistradorErrores.Registrar("FrmPoolTareas.CargarNuevoEstado", ex);
+
+                MessageBox.Show(
+                    "No se han podido cargar los estados.\n\n" + ex.Message,
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -448,6 +484,66 @@ namespace GestionFacturas
 
                 MessageBox.Show(
                     "No se ha podido asignar la tarea.\n\n" + ex.Message,
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Cambia de una sola vez el estado del combo "Nuevo estado"
+        /// a todas las tareas seleccionadas en la rejilla, previa
+        /// confirmación. No hay restricción de transición: se admite
+        /// cualquier estado de origen y destino.
+        /// </summary>
+        private void btnCambiarEstado_Click(object sender, EventArgs e)
+        {
+            List<int> registros = ObtenerRegistrosSeleccionados();
+
+            if (registros.Count == 0)
+            {
+                MessageBox.Show(
+                    "Seleccione al menos una tarea de la lista.",
+                    "Cambiar estado",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+                return;
+            }
+
+            if (cboNuevoEstado.SelectedValue == null)
+                return;
+
+            int idEstado = Convert.ToInt32(cboNuevoEstado.SelectedValue);
+
+            DialogResult respuesta = MessageBox.Show(
+                "¿Cambiar el estado de " + registros.Count + " tarea(s) a '" +
+                cboNuevoEstado.Text + "'?",
+                "Confirmar cambio de estado",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (respuesta != DialogResult.Yes)
+                return;
+
+            try
+            {
+                facturaRepositorio.CambiarEstado(registros, idEstado);
+
+                MessageBox.Show(
+                    "Estado actualizado correctamente.",
+                    "Cambiar estado",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+                BuscarTareas();
+            }
+            catch (Exception ex)
+            {
+                RegistradorErrores.Registrar("FrmPoolTareas.btnCambiarEstado_Click", ex);
+
+                MessageBox.Show(
+                    "No se ha podido cambiar el estado.\n\n" + ex.Message,
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);

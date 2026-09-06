@@ -54,6 +54,9 @@ namespace GestionFacturas
             this.btnAsignarTarea = new System.Windows.Forms.Button();
             this.btnActualizar = new System.Windows.Forms.Button();
             this.btnAbrirTarea = new System.Windows.Forms.Button();
+            this.lblNuevoEstado = new System.Windows.Forms.Label();
+            this.cboNuevoEstado = new System.Windows.Forms.ComboBox();
+            this.btnCambiarEstado = new System.Windows.Forms.Button();
             this.grpFiltros.SuspendLayout();
             this.tblFiltros.SuspendLayout();
             this.pnlBotonesFiltro.SuspendLayout();
@@ -312,18 +315,24 @@ namespace GestionFacturas
             //
             // Anclado al fondo del formulario, con alto fijo; los
             // botones se anclan a la derecha para seguir siempre ahí.
+            // Dos filas de acciones en bloque sobre la selección
+            // actual de la rejilla de tareas: asignar usuario (fila
+            // 1) y cambiar estado (fila 2).
             this.grpAsignacion.Controls.Add(this.btnAbrirTarea);
             this.grpAsignacion.Controls.Add(this.btnActualizar);
             this.grpAsignacion.Controls.Add(this.btnAsignarTarea);
             this.grpAsignacion.Controls.Add(this.cboUsuarioAsignado);
             this.grpAsignacion.Controls.Add(this.lblUsuarioAsignado);
+            this.grpAsignacion.Controls.Add(this.btnCambiarEstado);
+            this.grpAsignacion.Controls.Add(this.cboNuevoEstado);
+            this.grpAsignacion.Controls.Add(this.lblNuevoEstado);
             this.grpAsignacion.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpAsignacion.Location = new System.Drawing.Point(0, 650);
+            this.grpAsignacion.Location = new System.Drawing.Point(0, 610);
             this.grpAsignacion.Name = "grpAsignacion";
-            this.grpAsignacion.Size = new System.Drawing.Size(1184, 100);
+            this.grpAsignacion.Size = new System.Drawing.Size(1184, 140);
             this.grpAsignacion.TabIndex = 3;
             this.grpAsignacion.TabStop = false;
-            this.grpAsignacion.Text = "Asignación y acciones";
+            this.grpAsignacion.Text = "Asignación y acciones (sobre las tareas seleccionadas)";
             //
             // lblUsuarioAsignado
             //
@@ -378,6 +387,37 @@ namespace GestionFacturas
             this.btnActualizar.UseVisualStyleBackColor = true;
             this.btnActualizar.Click += new System.EventHandler(this.btnActualizar_Click);
             //
+            // lblNuevoEstado
+            //
+            this.lblNuevoEstado.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblNuevoEstado.AutoSize = true;
+            this.lblNuevoEstado.Location = new System.Drawing.Point(12, 90);
+            this.lblNuevoEstado.Name = "lblNuevoEstado";
+            this.lblNuevoEstado.Size = new System.Drawing.Size(78, 13);
+            this.lblNuevoEstado.TabIndex = 5;
+            this.lblNuevoEstado.Text = "Nuevo estado:";
+            //
+            // cboNuevoEstado
+            //
+            this.cboNuevoEstado.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboNuevoEstado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboNuevoEstado.FormattingEnabled = true;
+            this.cboNuevoEstado.Location = new System.Drawing.Point(96, 87);
+            this.cboNuevoEstado.Name = "cboNuevoEstado";
+            this.cboNuevoEstado.Size = new System.Drawing.Size(728, 21);
+            this.cboNuevoEstado.TabIndex = 6;
+            //
+            // btnCambiarEstado
+            //
+            this.btnCambiarEstado.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCambiarEstado.Location = new System.Drawing.Point(836, 80);
+            this.btnCambiarEstado.Name = "btnCambiarEstado";
+            this.btnCambiarEstado.Size = new System.Drawing.Size(204, 38);
+            this.btnCambiarEstado.TabIndex = 7;
+            this.btnCambiarEstado.Text = "Cambiar estado";
+            this.btnCambiarEstado.UseVisualStyleBackColor = true;
+            this.btnCambiarEstado.Click += new System.EventHandler(this.btnCambiarEstado_Click);
+            //
             // FrmPoolTareas
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -386,7 +426,7 @@ namespace GestionFacturas
             this.Controls.Add(this.splitPrincipal);
             this.Controls.Add(this.grpAsignacion);
             this.Controls.Add(this.grpFiltros);
-            this.MinimumSize = new System.Drawing.Size(900, 550);
+            this.MinimumSize = new System.Drawing.Size(900, 590);
             this.Name = "FrmPoolTareas";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Pool de Tareas";
@@ -436,5 +476,8 @@ namespace GestionFacturas
         private System.Windows.Forms.Button btnAsignarTarea;
         private System.Windows.Forms.ComboBox cboUsuarioAsignado;
         private System.Windows.Forms.Label lblUsuarioAsignado;
+        private System.Windows.Forms.Label lblNuevoEstado;
+        private System.Windows.Forms.ComboBox cboNuevoEstado;
+        private System.Windows.Forms.Button btnCambiarEstado;
     }
 }

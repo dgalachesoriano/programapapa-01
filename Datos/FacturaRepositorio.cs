@@ -313,6 +313,42 @@ namespace GestionFacturas.Datos
                 SET IdUsuarioAsignado = @IdUsuarioAsignado
                 WHERE Registro = @Registro;";
 
+            EjecutarActualizacionEnBloque(registros, sql, comando =>
+                comando.Parameters.Add("@IdUsuarioAsignado", SqlDbType.Int).Value =
+                    idUsuario.HasValue ? (object)idUsuario.Value : DBNull.Value);
+        }
+
+        /// <summary>
+        /// Cambia de una sola vez el estado indicado a todas las
+        /// facturas cuyo registro esté en <paramref name="registros"/>.
+        /// Pensado para el cambio de estado masivo desde el pool de
+        /// tareas. No hay restricciones de transición: se permite
+        /// pasar de cualquier estado a cualquier otro. No hace nada
+        /// si la lista de registros está vacía.
+        /// </summary>
+        public void CambiarEstado(IEnumerable<int> registros, int idEstado)
+        {
+            const string sql = @"
+                UPDATE Facturas
+                SET IdEstado = @IdEstado
+                WHERE Registro = @Registro;";
+
+            EjecutarActualizacionEnBloque(registros, sql, comando =>
+                comando.Parameters.Add("@IdEstado", SqlDbType.Int).Value = idEstado);
+        }
+
+        /// <summary>
+        /// Ejecuta, en una única transacción, la misma sentencia SQL
+        /// parametrizada (con un parámetro `@Registro` añadido
+        /// automáticamente) una vez por cada registro indicado.
+        /// Compartido por las distintas actualizaciones masivas del
+        /// pool de tareas (asignar usuario, cambiar estado...).
+        /// </summary>
+        private void EjecutarActualizacionEnBloque(
+            IEnumerable<int> registros,
+            string sql,
+            Action<SqlCommand> agregarParametrosAdicionales)
+        {
             using (SqlConnection conexion = ConexionBD.AbrirConexion())
             using (SqlTransaction transaccion = conexion.BeginTransaction())
             {
@@ -322,8 +358,7 @@ namespace GestionFacturas.Datos
                     {
                         using (SqlCommand comando = new SqlCommand(sql, conexion, transaccion))
                         {
-                            comando.Parameters.Add("@IdUsuarioAsignado", SqlDbType.Int).Value =
-                                idUsuario.HasValue ? (object)idUsuario.Value : DBNull.Value;
+                            agregarParametrosAdicionales(comando);
 
                             comando.Parameters.Add("@Registro", SqlDbType.Int).Value = registro;
 

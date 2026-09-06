@@ -17,20 +17,16 @@ implementarlas está al final, en la [sección 6](#6-plan-de-acción).
 ## 1. Proceso de negocio
 
 ### 1.1 No hay forma de cambiar el estado de una factura
-**Prioridad: Alta. Estado: pendiente.** Toda factura nace en
-`"Registrado"` y ninguna pantalla permite moverla a otro estado (p.
-ej. "Pendiente", "Facturado", "Rechazado"). Si esos estados existen en
-`Estados_Facturas`, hoy son inalcanzables desde la aplicación.
-Propuesta: añadir a `FrmRegistrarTarea` (o a una nueva pantalla) una
-acción explícita de cambio de estado, con las transiciones permitidas
-modeladas de forma expresa en lugar de un combo libre, para evitar
-saltos de estado inconsistentes.
-
-*Nota (2026-09-06):* al implementar la asignación masiva de usuario en
-`FrmPoolTareas` (ver 1.5) quedó un patrón reutilizable (selección
-múltiple + acción en bloque + transacción en el repositorio) que
-encaja bien para resolver este punto: un "Cambiar estado" análogo al
-"Asignar tarea" ya existente.
+**Prioridad: Alta. Estado: ✅ Implementado (2026-09-06).** Toda
+factura nacía en `"Registrado"` y ninguna pantalla permitía moverla a
+otro estado. Se ha añadido a `FrmPoolTareas` un cambio de estado
+masivo ("Nuevo estado" + botón "Cambiar estado"), reutilizando el
+mismo patrón de la asignación de usuario (selección múltiple + acción
+en bloque + transacción en `FacturaRepositorio.CambiarEstado`, que
+comparte helper con `AsignarUsuario`). **Decisión de negocio
+adoptada:** se permite cualquier transición (de cualquier estado a
+cualquier otro), sin modelar un flujo restringido — más simple de
+entregar; se puede acotar más adelante si aparecen reglas concretas.
 
 ### 1.2 Campos `Num_Factura`, `F_Factura`, `Importe_Total` sin origen
 **Prioridad: Alta. Estado: pendiente.** La búsqueda los muestra pero
@@ -71,8 +67,9 @@ gestión documental/financiera, suele ser un requisito razonable
 - "Abrir tarea" para editar la tarea con el foco, igual que en
   "Tratar Tarea".
 
+Ampliado el 2026-09-06 con **cambio de estado en bloque** (ver 1.1).
+
 Pendiente dentro de esta misma pantalla (no bloqueante):
-- Cambio de estado en bloque (ver 1.1).
 - Paginación/exportación si el volumen de tareas crece (ver 3.2/3.3).
 - No hay forma de deshacer una asignación masiva salvo repitiéndola en
   sentido contrario; aceptable por ahora, pero a vigilar si se usa con
@@ -154,11 +151,13 @@ del formulario, para poder testearla sin instanciar UI.
 ## 3. Experiencia de usuario
 
 ### 3.1 Importe estimado inválido se guarda como vacío sin avisar
-**Prioridad: Media. Estado: pendiente.** Si el usuario escribe un
-importe con formato incorrecto, hoy se graba como `NULL` sin ningún
-aviso (mismo comportamiento para "unidades" del detalle). Propuesta:
-validar el formato en `ValidarDatos()` y bloquear el guardado (o
-avisar explícitamente) en lugar de descartar el valor en silencio.
+**Prioridad: Media. Estado: ✅ Implementado (2026-09-06).** Si el
+usuario escribía un importe (o unas unidades de detalle) con formato
+incorrecto, se grababa como `NULL` sin ningún aviso. Ahora
+`FrmRegistrarTarea.ValidarDatos()` comprueba el Importe Estimado y,
+con el nuevo método `ValidarUnidadesDetalle()`, cada fila no vacía del
+detalle; si algún valor no es un número válido, se avisa, se pone el
+foco en el campo/celda correspondiente y se bloquea el guardado.
 
 ### 3.2 Búsqueda sin paginación
 **Prioridad: Media (crece con el volumen de datos). Estado:
@@ -269,17 +268,17 @@ paso en
 
 | # | Propuesta | Prioridad | Estado |
 |---|---|---|---|
-| 4.2 | Inicializar control de versiones | Alta | Pendiente |
-| 1.1 | Flujo explícito de cambio de estado | Alta | Pendiente |
-| 1.2 | Aclarar origen de Num_Factura/F_Factura/Importe_Total | Alta | Pendiente |
-| 2.1 | Logging real de errores | Alta | Parcial (conexión BD resuelta) |
+| 4.2 | Inicializar control de versiones | Alta | ✅ Implementado |
+| 1.2 | Aclarar origen de Num_Factura/F_Factura/Importe_Total | Alta | Pendiente (decisión de negocio) |
 | 2.3 | Suite de pruebas automatizadas | Alta | Pendiente |
-| 4.5 | Evitar artefactos bin/obj de otra máquina | Alta | Mitigado puntualmente |
+| 4.5 | Evitar artefactos bin/obj de otra máquina | Alta | Mitigado puntualmente (resuelto de raíz al cerrar 4.2) |
+| 1.1 | Flujo explícito de cambio de estado | Alta | ✅ Implementado |
 | 1.5 | Pool de Tareas | Alta | ✅ Implementado |
 | 4.4 | Script de creación de base de datos | Alta | ✅ Implementado |
+| 2.1 | Logging real de errores | Alta | ✅ Implementado |
 | 1.3 | Control de concurrencia en edición | Media | Pendiente |
 | 1.4 | Auditoría (usuario/fecha de alta y modificación) | Media | Pendiente |
-| 3.1 | Validar importe/unidades en vez de descartar en silencio | Media | Pendiente |
+| 3.1 | Validar importe/unidades en vez de descartar en silencio | Media | ✅ Implementado |
 | 3.2 | Paginación de resultados (Tratar Tarea + Pool de Tareas) | Media | Pendiente |
 | 3.4 | Interfaz adaptable a distintos tamaños de pantalla | Media | ✅ Implementado |
 | 2.2 | Excepciones de negocio tipadas | Baja | Patrón iniciado |
@@ -305,36 +304,45 @@ No requiere acción; se lista para que el plan quede autocontenido.
 
 ### Fase 1 — Cimientos (bloqueante, antes de tocar más código)
 **Objetivo: dejar de arriesgar el trabajo ya hecho.**
-1. **4.2 — Inicializar Git.** `git init`, primer commit con el estado
-   actual, y un `.gitignore` que excluya `bin/`, `obj/`, `.vs/` y
-   `*.user`. Resuelve de raíz el riesgo descrito en 4.5.
-2. **2.1 (resto) — Logging real.** Añadir `NLog` o
-   `System.Diagnostics.Trace` con salida a fichero, y que cada
-   `catch (Exception ex)` que hoy solo hace `MessageBox.Show` registre
-   también la excepción completa antes de mostrar el mensaje al
-   usuario.
+1. **4.2 — Inicializar Git.** ✅ Hecho (2026-09-06): `git init`,
+   `.gitignore` (`bin/`, `obj/`, `.vs/`, `*.user`, `Logs/`) y primer
+   commit con el estado actual. Resuelve de raíz el riesgo descrito
+   en 4.5.
+2. **2.1 (resto) — Logging real.** ✅ Hecho (2026-09-06): se optó por
+   un registrador propio sin dependencias
+   (`Servicios/RegistradorErrores.cs`, salida a `Logs/
+   GestionFacturas.log`) en vez de añadir NLog/Serilog, para no
+   introducir un paquete NuGet nuevo mientras la gestión de paquetes
+   del proyecto no esté clarificada (ver 2.4). Conectado en los 15
+   puntos que antes solo hacían `MessageBox.Show`.
 3. **1.2 — Reunión con negocio** sobre `Num_Factura`/`F_Factura`/
-   `Importe_Total`. No es una tarea de código: es una decisión previa
-   necesaria para saber si 1.1 y otras mejoras del proceso de
-   facturación deben ampliarse.
-
-*Duración orientativa: 1–2 días de desarrollo + la reunión de negocio
-en paralelo.*
+   `Importe_Total`. **Sigue pendiente** — no es una tarea de código:
+   es una decisión previa necesaria si en el futuro se quiere ampliar
+   el proceso de facturación dentro de la aplicación.
 
 ### Fase 2 — Cerrar el proceso de negocio
 **Objetivo: que el ciclo de vida de una factura sea completo y
 seguro.**
-4. **1.1 — Cambio de estado**, reutilizando el patrón ya construido en
-   el Pool de Tareas (selección múltiple + acción en bloque +
-   transacción en `FacturaRepositorio`).
+4. **1.1 — Cambio de estado.** ✅ Hecho (2026-09-06): cambio de
+   estado masivo en `FrmPoolTareas`, reutilizando el patrón ya
+   construido para la asignación (selección múltiple + acción en
+   bloque + transacción en `FacturaRepositorio`). **Decisión
+   adoptada:** cualquier transición de estado es válida, sin flujo
+   restringido.
 5. **1.3 — Control de concurrencia** (`RowVersion`/`timestamp` +
-   comprobación en `Actualizar`).
+   comprobación en `Actualizar`). **Pospuesto explícitamente** — el
+   usuario prefirió no tocar el esquema de `Facturas` todavía.
 6. **1.4 — Auditoría** (usuario/fecha de alta y modificación en
-   `Facturas` y `Detalle_Facturas`).
-7. **3.1 — Validar importe/unidades** en vez de descartarlos en
-   silencio.
+   `Facturas` y `Detalle_Facturas`). **Pospuesto explícitamente**, por
+   el mismo motivo que 1.3 — ambos requieren `ALTER TABLE` sobre una
+   base de datos que ya puede estar en uso.
+7. **3.1 — Validar importe/unidades.** ✅ Hecho (2026-09-06): en vez
+   de descartarlos en silencio, `ValidarDatos()` bloquea el guardado
+   con un aviso si el Importe Estimado o alguna fila de Unidades no
+   es un número válido.
 
-*Duración orientativa: ~1 semana.*
+*Pendiente real de esta fase: solo 1.3 y 1.4, en espera de decidir
+cuándo tocar el esquema de la base de datos.*
 
 ### Fase 3 — Calidad y mantenibilidad
 **Objetivo: poder cambiar código con confianza.**
