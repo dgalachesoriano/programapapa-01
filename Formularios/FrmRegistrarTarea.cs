@@ -208,6 +208,8 @@ namespace GestionFacturas.Formularios
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmRegistrarTarea.PegarDesdePortapapeles", ex);
+
                 MessageBox.Show(
                     "Se ha producido un error al pegar los datos.\n\n" + ex.Message,
                     "Error",
@@ -278,6 +280,8 @@ namespace GestionFacturas.Formularios
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmRegistrarTarea.CargarUsuarios", ex);
+
                 MessageBox.Show(
                     "No se han podido cargar los usuarios.\n\n" + ex.Message,
                     "Error",
@@ -303,6 +307,8 @@ namespace GestionFacturas.Formularios
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmRegistrarTarea.CargarSegmentos", ex);
+
                 MessageBox.Show(
                     "No se han podido cargar los segmentos.\n\n" + ex.Message,
                     "Error",
@@ -447,6 +453,8 @@ namespace GestionFacturas.Formularios
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmRegistrarTarea.GrabarTarea", ex);
+
                 MessageBox.Show(
                     "No se ha podido grabar la tarea.\n\n" + ex.Message,
                     "Error",
@@ -609,6 +617,8 @@ namespace GestionFacturas.Formularios
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmRegistrarTarea.CargarTarea", ex);
+
                 MessageBox.Show(
                     "No se ha podido cargar la tarea.\n\n" + ex.Message,
                     "Error",

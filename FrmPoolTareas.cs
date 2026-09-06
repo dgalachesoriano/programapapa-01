@@ -1,6 +1,7 @@
 using GestionFacturas.Datos;
 using GestionFacturas.Formularios;
 using GestionFacturas.Modelos;
+using GestionFacturas.Servicios;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -83,6 +84,8 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmPoolTareas.CargarFiltroEstados", ex);
+
                 MessageBox.Show(
                     "No se han podido cargar los estados.\n\n" + ex.Message,
                     "Error",
@@ -110,6 +113,8 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmPoolTareas.CargarFiltroProyectos", ex);
+
                 MessageBox.Show(
                     "No se han podido cargar los proyectos.\n\n" + ex.Message,
                     "Error",
@@ -141,6 +146,8 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmPoolTareas.CargarFiltroUsuarios", ex);
+
                 MessageBox.Show(
                     "No se han podido cargar los usuarios.\n\n" + ex.Message,
                     "Error",
@@ -174,6 +181,8 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmPoolTareas.CargarUsuarioAsignado", ex);
+
                 MessageBox.Show(
                     "No se han podido cargar los usuarios.\n\n" + ex.Message,
                     "Error",
@@ -222,6 +231,8 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmPoolTareas.BuscarTareas", ex);
+
                 MessageBox.Show(
                     "No se han podido buscar las tareas.\n\n" + ex.Message,
                     "Error",
@@ -308,6 +319,8 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmPoolTareas.dgvTareas_SelectionChanged", ex);
+
                 MessageBox.Show(
                     "No se ha podido cargar el detalle de la tarea.\n\n" + ex.Message,
                     "Error",
@@ -431,6 +444,8 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmPoolTareas.btnAsignarTarea_Click", ex);
+
                 MessageBox.Show(
                     "No se ha podido asignar la tarea.\n\n" + ex.Message,
                     "Error",

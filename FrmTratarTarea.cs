@@ -1,6 +1,7 @@
 using GestionFacturas.Datos;
 using GestionFacturas.Formularios;
 using GestionFacturas.Modelos;
+using GestionFacturas.Servicios;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -88,6 +89,8 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmTratarTarea.CargarEstados", ex);
+
                 MessageBox.Show(
                     "No se han podido cargar los estados.\n\n" + ex.Message,
                     "Error",
@@ -120,6 +123,8 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmTratarTarea.CargarUsuarios", ex);
+
                 MessageBox.Show(
                     "No se han podido cargar los usuarios.\n\n" + ex.Message,
                     "Error",
@@ -153,6 +158,8 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
+                RegistradorErrores.Registrar("FrmTratarTarea.BuscarTareas", ex);
+
                 MessageBox.Show(
                     "No se han podido buscar las tareas.\n\n" + ex.Message,
                     "Error",
