@@ -36,14 +36,12 @@ namespace GestionFacturas.Formularios
             this.dtpFEntCalidad = new System.Windows.Forms.DateTimePicker();
             this.lblFRegistro = new System.Windows.Forms.Label();
             this.dtpFRegistro = new System.Windows.Forms.DateTimePicker();
-            this.lblSociedad = new System.Windows.Forms.Label();
-            this.txtSociedad = new System.Windows.Forms.TextBox();
+            this.lblOrgVentas = new System.Windows.Forms.Label();
+            this.txtOrgVentas = new System.Windows.Forms.TextBox();
             this.lblProyecto = new System.Windows.Forms.Label();
-            this.txtProyecto = new System.Windows.Forms.TextBox();
+            this.cboProyecto = new System.Windows.Forms.ComboBox();
             this.lblSegmento = new System.Windows.Forms.Label();
             this.cboSegmento = new System.Windows.Forms.ComboBox();
-            this.lblUsuario = new System.Windows.Forms.Label();
-            this.cboUsuario = new System.Windows.Forms.ComboBox();
             this.lblImporteEstimado = new System.Windows.Forms.Label();
             this.txtImporteEstimado = new System.Windows.Forms.TextBox();
             this.grpDetalle = new System.Windows.Forms.GroupBox();
@@ -68,10 +66,10 @@ namespace GestionFacturas.Formularios
             this.grpCabecera.Location = new System.Drawing.Point(0, 0);
             this.grpCabecera.Name = "grpCabecera";
             this.grpCabecera.Padding = new System.Windows.Forms.Padding(10);
-            this.grpCabecera.Size = new System.Drawing.Size(1184, 215);
+            this.grpCabecera.Size = new System.Drawing.Size(1184, 183);
             this.grpCabecera.TabIndex = 0;
             this.grpCabecera.TabStop = false;
-            this.grpCabecera.Text = "Datos de la RN/PL";
+            this.grpCabecera.Text = "Datos de la Tarea";
             //
             // tblCabecera
             //
@@ -79,20 +77,19 @@ namespace GestionFacturas.Formularios
             // ancho disponible entre las dos columnas de controles, de
             // forma que se ensanchan o encogen junto con la ventana.
             this.tblCabecera.ColumnCount = 4;
-            this.tblCabecera.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tblCabecera.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tblCabecera.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblCabecera.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tblCabecera.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tblCabecera.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tblCabecera.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tblCabecera.Location = new System.Drawing.Point(10, 23);
             this.tblCabecera.Name = "tblCabecera";
-            this.tblCabecera.RowCount = 5;
+            this.tblCabecera.RowCount = 4;
             this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.tblCabecera.Size = new System.Drawing.Size(1164, 182);
+            this.tblCabecera.Size = new System.Drawing.Size(1164, 150);
             this.tblCabecera.TabIndex = 0;
             //
             // Fila 0: Documento (ocupa las 3 columnas de control)
@@ -152,23 +149,23 @@ namespace GestionFacturas.Formularios
             this.dtpFRegistro.TabIndex = 2;
             this.tblCabecera.Controls.Add(this.dtpFRegistro, 3, 1);
             //
-            // Fila 2: Sociedad / Proyecto
+            // Fila 2: Organización de Ventas / Proyecto
             //
-            this.lblSociedad.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblSociedad.AutoSize = true;
-            this.lblSociedad.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.lblSociedad.Name = "lblSociedad";
-            this.lblSociedad.Size = new System.Drawing.Size(55, 13);
-            this.lblSociedad.TabIndex = 3;
-            this.lblSociedad.Text = "Sociedad:";
-            this.tblCabecera.Controls.Add(this.lblSociedad, 0, 2);
+            this.lblOrgVentas.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblOrgVentas.AutoSize = true;
+            this.lblOrgVentas.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.lblOrgVentas.Name = "lblOrgVentas";
+            this.lblOrgVentas.Size = new System.Drawing.Size(130, 13);
+            this.lblOrgVentas.TabIndex = 3;
+            this.lblOrgVentas.Text = "Organización de Ventas:";
+            this.tblCabecera.Controls.Add(this.lblOrgVentas, 0, 2);
             //
-            this.txtSociedad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSociedad.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.txtSociedad.Name = "txtSociedad";
-            this.txtSociedad.Size = new System.Drawing.Size(150, 20);
-            this.txtSociedad.TabIndex = 3;
-            this.tblCabecera.Controls.Add(this.txtSociedad, 1, 2);
+            this.txtOrgVentas.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtOrgVentas.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtOrgVentas.Name = "txtOrgVentas";
+            this.txtOrgVentas.Size = new System.Drawing.Size(150, 20);
+            this.txtOrgVentas.TabIndex = 3;
+            this.tblCabecera.Controls.Add(this.txtOrgVentas, 1, 2);
             //
             this.lblProyecto.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblProyecto.AutoSize = true;
@@ -179,21 +176,23 @@ namespace GestionFacturas.Formularios
             this.lblProyecto.Text = "Proyecto:";
             this.tblCabecera.Controls.Add(this.lblProyecto, 2, 2);
             //
-            this.txtProyecto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtProyecto.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.txtProyecto.Name = "txtProyecto";
-            this.txtProyecto.Size = new System.Drawing.Size(150, 20);
-            this.txtProyecto.TabIndex = 4;
-            this.tblCabecera.Controls.Add(this.txtProyecto, 3, 2);
+            this.cboProyecto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboProyecto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboProyecto.FormattingEnabled = true;
+            this.cboProyecto.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.cboProyecto.Name = "cboProyecto";
+            this.cboProyecto.Size = new System.Drawing.Size(150, 21);
+            this.cboProyecto.TabIndex = 4;
+            this.tblCabecera.Controls.Add(this.cboProyecto, 3, 2);
             //
-            // Fila 3: Segmento / Usuario
+            // Fila 3: Segmento / Importe Estimado
             //
             this.lblSegmento.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblSegmento.AutoSize = true;
             this.lblSegmento.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.lblSegmento.Name = "lblSegmento";
             this.lblSegmento.Size = new System.Drawing.Size(61, 13);
-            this.lblSegmento.TabIndex = 10;
+            this.lblSegmento.TabIndex = 5;
             this.lblSegmento.Text = "Segmento :";
             this.tblCabecera.Controls.Add(this.lblSegmento, 0, 3);
             //
@@ -206,33 +205,14 @@ namespace GestionFacturas.Formularios
             this.cboSegmento.TabIndex = 5;
             this.tblCabecera.Controls.Add(this.cboSegmento, 1, 3);
             //
-            this.lblUsuario.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblUsuario.AutoSize = true;
-            this.lblUsuario.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.lblUsuario.Name = "lblUsuario";
-            this.lblUsuario.Size = new System.Drawing.Size(46, 13);
-            this.lblUsuario.TabIndex = 14;
-            this.lblUsuario.Text = "Usuario:";
-            this.tblCabecera.Controls.Add(this.lblUsuario, 2, 3);
-            //
-            this.cboUsuario.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cboUsuario.FormattingEnabled = true;
-            this.cboUsuario.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.cboUsuario.Name = "cboUsuario";
-            this.cboUsuario.Size = new System.Drawing.Size(150, 21);
-            this.cboUsuario.TabIndex = 7;
-            this.tblCabecera.Controls.Add(this.cboUsuario, 3, 3);
-            //
-            // Fila 4: Importe Estimado
-            //
             this.lblImporteEstimado.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblImporteEstimado.AutoSize = true;
             this.lblImporteEstimado.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.lblImporteEstimado.Name = "lblImporteEstimado";
             this.lblImporteEstimado.Size = new System.Drawing.Size(91, 13);
-            this.lblImporteEstimado.TabIndex = 12;
+            this.lblImporteEstimado.TabIndex = 6;
             this.lblImporteEstimado.Text = "Importe Estimado:";
-            this.tblCabecera.Controls.Add(this.lblImporteEstimado, 0, 4);
+            this.tblCabecera.Controls.Add(this.lblImporteEstimado, 2, 3);
             //
             this.txtImporteEstimado.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtImporteEstimado.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -240,7 +220,7 @@ namespace GestionFacturas.Formularios
             this.txtImporteEstimado.Size = new System.Drawing.Size(150, 20);
             this.txtImporteEstimado.TabIndex = 6;
             this.txtImporteEstimado.Leave += new System.EventHandler(this.txtImporteEstimado_Leave);
-            this.tblCabecera.Controls.Add(this.txtImporteEstimado, 1, 4);
+            this.tblCabecera.Controls.Add(this.txtImporteEstimado, 3, 3);
             //
             // grpDetalle
             //
@@ -249,10 +229,10 @@ namespace GestionFacturas.Formularios
             // al maximizar como al redimensionar la ventana.
             this.grpDetalle.Controls.Add(this.dgvDetalle);
             this.grpDetalle.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpDetalle.Location = new System.Drawing.Point(0, 215);
+            this.grpDetalle.Location = new System.Drawing.Point(0, 183);
             this.grpDetalle.Name = "grpDetalle";
             this.grpDetalle.Padding = new System.Windows.Forms.Padding(10);
-            this.grpDetalle.Size = new System.Drawing.Size(1184, 396);
+            this.grpDetalle.Size = new System.Drawing.Size(1184, 428);
             this.grpDetalle.TabIndex = 1;
             this.grpDetalle.TabStop = false;
             this.grpDetalle.Text = "Detalle";
@@ -263,7 +243,7 @@ namespace GestionFacturas.Formularios
             this.dgvDetalle.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvDetalle.Location = new System.Drawing.Point(10, 23);
             this.dgvDetalle.Name = "dgvDetalle";
-            this.dgvDetalle.Size = new System.Drawing.Size(1164, 363);
+            this.dgvDetalle.Size = new System.Drawing.Size(1164, 395);
             this.dgvDetalle.TabIndex = 0;
             //
             // pnlBotones
@@ -334,15 +314,13 @@ namespace GestionFacturas.Formularios
         private System.Windows.Forms.Label lblFEntCalidad;
         private System.Windows.Forms.TextBox txtDocumento;
         private System.Windows.Forms.Label lblDocumento;
-        private System.Windows.Forms.TextBox txtSociedad;
-        private System.Windows.Forms.Label lblSociedad;
+        private System.Windows.Forms.TextBox txtOrgVentas;
+        private System.Windows.Forms.Label lblOrgVentas;
         private System.Windows.Forms.DateTimePicker dtpFRegistro;
         private System.Windows.Forms.Label lblFRegistro;
-        private System.Windows.Forms.Label lblUsuario;
         private System.Windows.Forms.Label lblImporteEstimado;
-        private System.Windows.Forms.TextBox txtProyecto;
         private System.Windows.Forms.Label lblProyecto;
-        private System.Windows.Forms.ComboBox cboUsuario;
+        private System.Windows.Forms.ComboBox cboProyecto;
         private System.Windows.Forms.GroupBox grpDetalle;
         private System.Windows.Forms.DataGridView dgvDetalle;
         private System.Windows.Forms.Panel pnlBotones;

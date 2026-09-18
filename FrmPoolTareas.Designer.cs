@@ -32,8 +32,6 @@ namespace GestionFacturas
             this.tblFiltros = new System.Windows.Forms.TableLayoutPanel();
             this.lblEstado = new System.Windows.Forms.Label();
             this.cboFiltroEstado = new System.Windows.Forms.ComboBox();
-            this.lblFiltroProyecto = new System.Windows.Forms.Label();
-            this.cboFiltroProyecto = new System.Windows.Forms.ComboBox();
             this.lblFiltroUsuario = new System.Windows.Forms.Label();
             this.cboFiltroUsuario = new System.Windows.Forms.ComboBox();
             this.lblFechaDesde = new System.Windows.Forms.Label();
@@ -54,9 +52,8 @@ namespace GestionFacturas
             this.btnAsignarTarea = new System.Windows.Forms.Button();
             this.btnActualizar = new System.Windows.Forms.Button();
             this.btnAbrirTarea = new System.Windows.Forms.Button();
-            this.lblNuevoEstado = new System.Windows.Forms.Label();
-            this.cboNuevoEstado = new System.Windows.Forms.ComboBox();
-            this.btnCambiarEstado = new System.Windows.Forms.Button();
+            this.btnBloquearTarea = new System.Windows.Forms.Button();
+            this.btnDesbloquearTarea = new System.Windows.Forms.Button();
             this.grpFiltros.SuspendLayout();
             this.tblFiltros.SuspendLayout();
             this.pnlBotonesFiltro.SuspendLayout();
@@ -86,13 +83,14 @@ namespace GestionFacturas
             //
             // tblFiltros
             //
-            this.tblFiltros.ColumnCount = 6;
+            // Solo hay dos parejas etiqueta/control por fila (Estado +
+            // Usuario en la primera, Desde + Hasta en la segunda), así
+            // que basta con 4 columnas.
+            this.tblFiltros.ColumnCount = 4;
             this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60F));
-            this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
-            this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 65F));
-            this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
-            this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 55F));
-            this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 34F));
+            this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+            this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tblFiltros.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tblFiltros.Location = new System.Drawing.Point(10, 23);
             this.tblFiltros.Name = "tblFiltros";
@@ -103,7 +101,7 @@ namespace GestionFacturas
             this.tblFiltros.Size = new System.Drawing.Size(1164, 117);
             this.tblFiltros.TabIndex = 0;
             //
-            // Fila 0: Estado / Proyecto / Usuario
+            // Fila 0: Estado / Usuario
             //
             this.lblEstado.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblEstado.AutoSize = true;
@@ -123,32 +121,14 @@ namespace GestionFacturas
             this.cboFiltroEstado.TabIndex = 1;
             this.tblFiltros.Controls.Add(this.cboFiltroEstado, 1, 0);
             //
-            this.lblFiltroProyecto.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblFiltroProyecto.AutoSize = true;
-            this.lblFiltroProyecto.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.lblFiltroProyecto.Name = "lblFiltroProyecto";
-            this.lblFiltroProyecto.Size = new System.Drawing.Size(52, 13);
-            this.lblFiltroProyecto.TabIndex = 2;
-            this.lblFiltroProyecto.Text = "Proyecto:";
-            this.tblFiltros.Controls.Add(this.lblFiltroProyecto, 2, 0);
-            //
-            this.cboFiltroProyecto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cboFiltroProyecto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboFiltroProyecto.FormattingEnabled = true;
-            this.cboFiltroProyecto.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.cboFiltroProyecto.Name = "cboFiltroProyecto";
-            this.cboFiltroProyecto.Size = new System.Drawing.Size(130, 21);
-            this.cboFiltroProyecto.TabIndex = 3;
-            this.tblFiltros.Controls.Add(this.cboFiltroProyecto, 3, 0);
-            //
             this.lblFiltroUsuario.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblFiltroUsuario.AutoSize = true;
             this.lblFiltroUsuario.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.lblFiltroUsuario.Name = "lblFiltroUsuario";
             this.lblFiltroUsuario.Size = new System.Drawing.Size(46, 13);
-            this.lblFiltroUsuario.TabIndex = 4;
+            this.lblFiltroUsuario.TabIndex = 2;
             this.lblFiltroUsuario.Text = "Usuario:";
-            this.tblFiltros.Controls.Add(this.lblFiltroUsuario, 4, 0);
+            this.tblFiltros.Controls.Add(this.lblFiltroUsuario, 2, 0);
             //
             this.cboFiltroUsuario.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.cboFiltroUsuario.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -156,8 +136,8 @@ namespace GestionFacturas
             this.cboFiltroUsuario.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.cboFiltroUsuario.Name = "cboFiltroUsuario";
             this.cboFiltroUsuario.Size = new System.Drawing.Size(130, 21);
-            this.cboFiltroUsuario.TabIndex = 5;
-            this.tblFiltros.Controls.Add(this.cboFiltroUsuario, 5, 0);
+            this.cboFiltroUsuario.TabIndex = 3;
+            this.tblFiltros.Controls.Add(this.cboFiltroUsuario, 3, 0);
             //
             // Fila 1: Desde / Hasta
             //
@@ -166,7 +146,7 @@ namespace GestionFacturas
             this.lblFechaDesde.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.lblFechaDesde.Name = "lblFechaDesde";
             this.lblFechaDesde.Size = new System.Drawing.Size(41, 13);
-            this.lblFechaDesde.TabIndex = 6;
+            this.lblFechaDesde.TabIndex = 4;
             this.lblFechaDesde.Text = "Desde:";
             this.tblFiltros.Controls.Add(this.lblFechaDesde, 0, 1);
             //
@@ -177,7 +157,7 @@ namespace GestionFacturas
             this.dtpFechaDesde.Name = "dtpFechaDesde";
             this.dtpFechaDesde.ShowCheckBox = true;
             this.dtpFechaDesde.Size = new System.Drawing.Size(150, 20);
-            this.dtpFechaDesde.TabIndex = 7;
+            this.dtpFechaDesde.TabIndex = 5;
             this.tblFiltros.Controls.Add(this.dtpFechaDesde, 1, 1);
             //
             this.lblFechaHasta.Anchor = System.Windows.Forms.AnchorStyles.Left;
@@ -185,7 +165,7 @@ namespace GestionFacturas
             this.lblFechaHasta.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.lblFechaHasta.Name = "lblFechaHasta";
             this.lblFechaHasta.Size = new System.Drawing.Size(38, 13);
-            this.lblFechaHasta.TabIndex = 8;
+            this.lblFechaHasta.TabIndex = 6;
             this.lblFechaHasta.Text = "Hasta:";
             this.tblFiltros.Controls.Add(this.lblFechaHasta, 2, 1);
             //
@@ -196,12 +176,12 @@ namespace GestionFacturas
             this.dtpFechaHasta.Name = "dtpFechaHasta";
             this.dtpFechaHasta.ShowCheckBox = true;
             this.dtpFechaHasta.Size = new System.Drawing.Size(150, 20);
-            this.dtpFechaHasta.TabIndex = 9;
+            this.dtpFechaHasta.TabIndex = 7;
             this.tblFiltros.Controls.Add(this.dtpFechaHasta, 3, 1);
             //
             // Fila 2: barra de botones de filtro (ocupa todo el ancho)
             //
-            this.tblFiltros.SetColumnSpan(this.pnlBotonesFiltro, 6);
+            this.tblFiltros.SetColumnSpan(this.pnlBotonesFiltro, 4);
             this.pnlBotonesFiltro.Controls.Add(this.btnLimpiarFiltros);
             this.pnlBotonesFiltro.Controls.Add(this.btnAplicarFiltros);
             this.pnlBotonesFiltro.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -209,7 +189,7 @@ namespace GestionFacturas
             this.pnlBotonesFiltro.Margin = new System.Windows.Forms.Padding(0);
             this.pnlBotonesFiltro.Name = "pnlBotonesFiltro";
             this.pnlBotonesFiltro.Size = new System.Drawing.Size(1164, 46);
-            this.pnlBotonesFiltro.TabIndex = 10;
+            this.pnlBotonesFiltro.TabIndex = 8;
             this.tblFiltros.Controls.Add(this.pnlBotonesFiltro, 0, 2);
             //
             // btnAplicarFiltros
@@ -218,7 +198,7 @@ namespace GestionFacturas
             this.btnAplicarFiltros.Location = new System.Drawing.Point(946, 6);
             this.btnAplicarFiltros.Name = "btnAplicarFiltros";
             this.btnAplicarFiltros.Size = new System.Drawing.Size(99, 36);
-            this.btnAplicarFiltros.TabIndex = 10;
+            this.btnAplicarFiltros.TabIndex = 8;
             this.btnAplicarFiltros.Text = "Aplicar filtros";
             this.btnAplicarFiltros.UseVisualStyleBackColor = true;
             this.btnAplicarFiltros.Click += new System.EventHandler(this.btnAplicarFiltros_Click);
@@ -229,7 +209,7 @@ namespace GestionFacturas
             this.btnLimpiarFiltros.Location = new System.Drawing.Point(1063, 6);
             this.btnLimpiarFiltros.Name = "btnLimpiarFiltros";
             this.btnLimpiarFiltros.Size = new System.Drawing.Size(99, 36);
-            this.btnLimpiarFiltros.TabIndex = 11;
+            this.btnLimpiarFiltros.TabIndex = 9;
             this.btnLimpiarFiltros.Text = "Limpiar";
             this.btnLimpiarFiltros.UseVisualStyleBackColor = true;
             this.btnLimpiarFiltros.Click += new System.EventHandler(this.btnLimpiarFiltros_Click);
@@ -295,7 +275,7 @@ namespace GestionFacturas
             this.grpDetalle.Size = new System.Drawing.Size(1184, 251);
             this.grpDetalle.TabIndex = 0;
             this.grpDetalle.TabStop = false;
-            this.grpDetalle.Text = "Detalle de factura";
+            this.grpDetalle.Text = "Detalle de tarea";
             //
             // dgvDetalle
             //
@@ -315,17 +295,14 @@ namespace GestionFacturas
             //
             // Anclado al fondo del formulario, con alto fijo; los
             // botones se anclan a la derecha para seguir siempre ahí.
-            // Dos filas de acciones en bloque sobre la selección
-            // actual de la rejilla de tareas: asignar usuario (fila
-            // 1) y cambiar estado (fila 2).
+            // Fila 1: asignar usuario. Fila 2: bloquear / abrir / actualizar.
+            this.grpAsignacion.Controls.Add(this.btnDesbloquearTarea);
+            this.grpAsignacion.Controls.Add(this.btnBloquearTarea);
             this.grpAsignacion.Controls.Add(this.btnAbrirTarea);
             this.grpAsignacion.Controls.Add(this.btnActualizar);
             this.grpAsignacion.Controls.Add(this.btnAsignarTarea);
             this.grpAsignacion.Controls.Add(this.cboUsuarioAsignado);
             this.grpAsignacion.Controls.Add(this.lblUsuarioAsignado);
-            this.grpAsignacion.Controls.Add(this.btnCambiarEstado);
-            this.grpAsignacion.Controls.Add(this.cboNuevoEstado);
-            this.grpAsignacion.Controls.Add(this.lblNuevoEstado);
             this.grpAsignacion.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.grpAsignacion.Location = new System.Drawing.Point(0, 610);
             this.grpAsignacion.Name = "grpAsignacion";
@@ -387,36 +364,27 @@ namespace GestionFacturas
             this.btnActualizar.UseVisualStyleBackColor = true;
             this.btnActualizar.Click += new System.EventHandler(this.btnActualizar_Click);
             //
-            // lblNuevoEstado
+            // btnBloquearTarea
             //
-            this.lblNuevoEstado.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblNuevoEstado.AutoSize = true;
-            this.lblNuevoEstado.Location = new System.Drawing.Point(12, 90);
-            this.lblNuevoEstado.Name = "lblNuevoEstado";
-            this.lblNuevoEstado.Size = new System.Drawing.Size(78, 13);
-            this.lblNuevoEstado.TabIndex = 5;
-            this.lblNuevoEstado.Text = "Nuevo estado:";
+            this.btnBloquearTarea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBloquearTarea.Location = new System.Drawing.Point(836, 80);
+            this.btnBloquearTarea.Name = "btnBloquearTarea";
+            this.btnBloquearTarea.Size = new System.Drawing.Size(150, 38);
+            this.btnBloquearTarea.TabIndex = 5;
+            this.btnBloquearTarea.Text = "Bloquear tarea";
+            this.btnBloquearTarea.UseVisualStyleBackColor = true;
+            this.btnBloquearTarea.Click += new System.EventHandler(this.btnBloquearTarea_Click);
             //
-            // cboNuevoEstado
+            // btnDesbloquearTarea
             //
-            this.cboNuevoEstado.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cboNuevoEstado.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboNuevoEstado.FormattingEnabled = true;
-            this.cboNuevoEstado.Location = new System.Drawing.Point(96, 87);
-            this.cboNuevoEstado.Name = "cboNuevoEstado";
-            this.cboNuevoEstado.Size = new System.Drawing.Size(728, 21);
-            this.cboNuevoEstado.TabIndex = 6;
-            //
-            // btnCambiarEstado
-            //
-            this.btnCambiarEstado.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCambiarEstado.Location = new System.Drawing.Point(836, 80);
-            this.btnCambiarEstado.Name = "btnCambiarEstado";
-            this.btnCambiarEstado.Size = new System.Drawing.Size(204, 38);
-            this.btnCambiarEstado.TabIndex = 7;
-            this.btnCambiarEstado.Text = "Cambiar estado";
-            this.btnCambiarEstado.UseVisualStyleBackColor = true;
-            this.btnCambiarEstado.Click += new System.EventHandler(this.btnCambiarEstado_Click);
+            this.btnDesbloquearTarea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDesbloquearTarea.Location = new System.Drawing.Point(995, 80);
+            this.btnDesbloquearTarea.Name = "btnDesbloquearTarea";
+            this.btnDesbloquearTarea.Size = new System.Drawing.Size(150, 38);
+            this.btnDesbloquearTarea.TabIndex = 6;
+            this.btnDesbloquearTarea.Text = "Desbloquear tarea";
+            this.btnDesbloquearTarea.UseVisualStyleBackColor = true;
+            this.btnDesbloquearTarea.Click += new System.EventHandler(this.btnDesbloquearTarea_Click);
             //
             // FrmPoolTareas
             //
@@ -457,8 +425,6 @@ namespace GestionFacturas
         private System.Windows.Forms.Label lblFechaDesde;
         private System.Windows.Forms.ComboBox cboFiltroUsuario;
         private System.Windows.Forms.Label lblFiltroUsuario;
-        private System.Windows.Forms.ComboBox cboFiltroProyecto;
-        private System.Windows.Forms.Label lblFiltroProyecto;
         private System.Windows.Forms.Panel pnlBotonesFiltro;
         private System.Windows.Forms.Button btnLimpiarFiltros;
         private System.Windows.Forms.Button btnAplicarFiltros;
@@ -476,8 +442,7 @@ namespace GestionFacturas
         private System.Windows.Forms.Button btnAsignarTarea;
         private System.Windows.Forms.ComboBox cboUsuarioAsignado;
         private System.Windows.Forms.Label lblUsuarioAsignado;
-        private System.Windows.Forms.Label lblNuevoEstado;
-        private System.Windows.Forms.ComboBox cboNuevoEstado;
-        private System.Windows.Forms.Button btnCambiarEstado;
+        private System.Windows.Forms.Button btnBloquearTarea;
+        private System.Windows.Forms.Button btnDesbloquearTarea;
     }
 }

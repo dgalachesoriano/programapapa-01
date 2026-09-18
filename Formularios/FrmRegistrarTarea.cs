@@ -3,40 +3,28 @@ using GestionFacturas.Modelos;
 using GestionFacturas.Servicios;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.Windows.Forms;
 
 namespace GestionFacturas.Formularios
 {
     /// <summary>
-    /// Pantalla de alta y edición de una factura/tarea, incluyendo
-    /// sus líneas de detalle. Se usa tanto para registrar una tarea
-    /// nueva (constructor sin parámetros) como para editar una ya
-    /// existente (constructor con el número de registro).
+    /// Pantalla de alta y edición de una tarea, incluyendo sus líneas
+    /// de detalle. Se usa tanto para registrar una tarea nueva
+    /// (constructor sin parámetros) como para editar una ya existente
+    /// (constructor con el identificador). Al dar de alta una tarea
+    /// nueva, se crea además el evento inicial de TBL_CONTROL con
+    /// estado "REGISTRADO" (ver TareaRepositorio.Insertar); editar
+    /// una tarea existente nunca toca su estado en el flujo.
     /// </summary>
     public partial class FrmRegistrarTarea : Form
     {
-        private readonly UsuarioRepositorio usuarioRepositorio =
-            new UsuarioRepositorio();
-
-        private readonly SegmentoRepositorio segmentoRepositorio =
-            new SegmentoRepositorio();
-
-        private readonly FacturaRepositorio facturaRepositorio =
-            new FacturaRepositorio();
+        private readonly ProyectoRepositorio proyectoRepositorio = new ProyectoRepositorio();
+        private readonly SegmentoRepositorio segmentoRepositorio = new SegmentoRepositorio();
+        private readonly TareaRepositorio tareaRepositorio = new TareaRepositorio();
 
         private readonly PegadoPortapapelesServicio pegadoPortapapelesServicio =
             new PegadoPortapapelesServicio();
-
-        /// <summary>
-        /// Nombre, dentro de <c>dgvDetalle</c>, de la columna cuyo
-        /// contenido debe interpretarse como número decimal al
-        /// pegar desde el portapapeles. Se resuelve a su índice de
-        /// columna en tiempo de ejecución antes de invocar al
-        /// servicio de pegado.
-        /// </summary>
-        private const string NombreColumnaDecimalDetalle = "Unidades";
 
         /// <summary>
         /// Cultura usada en todo el formulario para interpretar y
@@ -45,10 +33,17 @@ namespace GestionFacturas.Formularios
         private static readonly CultureInfo CulturaDecimal = new CultureInfo("es-ES");
 
         /// <summary>
-        /// Número de registro de la factura en edición, o 0 cuando
-        /// el formulario se usa para dar de alta una tarea nueva.
+        /// Nombre, dentro de <c>dgvDetalle</c>, de la columna cuyo
+        /// contenido debe interpretarse como número decimal al pegar
+        /// desde el portapapeles.
         /// </summary>
-        private int registroEdicion = 0;
+        private const string NombreColumnaDecimalDetalle = "Unidades";
+
+        /// <summary>
+        /// Identificador de la tarea en edición, o 0 cuando el
+        /// formulario se usa para dar de alta una tarea nueva.
+        /// </summary>
+        private int idTareaEdicion = 0;
 
         /// <summary>
         /// Crea el formulario en modo "nueva tarea".
@@ -58,33 +53,33 @@ namespace GestionFacturas.Formularios
             InitializeComponent();
 
             ConfigurarGridDetalle();
-            CargarUsuarios();
+            CargarProyectos();
             CargarSegmentos();
         }
 
         /// <summary>
         /// Crea el formulario en modo edición, cargando los datos de
-        /// la factura indicada.
+        /// la tarea indicada.
         /// </summary>
-        /// <param name="registro">Número de registro a editar.</param>
-        public FrmRegistrarTarea(int registro)
+        /// <param name="idTarea">Identificador de la tarea a editar.</param>
+        public FrmRegistrarTarea(int idTarea)
         {
             InitializeComponent();
 
             ConfigurarGridDetalle();
-            CargarUsuarios();
+            CargarProyectos();
             CargarSegmentos();
 
-            registroEdicion = registro;
+            idTareaEdicion = idTarea;
 
-            this.Text = "Tratar Tarea - Registro " + registro;
+            this.Text = "Tratar Tarea";
 
-            CargarTarea(registro);
+            CargarTarea(idTarea);
         }
 
         /// <summary>
-        /// Define las columnas del grid de detalle (RC, unidades,
-        /// precios, albarán) y su comportamiento de edición.
+        /// Define las columnas del grid de detalle y su
+        /// comportamiento de edición.
         /// </summary>
         private void ConfigurarGridDetalle()
         {
@@ -99,12 +94,11 @@ namespace GestionFacturas.Formularios
             dgvDetalle.MultiSelect = true;
             dgvDetalle.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
 
-            dgvDetalle.Columns.Add(CrearColumnaTexto("RC", "RC", 150));
-            dgvDetalle.Columns.Add(CrearColumnaDecimal("Unidades", "Unidades", 80));
-            dgvDetalle.Columns.Add(CrearColumnaTexto("PInspeccion", "P. Inspección", 130));
-            dgvDetalle.Columns.Add(CrearColumnaTexto("PCompra", "P. Compra", 120));
-            dgvDetalle.Columns.Add(CrearColumnaTexto("PVenta", "P. Venta", 120));
-            dgvDetalle.Columns.Add(CrearColumnaTexto("Albaran", "Albarán", 140));
+            dgvDetalle.Columns.Add(CrearColumnaTexto("PedidoVenta", "Pedido de Venta", 130));
+            dgvDetalle.Columns.Add(CrearColumnaTexto("PedidoCompra", "Pedido de Compra", 130));
+            dgvDetalle.Columns.Add(CrearColumnaTexto("PedidoInspeccion", "Pedido de Inspección", 140));
+            dgvDetalle.Columns.Add(CrearColumnaTexto("EntidadEntrega", "Entidad de Entrega", 140));
+            dgvDetalle.Columns.Add(CrearColumnaDecimal("Unidades", "Unidades", 90));
         }
 
         /// <summary>
@@ -114,7 +108,6 @@ namespace GestionFacturas.Formularios
         /// </summary>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            // CTRL + V → pegado especial en el DataGridView
             if (keyData == (Keys.Control | Keys.V))
             {
                 if (dgvDetalle.ContainsFocus)
@@ -126,11 +119,8 @@ namespace GestionFacturas.Formularios
                 return base.ProcessCmdKey(ref msg, keyData);
             }
 
-            // ENTER → siguiente control
             if (keyData == Keys.Enter)
             {
-                // Dentro del DataGridView dejamos que funcione su
-                // comportamiento normal.
                 if (dgvDetalle.ContainsFocus)
                 {
                     return base.ProcessCmdKey(ref msg, keyData);
@@ -168,13 +158,7 @@ namespace GestionFacturas.Formularios
 
         /// <summary>
         /// Pega en el grid de detalle el contenido de texto del
-        /// portapapeles (p. ej. copiado desde Excel). Solo se ocupa
-        /// de la interacción con el portapapeles del sistema y de
-        /// traducir el resultado a los avisos que ve el usuario; el
-        /// análisis del texto (filas, columnas, valores decimales) y
-        /// su volcado sobre el grid vive en
-        /// <see cref="PegadoPortapapelesServicio"/>, reutilizable
-        /// fuera de este formulario.
+        /// portapapeles (p. ej. copiado desde Excel).
         /// </summary>
         private void PegarDesdePortapapeles()
         {
@@ -191,15 +175,10 @@ namespace GestionFacturas.Formularios
 
                 string texto = Clipboard.GetText();
 
-                int columnaDecimal =
-                    dgvDetalle.Columns[NombreColumnaDecimalDetalle].Index;
+                int columnaDecimal = dgvDetalle.Columns[NombreColumnaDecimalDetalle].Index;
 
                 ResultadoPegadoPortapapeles resultado =
-                    pegadoPortapapelesServicio.Pegar(
-                        dgvDetalle,
-                        texto,
-                        columnaDecimal,
-                        CulturaDecimal);
+                    pegadoPortapapelesServicio.Pegar(dgvDetalle, texto, columnaDecimal, CulturaDecimal);
 
                 if (resultado == ResultadoPegadoPortapapeles.SinCeldaSeleccionada)
                 {
@@ -220,10 +199,7 @@ namespace GestionFacturas.Formularios
         /// <summary>
         /// Crea una columna de texto libre para el grid de detalle.
         /// </summary>
-        private DataGridViewTextBoxColumn CrearColumnaTexto(
-            string nombre,
-            string titulo,
-            int ancho)
+        private DataGridViewTextBoxColumn CrearColumnaTexto(string nombre, string titulo, int ancho)
         {
             return new DataGridViewTextBoxColumn
             {
@@ -237,10 +213,7 @@ namespace GestionFacturas.Formularios
         /// Crea una columna numérica (formato "N2", alineada a la
         /// derecha) para el grid de detalle.
         /// </summary>
-        private DataGridViewTextBoxColumn CrearColumnaDecimal(
-            string nombre,
-            string titulo,
-            int ancho)
+        private DataGridViewTextBoxColumn CrearColumnaDecimal(string nombre, string titulo, int ancho)
         {
             var columna = new DataGridViewTextBoxColumn
             {
@@ -256,49 +229,40 @@ namespace GestionFacturas.Formularios
         }
 
         /// <summary>
-        /// Carga en el combo de usuarios los usuarios activos más la
-        /// opción "Sin asignar" (IdUsuario = 0).
+        /// Carga en el combo de proyectos los proyectos activos.
         /// </summary>
-        private void CargarUsuarios()
+        private void CargarProyectos()
         {
             try
             {
-                List<Usuario> usuarios = usuarioRepositorio.ObtenerActivos();
+                List<Proyecto> proyectos = proyectoRepositorio.ObtenerActivos();
 
-                usuarios.Insert(0, new Usuario
-                {
-                    IdUsuario = 0,
-                    UsuarioLogin = "",
-                    Nombre = "Sin asignar"
-                });
-
-                cboUsuario.DataSource = usuarios;
-                cboUsuario.DisplayMember = "Nombre";
-                cboUsuario.ValueMember = "IdUsuario";
-                cboUsuario.SelectedIndex = 0;
+                cboProyecto.DataSource = proyectos;
+                cboProyecto.DisplayMember = "Descripcion";
+                cboProyecto.ValueMember = "Id";
+                cboProyecto.SelectedIndex = -1;
             }
             catch (Exception ex)
             {
                 Dialogos.MostrarError(
-                    "FrmRegistrarTarea.CargarUsuarios",
-                    "No se han podido cargar los usuarios.",
+                    "FrmRegistrarTarea.CargarProyectos",
+                    "No se han podido cargar los proyectos.",
                     ex);
             }
         }
 
         /// <summary>
-        /// Carga en el combo de segmentos todos los segmentos de
-        /// negocio disponibles, sin ninguno preseleccionado.
+        /// Carga en el combo de segmentos los segmentos activos.
         /// </summary>
         private void CargarSegmentos()
         {
             try
             {
-                List<Segmento> segmentos = segmentoRepositorio.ObtenerTodos();
+                List<Segmento> segmentos = segmentoRepositorio.ObtenerActivos();
 
                 cboSegmento.DataSource = segmentos;
-                cboSegmento.DisplayMember = "Nombre";
-                cboSegmento.ValueMember = "IdSegmento";
+                cboSegmento.DisplayMember = "Descripcion";
+                cboSegmento.ValueMember = "Id";
                 cboSegmento.SelectedIndex = -1;
             }
             catch (Exception ex)
@@ -340,9 +304,9 @@ namespace GestionFacturas.Formularios
 
         /// <summary>
         /// Valida que los campos obligatorios de cabecera (Documento,
-        /// Sociedad, Proyecto y Segmento) estén informados. Si falta
-        /// alguno, muestra un aviso, pone el foco en el campo y
-        /// devuelve false.
+        /// Organización de Ventas, Proyecto y Segmento) estén
+        /// informados. Si falta alguno, muestra un aviso, pone el
+        /// foco en el campo y devuelve false.
         /// </summary>
         private bool ValidarDatos()
         {
@@ -355,20 +319,20 @@ namespace GestionFacturas.Formularios
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(txtSociedad.Text))
+            if (string.IsNullOrWhiteSpace(txtOrgVentas.Text))
             {
-                Dialogos.MostrarAviso("Debe introducir la Sociedad.", "Validación");
+                Dialogos.MostrarAviso("Debe introducir la Organización de Ventas.", "Validación");
 
-                txtSociedad.Focus();
+                txtOrgVentas.Focus();
 
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(txtProyecto.Text))
+            if (cboProyecto.SelectedIndex == -1 || cboProyecto.SelectedValue == null)
             {
-                Dialogos.MostrarAviso("Debe introducir el Proyecto.", "Validación");
+                Dialogos.MostrarAviso("Debe seleccionar un Proyecto.", "Validación");
 
-                txtProyecto.Focus();
+                cboProyecto.Focus();
 
                 return false;
             }
@@ -387,9 +351,7 @@ namespace GestionFacturas.Formularios
             if (!string.IsNullOrWhiteSpace(txtImporteEstimado.Text) &&
                 !IntentarObtenerDecimal(txtImporteEstimado.Text, out importeEstimado))
             {
-                Dialogos.MostrarAviso(
-                    "El Importe Estimado no es un número válido.",
-                    "Validación");
+                Dialogos.MostrarAviso("El Importe Estimado no es un número válido.", "Validación");
 
                 txtImporteEstimado.Focus();
 
@@ -405,10 +367,7 @@ namespace GestionFacturas.Formularios
         /// <summary>
         /// Comprueba que, en las filas del detalle que no estén
         /// completamente vacías, la columna "Unidades" (si está
-        /// informada) contenga un número válido. Antes, un valor no
-        /// numérico se descartaba en silencio y se grababa como
-        /// vacío; ahora se avisa y se bloquea el guardado hasta que
-        /// se corrija.
+        /// informada) contenga un número válido.
         /// </summary>
         private bool ValidarUnidadesDetalle()
         {
@@ -444,34 +403,31 @@ namespace GestionFacturas.Formularios
         /// <summary>
         /// Construye la cabecera y el detalle a partir de los
         /// controles de pantalla y delega en el repositorio la
-        /// inserción (tarea nueva) o actualización (edición) de la
-        /// factura, dentro de una única transacción.
+        /// inserción (tarea nueva) o actualización (edición).
         /// </summary>
         private void GrabarTarea()
         {
             try
             {
-                Factura factura = ConstruirFacturaDesdeFormulario();
-                List<DetalleFactura> detalles = ObtenerDetallesDesdeGrid();
+                Tarea tarea = ConstruirTareaDesdeFormulario();
+                List<DetalleTarea> detalles = ObtenerDetallesDesdeGrid();
 
-                if (registroEdicion == 0)
+                if (idTareaEdicion == 0)
                 {
-                    int nuevoRegistro = facturaRepositorio.Insertar(factura, detalles);
+                    int nuevoId = tareaRepositorio.Insertar(tarea, detalles);
 
                     Dialogos.MostrarInformacion(
-                        "La tarea se ha grabado correctamente.\n\n" +
-                        "Registro: " + nuevoRegistro,
+                        "La tarea se ha registrado correctamente.",
                         "Grabación correcta");
                 }
                 else
                 {
-                    factura.Registro = registroEdicion;
+                    tarea.Id = idTareaEdicion;
 
-                    facturaRepositorio.Actualizar(factura, detalles);
+                    tareaRepositorio.Actualizar(tarea, detalles);
 
                     Dialogos.MostrarInformacion(
-                        "La tarea se ha actualizado correctamente.\n\n" +
-                        "Registro: " + registroEdicion,
+                        "La tarea se ha actualizado correctamente.",
                         "Grabación correcta");
                 }
 
@@ -488,50 +444,35 @@ namespace GestionFacturas.Formularios
         }
 
         /// <summary>
-        /// Construye el objeto <see cref="Factura"/> de cabecera a
+        /// Construye el objeto <see cref="Tarea"/> de cabecera a
         /// partir del estado actual de los controles del formulario.
-        /// El importe estimado se deja sin informar si el texto
-        /// introducido no es un número válido.
         /// </summary>
-        private Factura ConstruirFacturaDesdeFormulario()
+        private Tarea ConstruirTareaDesdeFormulario()
         {
             decimal importeEstimado;
 
-            bool importeValido = IntentarObtenerDecimal(
-                txtImporteEstimado.Text,
-                out importeEstimado);
+            bool importeValido = IntentarObtenerDecimal(txtImporteEstimado.Text, out importeEstimado);
 
-            int? idUsuario = null;
-
-            if (cboUsuario.SelectedValue != null &&
-                Convert.ToInt32(cboUsuario.SelectedValue) != 0)
-            {
-                idUsuario = Convert.ToInt32(cboUsuario.SelectedValue);
-            }
-
-            return new Factura
+            return new Tarea
             {
                 Documento = txtDocumento.Text.Trim(),
                 FechaEntradaCalidad = dtpFEntCalidad.Value.Date,
                 FechaRegistro = dtpFRegistro.Value.Date,
-                Sociedad = txtSociedad.Text.Trim(),
-                Proyecto = txtProyecto.Text.Trim(),
-                ImporteEstimado = importeValido ? (decimal?)importeEstimado : null,
-                IdUsuarioAsignado = idUsuario,
-                IdSegmento = Convert.ToInt32(cboSegmento.SelectedValue)
+                OrganizacionVentas = txtOrgVentas.Text.Trim(),
+                IdProyecto = Convert.ToInt32(cboProyecto.SelectedValue),
+                IdSegmento = Convert.ToInt32(cboSegmento.SelectedValue),
+                ImporteEstimado = importeValido ? (decimal?)importeEstimado : null
             };
         }
 
         /// <summary>
         /// Recorre las filas del grid de detalle (excluyendo la fila
         /// vacía de nueva entrada) y las convierte en objetos
-        /// <see cref="DetalleFactura"/>. Las filas completamente
-        /// vacías se conservan aquí y se filtran más adelante en el
-        /// repositorio antes de insertarlas.
+        /// <see cref="DetalleTarea"/>.
         /// </summary>
-        private List<DetalleFactura> ObtenerDetallesDesdeGrid()
+        private List<DetalleTarea> ObtenerDetallesDesdeGrid()
         {
-            List<DetalleFactura> detalles = new List<DetalleFactura>();
+            List<DetalleTarea> detalles = new List<DetalleTarea>();
 
             foreach (DataGridViewRow fila in dgvDetalle.Rows)
             {
@@ -541,17 +482,15 @@ namespace GestionFacturas.Formularios
                 decimal unidades;
 
                 bool unidadesValidas = IntentarObtenerDecimal(
-                    ObtenerTextoCelda(fila, "Unidades"),
-                    out unidades);
+                    ObtenerTextoCelda(fila, "Unidades"), out unidades);
 
-                detalles.Add(new DetalleFactura
+                detalles.Add(new DetalleTarea
                 {
-                    RC = ObtenerTextoCelda(fila, "RC"),
-                    Unidades = unidadesValidas ? (decimal?)unidades : null,
-                    PInspeccion = ObtenerTextoCelda(fila, "PInspeccion"),
-                    PCompra = ObtenerTextoCelda(fila, "PCompra"),
-                    PVenta = ObtenerTextoCelda(fila, "PVenta"),
-                    Albaran = ObtenerTextoCelda(fila, "Albaran")
+                    PedidoVenta = ObtenerTextoCelda(fila, "PedidoVenta"),
+                    PedidoCompra = ObtenerTextoCelda(fila, "PedidoCompra"),
+                    PedidoInspeccion = ObtenerTextoCelda(fila, "PedidoInspeccion"),
+                    EntidadEntrega = ObtenerTextoCelda(fila, "EntidadEntrega"),
+                    Unidades = unidadesValidas ? (decimal?)unidades : null
                 });
             }
 
@@ -579,11 +518,7 @@ namespace GestionFacturas.Formularios
         /// </summary>
         private bool IntentarObtenerDecimal(string texto, out decimal valor)
         {
-            return decimal.TryParse(
-                texto,
-                NumberStyles.Number,
-                CulturaDecimal,
-                out valor);
+            return decimal.TryParse(texto, NumberStyles.Number, CulturaDecimal, out valor);
         }
 
         /// <summary>
@@ -602,36 +537,35 @@ namespace GestionFacturas.Formularios
 
         /// <summary>
         /// Carga en pantalla los datos de cabecera y detalle de la
-        /// factura indicada. Si no se encuentra, muestra un aviso y
+        /// tarea indicada. Si no se encuentra, muestra un aviso y
         /// deja el formulario sin rellenar.
         /// </summary>
-        private void CargarTarea(int registro)
+        private void CargarTarea(int idTarea)
         {
             try
             {
-                Factura factura = facturaRepositorio.ObtenerPorRegistro(registro);
+                Tarea tarea = tareaRepositorio.ObtenerPorId(idTarea);
 
-                if (factura == null)
+                if (tarea == null)
                 {
                     Dialogos.MostrarAviso("No se ha encontrado la tarea.", "Error");
 
                     return;
                 }
 
-                txtDocumento.Text = factura.Documento;
-                dtpFEntCalidad.Value = factura.FechaEntradaCalidad;
-                dtpFRegistro.Value = factura.FechaRegistro;
-                txtSociedad.Text = factura.Sociedad;
-                txtProyecto.Text = factura.Proyecto;
+                txtDocumento.Text = tarea.Documento;
+                dtpFEntCalidad.Value = tarea.FechaEntradaCalidad;
+                dtpFRegistro.Value = tarea.FechaRegistro;
+                txtOrgVentas.Text = tarea.OrganizacionVentas;
 
-                txtImporteEstimado.Text = factura.ImporteEstimado.HasValue
-                    ? factura.ImporteEstimado.Value.ToString("N2", CulturaDecimal)
+                txtImporteEstimado.Text = tarea.ImporteEstimado.HasValue
+                    ? tarea.ImporteEstimado.Value.ToString("N2", CulturaDecimal)
                     : string.Empty;
 
-                cboUsuario.SelectedValue = factura.IdUsuarioAsignado ?? 0;
-                cboSegmento.SelectedValue = factura.IdSegmento;
+                cboProyecto.SelectedValue = tarea.IdProyecto;
+                cboSegmento.SelectedValue = tarea.IdSegmento;
 
-                List<DetalleFactura> detalles = facturaRepositorio.ObtenerDetalle(registro);
+                List<DetalleTarea> detalles = tareaRepositorio.ObtenerDetalle(idTarea);
 
                 CargarDetalleEnGrid(detalles);
             }
@@ -648,18 +582,17 @@ namespace GestionFacturas.Formularios
         /// Vuelca en el grid de detalle la lista de líneas obtenida
         /// del repositorio, añadiendo una fila por cada línea.
         /// </summary>
-        private void CargarDetalleEnGrid(List<DetalleFactura> detalles)
+        private void CargarDetalleEnGrid(List<DetalleTarea> detalles)
         {
-            foreach (DetalleFactura detalle in detalles)
+            foreach (DetalleTarea detalle in detalles)
             {
                 int fila = dgvDetalle.Rows.Add();
 
-                dgvDetalle.Rows[fila].Cells["RC"].Value = detalle.RC;
+                dgvDetalle.Rows[fila].Cells["PedidoVenta"].Value = detalle.PedidoVenta;
+                dgvDetalle.Rows[fila].Cells["PedidoCompra"].Value = detalle.PedidoCompra;
+                dgvDetalle.Rows[fila].Cells["PedidoInspeccion"].Value = detalle.PedidoInspeccion;
+                dgvDetalle.Rows[fila].Cells["EntidadEntrega"].Value = detalle.EntidadEntrega;
                 dgvDetalle.Rows[fila].Cells["Unidades"].Value = detalle.Unidades;
-                dgvDetalle.Rows[fila].Cells["PInspeccion"].Value = detalle.PInspeccion;
-                dgvDetalle.Rows[fila].Cells["PCompra"].Value = detalle.PCompra;
-                dgvDetalle.Rows[fila].Cells["PVenta"].Value = detalle.PVenta;
-                dgvDetalle.Rows[fila].Cells["Albaran"].Value = detalle.Albaran;
             }
         }
 

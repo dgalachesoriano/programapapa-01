@@ -6,26 +6,25 @@ using GestionFacturas.Modelos;
 namespace GestionFacturas.Datos
 {
     /// <summary>
-    /// Acceso a datos para los usuarios que pueden tener tareas
-    /// asignadas (tabla TBL_USUARIOS).
+    /// Acceso a datos para las divisas (tabla TBL_DIVISAS).
     /// </summary>
-    internal class UsuarioRepositorio
+    internal class DivisaRepositorio
     {
         /// <summary>
-        /// Obtiene los usuarios activos (XTI_ACTIVO = 'S'), ordenados
-        /// alfabéticamente por nombre.
+        /// Obtiene las divisas activas (XTI_ACTIVO = 'S'), ordenadas
+        /// alfabéticamente por código.
         /// </summary>
-        public List<Usuario> ObtenerActivos()
+        public List<Divisa> ObtenerActivas()
         {
-            List<Usuario> usuarios = new List<Usuario>();
+            List<Divisa> divisas = new List<Divisa>();
 
             const string sql = @"
                 SELECT
                     ID,
-                    NOMBRE
-                FROM dbo.TBL_USUARIOS
+                    COD_DIV
+                FROM dbo.TBL_DIVISAS
                 WHERE XTI_ACTIVO = 'S'
-                ORDER BY NOMBRE;";
+                ORDER BY COD_DIV;";
 
             using (SqlConnection conexion = ConexionBD.AbrirConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
@@ -33,16 +32,16 @@ namespace GestionFacturas.Datos
             {
                 while (lector.Read())
                 {
-                    usuarios.Add(new Usuario
+                    divisas.Add(new Divisa
                     {
                         Id = Convert.ToInt32(lector["ID"]),
-                        Nombre = lector["NOMBRE"].ToString(),
+                        Codigo = lector["COD_DIV"].ToString(),
                         Activo = true
                     });
                 }
             }
 
-            return usuarios;
+            return divisas;
         }
     }
 }

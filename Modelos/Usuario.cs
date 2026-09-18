@@ -1,19 +1,22 @@
 namespace GestionFacturas.Modelos
 {
     /// <summary>
-    /// Representa un usuario al que se le pueden asignar facturas
-    /// (tabla Usuarios_Facturas).
+    /// Representa un usuario al que se le pueden asignar tareas
+    /// (tabla TBL_USUARIOS).
     /// </summary>
     internal class Usuario
     {
         /// <summary>Identificador del usuario en base de datos.</summary>
-        public int IdUsuario { get; set; }
+        public int Id { get; set; }
 
-        /// <summary>Login/usuario de acceso al sistema.</summary>
-        public string UsuarioLogin { get; set; }
-
-        /// <summary>Nombre completo mostrado en pantalla.</summary>
+        /// <summary>Nombre mostrado en pantalla.</summary>
         public string Nombre { get; set; }
+
+        /// <summary>
+        /// Indica si el usuario está activo (XTI_ACTIVO = 'S'). Solo
+        /// los usuarios activos son seleccionables en los combos.
+        /// </summary>
+        public bool Activo { get; set; }
 
         /// <summary>
         /// Devuelve el nombre del usuario. Los controles ComboBox

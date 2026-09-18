@@ -5,34 +5,42 @@ using GestionFacturas.Servicios;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace GestionFacturas
 {
     /// <summary>
-    /// Pantalla del "pool de tareas": permite consultar las facturas
-    /// pendientes filtrando por estado, proyecto, usuario asignado y
-    /// rango de fechas de registro, ver el detalle de cada una, y
-    /// asignar (o desasignar) de una sola vez el usuario responsable
-    /// de una o varias tareas seleccionadas.
+    /// Pantalla del "pool de tareas": permite consultar las tareas
+    /// filtrando por estado, usuario asignado y rango de fechas de
+    /// registro, ver el detalle de cada una, asignar (paso 2 del
+    /// flujo: pasa a estado "En Proceso") de una sola vez el usuario
+    /// responsable de una o varias tareas seleccionadas, y bloquear
+    /// tareas (pasa a estado "Bloqueado") indicando un motivo
+    /// obligatorio de una lista.
     /// </summary>
     public partial class FrmPoolTareas : Form
     {
-        private readonly EstadoFacturaRepositorio estadoRepositorio =
-            new EstadoFacturaRepositorio();
-
-        private readonly UsuarioRepositorio usuarioRepositorio =
-            new UsuarioRepositorio();
-
-        private readonly FacturaRepositorio facturaRepositorio =
-            new FacturaRepositorio();
+        private readonly EstadoTareaRepositorio estadoRepositorio = new EstadoTareaRepositorio();
+        private readonly UsuarioRepositorio usuarioRepositorio = new UsuarioRepositorio();
+        private readonly TareaRepositorio tareaRepositorio = new TareaRepositorio();
 
         /// <summary>
         /// Valor usado en los combos de filtro para representar "no
-        /// filtrar por este campo" (Estado/Usuario) y, en el combo de
-        /// asignación, para representar "Sin asignar".
+        /// filtrar por este campo" (Estado/Usuario).
         /// </summary>
         private const int IdTodos = 0;
+
+        /// <summary>
+        /// Colores pastel de fondo para las filas de la rejilla de
+        /// tareas, según su estado (columna DES_ESTADO). Los nombres
+        /// de estado coinciden con los sembrados en
+        /// ScriptsBBDD/v2/02_DatosIniciales.sql.
+        /// </summary>
+        private static readonly Color ColorRegistrado = Color.FromArgb(224, 224, 224);
+        private static readonly Color ColorEnProceso = Color.FromArgb(187, 222, 251);
+        private static readonly Color ColorBloqueado = Color.FromArgb(255, 205, 210);
+        private static readonly Color ColorFacturado = Color.FromArgb(200, 230, 201);
 
         public FrmPoolTareas()
         {
@@ -40,47 +48,67 @@ namespace GestionFacturas
 
             ConfigurarGrids();
             CargarFiltroEstados();
-            CargarFiltroProyectos();
             CargarFiltroUsuarios();
             CargarUsuarioAsignado();
-            CargarNuevoEstado();
 
             BuscarTareas();
         }
 
         /// <summary>
         /// Configura el comportamiento general de las dos rejillas:
-        /// tareas (selección múltiple, para poder asignar varias de
-        /// golpe) y detalle (solo lectura, siempre de una tarea).
+        /// tareas (selección múltiple, para poder asignar o bloquear
+        /// varias de golpe) y detalle (solo lectura, siempre de una
+        /// tarea).
         /// </summary>
         private void ConfigurarGrids()
         {
             dgvTareas.AutoGenerateColumns = true;
             dgvTareas.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
+            // El formato de columnas y el coloreado por estado se
+            // aplican aquí, tras que la rejilla termine de enlazar
+            // los datos (evento DataBindingComplete), en vez de justo
+            // después de asignar DataSource: si se hace justo después
+            // y la rejilla todavía no tiene ventana creada (p. ej. la
+            // primera búsqueda, lanzada desde el propio constructor
+            // antes de mostrar el formulario), sus filas aún no
+            // existen de verdad y no hay nada que colorear.
+            dgvTareas.DataBindingComplete += dgvTareas_DataBindingComplete;
+
             dgvDetalle.AutoGenerateColumns = true;
             dgvDetalle.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
         /// <summary>
+        /// Una vez la rejilla de tareas ha terminado de enlazar sus
+        /// datos, aplica el formato de columnas y el coloreado por
+        /// estado. Se dispara tanto en la carga inicial como en cada
+        /// búsqueda posterior.
+        /// </summary>
+        private void dgvTareas_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            FormateadorGridTareas.AplicarFormato(dgvTareas);
+
+            ColorearFilasPorEstado();
+
+            AplicarEstiloSeleccion();
+        }
+
+        /// <summary>
         /// Carga en el combo de filtro de estados todos los estados
-        /// existentes más la opción "Todos" (IdEstado = 0).
+        /// activos más la opción "Todos" (Id = 0).
         /// </summary>
         private void CargarFiltroEstados()
         {
             try
             {
-                List<EstadoFactura> estados = estadoRepositorio.ObtenerTodos();
+                List<EstadoTarea> estados = estadoRepositorio.ObtenerActivos();
 
-                estados.Insert(0, new EstadoFactura
-                {
-                    IdEstado = IdTodos,
-                    Estado = "Todos"
-                });
+                estados.Insert(0, new EstadoTarea { Id = IdTodos, Descripcion = "Todos" });
 
                 cboFiltroEstado.DataSource = estados;
-                cboFiltroEstado.DisplayMember = "Estado";
-                cboFiltroEstado.ValueMember = "IdEstado";
+                cboFiltroEstado.DisplayMember = "Descripcion";
+                cboFiltroEstado.ValueMember = "Id";
                 cboFiltroEstado.SelectedIndex = 0;
             }
             catch (Exception ex)
@@ -93,34 +121,8 @@ namespace GestionFacturas
         }
 
         /// <summary>
-        /// Carga en el combo de filtro de proyectos los nombres de
-        /// proyecto que ya tienen alguna factura registrada, más la
-        /// opción "Todos". No existe una tabla de proyectos propia:
-        /// se toman los valores distintos de Facturas.Proyecto.
-        /// </summary>
-        private void CargarFiltroProyectos()
-        {
-            try
-            {
-                List<string> proyectos = facturaRepositorio.ObtenerProyectosDistintos();
-
-                proyectos.Insert(0, "Todos");
-
-                cboFiltroProyecto.DataSource = proyectos;
-                cboFiltroProyecto.SelectedIndex = 0;
-            }
-            catch (Exception ex)
-            {
-                Dialogos.MostrarError(
-                    "FrmPoolTareas.CargarFiltroProyectos",
-                    "No se han podido cargar los proyectos.",
-                    ex);
-            }
-        }
-
-        /// <summary>
         /// Carga en el combo de filtro de usuarios los usuarios
-        /// activos más la opción "Todos" (IdUsuario = 0).
+        /// activos más la opción "Todos" (Id = 0).
         /// </summary>
         private void CargarFiltroUsuarios()
         {
@@ -128,15 +130,11 @@ namespace GestionFacturas
             {
                 List<Usuario> usuarios = usuarioRepositorio.ObtenerActivos();
 
-                usuarios.Insert(0, new Usuario
-                {
-                    IdUsuario = IdTodos,
-                    Nombre = "Todos"
-                });
+                usuarios.Insert(0, new Usuario { Id = IdTodos, Nombre = "Todos" });
 
                 cboFiltroUsuario.DataSource = usuarios;
                 cboFiltroUsuario.DisplayMember = "Nombre";
-                cboFiltroUsuario.ValueMember = "IdUsuario";
+                cboFiltroUsuario.ValueMember = "Id";
                 cboFiltroUsuario.SelectedIndex = 0;
             }
             catch (Exception ex)
@@ -150,8 +148,9 @@ namespace GestionFacturas
 
         /// <summary>
         /// Carga en el combo de usuario destino de la asignación los
-        /// usuarios activos más la opción "Sin asignar" (IdUsuario =
-        /// 0), que permite también desasignar tareas en bloque.
+        /// usuarios activos. A diferencia del filtro, aquí no hay
+        /// opción "Todos"/"Sin asignar": asignar una tarea siempre
+        /// implica elegir un usuario concreto.
         /// </summary>
         private void CargarUsuarioAsignado()
         {
@@ -159,17 +158,14 @@ namespace GestionFacturas
             {
                 List<Usuario> usuarios = usuarioRepositorio.ObtenerActivos();
 
-                usuarios.Insert(0, new Usuario
-                {
-                    IdUsuario = IdTodos,
-                    UsuarioLogin = "",
-                    Nombre = "Sin asignar"
-                });
-
                 cboUsuarioAsignado.DataSource = usuarios;
                 cboUsuarioAsignado.DisplayMember = "Nombre";
-                cboUsuarioAsignado.ValueMember = "IdUsuario";
-                cboUsuarioAsignado.SelectedIndex = 0;
+                cboUsuarioAsignado.ValueMember = "Id";
+
+                if (usuarios.Count > 0)
+                {
+                    cboUsuarioAsignado.SelectedIndex = 0;
+                }
             }
             catch (Exception ex)
             {
@@ -181,47 +177,15 @@ namespace GestionFacturas
         }
 
         /// <summary>
-        /// Carga en el combo de nuevo estado (usado para el cambio de
-        /// estado en bloque) todos los estados existentes, sin la
-        /// opción "Todos": aquí siempre hay que elegir un estado
-        /// concreto al que mover las tareas seleccionadas. No hay
-        /// restricción de transición: se permite pasar de cualquier
-        /// estado a cualquier otro.
-        /// </summary>
-        private void CargarNuevoEstado()
-        {
-            try
-            {
-                List<EstadoFactura> estados = estadoRepositorio.ObtenerTodos();
-
-                cboNuevoEstado.DataSource = estados;
-                cboNuevoEstado.DisplayMember = "Estado";
-                cboNuevoEstado.ValueMember = "IdEstado";
-
-                if (estados.Count > 0)
-                {
-                    cboNuevoEstado.SelectedIndex = 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                Dialogos.MostrarError(
-                    "FrmPoolTareas.CargarNuevoEstado",
-                    "No se han podido cargar los estados.",
-                    ex);
-            }
-        }
-
-        /// <summary>
         /// Construye el filtro a partir de los controles de pantalla,
-        /// busca las facturas correspondientes y las muestra en la
+        /// busca las tareas correspondientes y las muestra en la
         /// rejilla de tareas.
         /// </summary>
         private void BuscarTareas()
         {
             try
             {
-                FiltroBusquedaFacturas filtro = new FiltroBusquedaFacturas
+                FiltroBusquedaTareas filtro = new FiltroBusquedaTareas
                 {
                     IdEstado = cboFiltroEstado.SelectedValue != null
                         ? Convert.ToInt32(cboFiltroEstado.SelectedValue)
@@ -231,24 +195,16 @@ namespace GestionFacturas
                         ? Convert.ToInt32(cboFiltroUsuario.SelectedValue)
                         : IdTodos,
 
-                    Proyecto = cboFiltroProyecto.SelectedIndex > 0
-                        ? (cboFiltroProyecto.SelectedItem as string ?? string.Empty)
-                        : string.Empty,
-
-                    FechaDesde = dtpFechaDesde.Checked
-                        ? (DateTime?)dtpFechaDesde.Value.Date
-                        : null,
-
-                    FechaHasta = dtpFechaHasta.Checked
-                        ? (DateTime?)dtpFechaHasta.Value.Date
-                        : null
+                    FechaDesde = dtpFechaDesde.Checked ? (DateTime?)dtpFechaDesde.Value.Date : null,
+                    FechaHasta = dtpFechaHasta.Checked ? (DateTime?)dtpFechaHasta.Value.Date : null
                 };
 
-                DataTable resultado = facturaRepositorio.BuscarPorFiltro(filtro);
+                DataTable resultado = tareaRepositorio.BuscarPorFiltro(filtro);
 
+                // El formato de columnas y el coloreado por estado se
+                // aplican en el evento DataBindingComplete de
+                // dgvTareas (ver ConfigurarGrids), no aquí.
                 dgvTareas.DataSource = resultado;
-
-                FormateadorGridFacturas.AplicarFormato(dgvTareas);
             }
             catch (Exception ex)
             {
@@ -257,6 +213,100 @@ namespace GestionFacturas
                     "No se han podido buscar las tareas.",
                     ex);
             }
+        }
+
+        /// <summary>
+        /// Colorea el fondo de cada fila de la rejilla de tareas
+        /// según su estado actual (Registrado en gris, En Proceso en
+        /// azul, Bloqueado en rojo, Facturado en verde, todos en
+        /// tonos pastel), para poder distinguirlas de un vistazo.
+        /// </summary>
+        private void ColorearFilasPorEstado()
+        {
+            if (dgvTareas.Columns.Count == 0)
+                return;
+
+            foreach (DataGridViewRow fila in dgvTareas.Rows)
+            {
+                if (fila.Cells["DES_ESTADO"].Value == null)
+                    continue;
+
+                string estado = fila.Cells["DES_ESTADO"].Value.ToString();
+
+                fila.DefaultCellStyle.BackColor = ColorDeEstado(estado);
+            }
+        }
+
+        /// <summary>
+        /// Traduce el nombre de un estado al color pastel que le
+        /// corresponde en la rejilla. Devuelve el color de fondo por
+        /// defecto de la rejilla si el estado no es ninguno de los
+        /// cuatro conocidos.
+        /// </summary>
+        private Color ColorDeEstado(string estado)
+        {
+            switch (estado)
+            {
+                case "REGISTRADO":
+                    return ColorRegistrado;
+
+                case "EN_PROCESO":
+                    return ColorEnProceso;
+
+                case "BLOQUEADO":
+                    return ColorBloqueado;
+
+                case "FACTURADO":
+                    return ColorFacturado;
+
+                default:
+                    return dgvTareas.DefaultCellStyle.BackColor;
+            }
+        }
+
+        /// <summary>
+        /// Ajusta el color de selección de cada fila según cuántas
+        /// tareas haya seleccionadas: con una sola fila seleccionada,
+        /// se resalta con una versión más oscura de su propio color
+        /// de estado (en vez del azul de selección por defecto), para
+        /// que se siga viendo a qué estado pertenece; con selección
+        /// múltiple se mantiene el resaltado azul estándar, más fácil
+        /// de distinguir cuando hay varias filas marcadas a la vez.
+        /// </summary>
+        private void AplicarEstiloSeleccion()
+        {
+            bool seleccionUnica = dgvTareas.SelectedRows.Count == 1;
+
+            foreach (DataGridViewRow fila in dgvTareas.Rows)
+            {
+                if (seleccionUnica && fila.Selected)
+                {
+                    string estado = fila.Cells["DES_ESTADO"].Value == null
+                        ? null
+                        : fila.Cells["DES_ESTADO"].Value.ToString();
+
+                    fila.DefaultCellStyle.SelectionBackColor = Oscurecer(ColorDeEstado(estado), 0.75f);
+                    fila.DefaultCellStyle.SelectionForeColor = Color.Black;
+                }
+                else
+                {
+                    fila.DefaultCellStyle.SelectionBackColor = SystemColors.Highlight;
+                    fila.DefaultCellStyle.SelectionForeColor = SystemColors.HighlightText;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Oscurece un color multiplicando cada componente RGB por
+        /// <paramref name="factor"/> (p. ej. 0.75 = un 25% más oscuro),
+        /// conservando su tonalidad.
+        /// </summary>
+        private Color Oscurecer(Color color, float factor)
+        {
+            return Color.FromArgb(
+                (int)(color.R * factor),
+                (int)(color.G * factor),
+                (int)(color.B * factor));
         }
 
         /// <summary>
@@ -269,34 +319,37 @@ namespace GestionFacturas
             if (dgvDetalle.Columns.Count == 0)
                 return;
 
-            dgvDetalle.Columns["RC"].HeaderText = "RC";
-            dgvDetalle.Columns["Unidades"].HeaderText = "Unidades";
-            dgvDetalle.Columns["PInspeccion"].HeaderText = "P. Inspección";
-            dgvDetalle.Columns["PCompra"].HeaderText = "P. Compra";
-            dgvDetalle.Columns["PVenta"].HeaderText = "P. Venta";
-            dgvDetalle.Columns["Albaran"].HeaderText = "Albarán";
+            dgvDetalle.Columns["DES_DOC"].HeaderText = "Documento";
+            dgvDetalle.Columns["COD_PED_VENTA"].HeaderText = "Pedido de Venta";
+            dgvDetalle.Columns["COD_PED_COMPRA"].HeaderText = "Pedido de Compra";
+            dgvDetalle.Columns["COD_PED_INSPEC"].HeaderText = "Pedido de Inspección";
+            dgvDetalle.Columns["COD_ENT_ENTR"].HeaderText = "Entidad de Entrega";
+            dgvDetalle.Columns["NBR_UNIDADES"].HeaderText = "Unidades";
         }
 
         /// <summary>
-        /// Al cambiar la fila activa de la rejilla de tareas, carga
-        /// en la rejilla de detalle las líneas de la tarea
-        /// correspondiente. Si no hay ninguna fila activa (rejilla
-        /// vacía), limpia el detalle.
+        /// Al cambiar la selección de la rejilla de tareas, carga en
+        /// la rejilla de detalle las líneas de TODAS las tareas
+        /// seleccionadas (incluye la columna Documento para poder
+        /// distinguir a cuál pertenece cada línea cuando hay más de
+        /// una). Si no hay ninguna fila seleccionada, limpia el
+        /// detalle.
         /// </summary>
         private void dgvTareas_SelectionChanged(object sender, EventArgs e)
         {
-            if (dgvTareas.CurrentRow == null ||
-                dgvTareas.CurrentRow.Cells["Registro"].Value == null)
+            AplicarEstiloSeleccion();
+
+            List<int> idsSeleccionados = ObtenerIdsSeleccionados();
+
+            if (idsSeleccionados.Count == 0)
             {
                 dgvDetalle.DataSource = null;
                 return;
             }
 
-            int registro = Convert.ToInt32(dgvTareas.CurrentRow.Cells["Registro"].Value);
-
             try
             {
-                List<DetalleFactura> detalles = facturaRepositorio.ObtenerDetalle(registro);
+                DataTable detalles = tareaRepositorio.ObtenerDetalle(idsSeleccionados);
 
                 dgvDetalle.DataSource = detalles;
 
@@ -306,34 +359,34 @@ namespace GestionFacturas
             {
                 Dialogos.MostrarError(
                     "FrmPoolTareas.dgvTareas_SelectionChanged",
-                    "No se ha podido cargar el detalle de la tarea.",
+                    "No se ha podido cargar el detalle de las tareas seleccionadas.",
                     ex);
             }
         }
 
         /// <summary>
-        /// Obtiene, sin duplicados, los números de registro de las
-        /// filas actualmente seleccionadas en la rejilla de tareas.
+        /// Obtiene, sin duplicados, los identificadores de las filas
+        /// actualmente seleccionadas en la rejilla de tareas.
         /// </summary>
-        private List<int> ObtenerRegistrosSeleccionados()
+        private List<int> ObtenerIdsSeleccionados()
         {
-            List<int> registros = new List<int>();
+            List<int> ids = new List<int>();
             HashSet<int> vistos = new HashSet<int>();
 
             foreach (DataGridViewRow fila in dgvTareas.SelectedRows)
             {
-                if (fila.Cells["Registro"].Value == null)
+                if (fila.Cells["ID_TAREA"].Value == null)
                     continue;
 
-                int registro = Convert.ToInt32(fila.Cells["Registro"].Value);
+                int id = Convert.ToInt32(fila.Cells["ID_TAREA"].Value);
 
-                if (vistos.Add(registro))
+                if (vistos.Add(id))
                 {
-                    registros.Add(registro);
+                    ids.Add(id);
                 }
             }
 
-            return registros;
+            return ids;
         }
 
         /// <summary>
@@ -352,7 +405,6 @@ namespace GestionFacturas
         private void btnLimpiarFiltros_Click(object sender, EventArgs e)
         {
             cboFiltroEstado.SelectedIndex = 0;
-            cboFiltroProyecto.SelectedIndex = 0;
             cboFiltroUsuario.SelectedIndex = 0;
             dtpFechaDesde.Checked = false;
             dtpFechaHasta.Checked = false;
@@ -361,9 +413,7 @@ namespace GestionFacturas
         }
 
         /// <summary>
-        /// Vuelve a lanzar la búsqueda con los filtros actuales, por
-        /// ejemplo para refrescar la lista tras asignar tareas o si
-        /// otro usuario ha modificado datos entre tanto.
+        /// Vuelve a lanzar la búsqueda con los filtros actuales.
         /// </summary>
         private void btnActualizar_Click(object sender, EventArgs e)
         {
@@ -371,15 +421,15 @@ namespace GestionFacturas
         }
 
         /// <summary>
-        /// Asigna (o desasigna, si se elige "Sin asignar") de una
-        /// sola vez el usuario del combo de asignación a todas las
-        /// tareas seleccionadas en la rejilla, previa confirmación.
+        /// Asigna de una sola vez el usuario del combo de asignación
+        /// a todas las tareas seleccionadas en la rejilla (pasan a
+        /// estado "En Proceso"), previa confirmación.
         /// </summary>
         private void btnAsignarTarea_Click(object sender, EventArgs e)
         {
-            List<int> registros = ObtenerRegistrosSeleccionados();
+            List<int> ids = ObtenerIdsSeleccionados();
 
-            if (registros.Count == 0)
+            if (ids.Count == 0)
             {
                 Dialogos.MostrarInformacion(
                     "Seleccione al menos una tarea de la lista.",
@@ -391,26 +441,18 @@ namespace GestionFacturas
             if (cboUsuarioAsignado.SelectedValue == null)
                 return;
 
-            int idUsuarioSeleccionado = Convert.ToInt32(cboUsuarioAsignado.SelectedValue);
+            int idUsuario = Convert.ToInt32(cboUsuarioAsignado.SelectedValue);
 
-            int? idUsuario = idUsuarioSeleccionado == IdTodos
-                ? (int?)null
-                : idUsuarioSeleccionado;
-
-            string mensaje = idUsuario.HasValue
-                ? "¿Asignar " + registros.Count + " tarea(s) a '" + cboUsuarioAsignado.Text + "'?"
-                : "¿Quitar la asignación de " + registros.Count + " tarea(s)?";
+            string mensaje = "¿Asignar " + ids.Count + " tarea(s) a '" + cboUsuarioAsignado.Text + "'?";
 
             if (!Dialogos.Confirmar(mensaje, "Confirmar asignación"))
                 return;
 
             try
             {
-                facturaRepositorio.AsignarUsuario(registros, idUsuario);
+                tareaRepositorio.AsignarUsuario(ids, idUsuario);
 
-                Dialogos.MostrarInformacion(
-                    "Asignación realizada correctamente.",
-                    "Asignar tarea");
+                Dialogos.MostrarInformacion("Asignación realizada correctamente.", "Asignar tarea");
 
                 BuscarTareas();
             }
@@ -424,52 +466,126 @@ namespace GestionFacturas
         }
 
         /// <summary>
-        /// Cambia de una sola vez el estado del combo "Nuevo estado"
-        /// a todas las tareas seleccionadas en la rejilla, previa
-        /// confirmación. No hay restricción de transición: se admite
-        /// cualquier estado de origen y destino.
+        /// Bloquea de una sola vez todas las tareas seleccionadas en
+        /// la rejilla (pasan a estado "Bloqueado"), pidiendo primero
+        /// un motivo obligatorio de una lista desplegable.
         /// </summary>
-        private void btnCambiarEstado_Click(object sender, EventArgs e)
+        private void btnBloquearTarea_Click(object sender, EventArgs e)
         {
-            List<int> registros = ObtenerRegistrosSeleccionados();
+            List<int> ids = ObtenerIdsSeleccionados();
 
-            if (registros.Count == 0)
+            if (ids.Count == 0)
             {
                 Dialogos.MostrarInformacion(
                     "Seleccione al menos una tarea de la lista.",
-                    "Cambiar estado");
+                    "Bloquear tarea");
 
                 return;
             }
 
-            if (cboNuevoEstado.SelectedValue == null)
+            int idMotivo;
+
+            using (FrmSeleccionarMotivo formulario = new FrmSeleccionarMotivo())
+            {
+                if (formulario.ShowDialog() != DialogResult.OK)
+                    return;
+
+                idMotivo = formulario.IdMotivoSeleccionado;
+            }
+
+            if (!Dialogos.Confirmar(
+                "¿Bloquear " + ids.Count + " tarea(s)?",
+                "Confirmar bloqueo"))
+            {
                 return;
-
-            int idEstado = Convert.ToInt32(cboNuevoEstado.SelectedValue);
-
-            string mensaje = "¿Cambiar el estado de " + registros.Count + " tarea(s) a '" +
-                cboNuevoEstado.Text + "'?";
-
-            if (!Dialogos.Confirmar(mensaje, "Confirmar cambio de estado"))
-                return;
+            }
 
             try
             {
-                facturaRepositorio.CambiarEstado(registros, idEstado);
+                tareaRepositorio.Bloquear(ids, idMotivo);
 
-                Dialogos.MostrarInformacion(
-                    "Estado actualizado correctamente.",
-                    "Cambiar estado");
+                Dialogos.MostrarInformacion("Bloqueo realizado correctamente.", "Bloquear tarea");
 
                 BuscarTareas();
             }
             catch (Exception ex)
             {
                 Dialogos.MostrarError(
-                    "FrmPoolTareas.btnCambiarEstado_Click",
-                    "No se ha podido cambiar el estado.",
+                    "FrmPoolTareas.btnBloquearTarea_Click",
+                    "No se ha podido bloquear la tarea.",
                     ex);
             }
+        }
+
+        /// <summary>
+        /// Desbloquea de una sola vez todas las tareas seleccionadas
+        /// en la rejilla, devolviendo cada una al estado en que
+        /// estaba justo antes de bloquearse, previa confirmación.
+        /// Exige que todas las tareas seleccionadas estén actualmente
+        /// en estado Bloqueado.
+        /// </summary>
+        private void btnDesbloquearTarea_Click(object sender, EventArgs e)
+        {
+            List<int> ids = ObtenerIdsSeleccionados();
+
+            if (ids.Count == 0)
+            {
+                Dialogos.MostrarInformacion(
+                    "Seleccione al menos una tarea de la lista.",
+                    "Desbloquear tarea");
+
+                return;
+            }
+
+            if (!TodasLasSeleccionadasEnEstado("BLOQUEADO"))
+            {
+                Dialogos.MostrarAviso(
+                    "Solo se pueden desbloquear tareas que estén actualmente en estado Bloqueado.",
+                    "Desbloquear tarea");
+
+                return;
+            }
+
+            if (!Dialogos.Confirmar(
+                "¿Desbloquear " + ids.Count + " tarea(s) y devolverla(s) a su estado anterior?",
+                "Confirmar desbloqueo"))
+            {
+                return;
+            }
+
+            try
+            {
+                tareaRepositorio.Desbloquear(ids);
+
+                Dialogos.MostrarInformacion("Desbloqueo realizado correctamente.", "Desbloquear tarea");
+
+                BuscarTareas();
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.btnDesbloquearTarea_Click",
+                    "No se ha podido desbloquear la tarea.",
+                    ex);
+            }
+        }
+
+        /// <summary>
+        /// Comprueba que todas las filas actualmente seleccionadas en
+        /// la rejilla de tareas tengan el estado indicado.
+        /// </summary>
+        private bool TodasLasSeleccionadasEnEstado(string estado)
+        {
+            foreach (DataGridViewRow fila in dgvTareas.SelectedRows)
+            {
+                if (fila.Cells["DES_ESTADO"].Value == null ||
+                    fila.Cells["DES_ESTADO"].Value.ToString() != estado)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -486,10 +602,9 @@ namespace GestionFacturas
                 return;
             }
 
-            int registro = Convert.ToInt32(
-                dgvTareas.CurrentRow.Cells["Registro"].Value);
+            int idTarea = Convert.ToInt32(dgvTareas.CurrentRow.Cells["ID_TAREA"].Value);
 
-            using (FrmRegistrarTarea formulario = new FrmRegistrarTarea(registro))
+            using (FrmRegistrarTarea formulario = new FrmRegistrarTarea(idTarea))
             {
                 formulario.ShowDialog();
             }

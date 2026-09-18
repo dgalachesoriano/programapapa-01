@@ -36,12 +36,12 @@ namespace GestionFacturas
         }
 
         /// <summary>
-        /// Abre, como diálogo modal, la pantalla de búsqueda y
-        /// tratamiento de tareas existentes.
+        /// Abre, como diálogo modal, la pantalla de facturación
+        /// (paso 3 del flujo).
         /// </summary>
-        private void tratarRegistroToolStripMenuItem_Click(object sender, EventArgs e)
+        private void facturarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FrmTratarTarea formulario = new FrmTratarTarea();
+            FrmFacturar formulario = new FrmFacturar();
 
             formulario.ShowDialog();
         }

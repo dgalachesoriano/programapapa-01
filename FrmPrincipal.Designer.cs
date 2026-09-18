@@ -33,8 +33,8 @@
             this.salirDeLaAplicaciónToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tareasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.registrarTareaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tratarRegistroToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.poolDeTareasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.facturarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.datosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.consultasSQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.informesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -74,32 +74,32 @@
             // 
             this.tareasToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.registrarTareaToolStripMenuItem,
-            this.tratarRegistroToolStripMenuItem,
-            this.poolDeTareasToolStripMenuItem});
+            this.poolDeTareasToolStripMenuItem,
+            this.facturarToolStripMenuItem});
             this.tareasToolStripMenuItem.Name = "tareasToolStripMenuItem";
             this.tareasToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.tareasToolStripMenuItem.Text = "Tareas";
-            // 
+            //
             // registrarTareaToolStripMenuItem
-            // 
+            //
             this.registrarTareaToolStripMenuItem.Name = "registrarTareaToolStripMenuItem";
             this.registrarTareaToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.registrarTareaToolStripMenuItem.Text = "Registrar Tarea";
             this.registrarTareaToolStripMenuItem.Click += new System.EventHandler(this.registrarTareaToolStripMenuItem_Click);
-            // 
-            // tratarRegistroToolStripMenuItem
-            // 
-            this.tratarRegistroToolStripMenuItem.Name = "tratarRegistroToolStripMenuItem";
-            this.tratarRegistroToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.tratarRegistroToolStripMenuItem.Text = "Tratar Registro";
-            this.tratarRegistroToolStripMenuItem.Click += new System.EventHandler(this.tratarRegistroToolStripMenuItem_Click);
-            // 
+            //
             // poolDeTareasToolStripMenuItem
-            // 
+            //
             this.poolDeTareasToolStripMenuItem.Name = "poolDeTareasToolStripMenuItem";
             this.poolDeTareasToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.poolDeTareasToolStripMenuItem.Text = "Pool de Tareas";
             this.poolDeTareasToolStripMenuItem.Click += new System.EventHandler(this.poolDeTareasToolStripMenuItem_Click);
+            //
+            // facturarToolStripMenuItem
+            //
+            this.facturarToolStripMenuItem.Name = "facturarToolStripMenuItem";
+            this.facturarToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.facturarToolStripMenuItem.Text = "Facturar";
+            this.facturarToolStripMenuItem.Click += new System.EventHandler(this.facturarToolStripMenuItem_Click);
             // 
             // datosToolStripMenuItem
             // 
@@ -155,8 +155,8 @@
         private System.Windows.Forms.ToolStripMenuItem salirDeLaAplicaciónToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tareasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem registrarTareaToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem tratarRegistroToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem poolDeTareasToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem facturarToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem datosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem consultasSQLToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem informesToolStripMenuItem;

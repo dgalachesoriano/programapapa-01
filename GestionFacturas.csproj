@@ -49,15 +49,32 @@
   <ItemGroup>
     <Compile Include="Datos\ConexionBD.cs" />
     <Compile Include="Datos\ConexionBDException.cs" />
-    <Compile Include="Datos\EstadoFacturaRepositorio.cs" />
-    <Compile Include="Datos\UsuarioRepositorio.cs" />
+    <Compile Include="Datos\DivisaRepositorio.cs" />
+    <Compile Include="Datos\EstadoTareaRepositorio.cs" />
+    <Compile Include="Datos\FacturadoRepositorio.cs" />
+    <Compile Include="Datos\MotivoRepositorio.cs" />
+    <Compile Include="Datos\ProyectoRepositorio.cs" />
     <Compile Include="Datos\SegmentoRepositorio.cs" />
-    <Compile Include="Datos\FacturaRepositorio.cs" />
+    <Compile Include="Datos\TareaRepositorio.cs" />
+    <Compile Include="Datos\TipoFacturaRepositorio.cs" />
+    <Compile Include="Datos\UsuarioRepositorio.cs" />
+    <Compile Include="Formularios\FrmFacturar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmFacturar.Designer.cs">
+      <DependentUpon>FrmFacturar.cs</DependentUpon>
+    </Compile>
     <Compile Include="Formularios\FrmRegistrarTarea.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Formularios\FrmRegistrarTarea.Designer.cs">
       <DependentUpon>FrmRegistrarTarea.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmSeleccionarMotivo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmSeleccionarMotivo.Designer.cs">
+      <DependentUpon>FrmSeleccionarMotivo.cs</DependentUpon>
     </Compile>
     <Compile Include="FrmPoolTareas.cs">
       <SubType>Form</SubType>
@@ -71,20 +88,19 @@
     <Compile Include="FrmPrincipal.Designer.cs">
       <DependentUpon>FrmPrincipal.cs</DependentUpon>
     </Compile>
-    <Compile Include="FrmTratarTarea.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FrmTratarTarea.Designer.cs">
-      <DependentUpon>FrmTratarTarea.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Modelos\Divisa.cs" />
+    <Compile Include="Modelos\DetalleTarea.cs" />
+    <Compile Include="Modelos\EstadoTarea.cs" />
+    <Compile Include="Modelos\Facturado.cs" />
+    <Compile Include="Modelos\FiltroBusquedaTareas.cs" />
+    <Compile Include="Modelos\Motivo.cs" />
+    <Compile Include="Modelos\Proyecto.cs" />
     <Compile Include="Modelos\Segmento.cs" />
+    <Compile Include="Modelos\Tarea.cs" />
+    <Compile Include="Modelos\TipoFactura.cs" />
     <Compile Include="Modelos\Usuario.cs" />
-    <Compile Include="Modelos\EstadoFactura.cs" />
-    <Compile Include="Modelos\Factura.cs" />
-    <Compile Include="Modelos\DetalleFactura.cs" />
-    <Compile Include="Modelos\FiltroBusquedaFacturas.cs" />
     <Compile Include="Servicios\Dialogos.cs" />
-    <Compile Include="Servicios\FormateadorGridFacturas.cs" />
+    <Compile Include="Servicios\FormateadorGridTareas.cs" />
     <Compile Include="Servicios\PegadoPortapapelesServicio.cs" />
     <Compile Include="Servicios\RegistradorErrores.cs" />
     <Compile Include="Servicios\ResultadoPegadoPortapapeles.cs" />
@@ -98,9 +114,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmPrincipal.resx">
       <DependentUpon>FrmPrincipal.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FrmTratarTarea.resx">
-      <DependentUpon>FrmTratarTarea.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

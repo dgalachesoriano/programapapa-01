@@ -6,26 +6,25 @@ using GestionFacturas.Modelos;
 namespace GestionFacturas.Datos
 {
     /// <summary>
-    /// Acceso a datos para los usuarios que pueden tener tareas
-    /// asignadas (tabla TBL_USUARIOS).
+    /// Acceso a datos para los proyectos (tabla TBL_PROYECTOS).
     /// </summary>
-    internal class UsuarioRepositorio
+    internal class ProyectoRepositorio
     {
         /// <summary>
-        /// Obtiene los usuarios activos (XTI_ACTIVO = 'S'), ordenados
-        /// alfabéticamente por nombre.
+        /// Obtiene los proyectos activos (XTI_ACTIVO = 'S'), ordenados
+        /// alfabéticamente por descripción.
         /// </summary>
-        public List<Usuario> ObtenerActivos()
+        public List<Proyecto> ObtenerActivos()
         {
-            List<Usuario> usuarios = new List<Usuario>();
+            List<Proyecto> proyectos = new List<Proyecto>();
 
             const string sql = @"
                 SELECT
                     ID,
-                    NOMBRE
-                FROM dbo.TBL_USUARIOS
+                    DES_PROYECTO
+                FROM dbo.TBL_PROYECTOS
                 WHERE XTI_ACTIVO = 'S'
-                ORDER BY NOMBRE;";
+                ORDER BY DES_PROYECTO;";
 
             using (SqlConnection conexion = ConexionBD.AbrirConexion())
             using (SqlCommand comando = new SqlCommand(sql, conexion))
@@ -33,16 +32,16 @@ namespace GestionFacturas.Datos
             {
                 while (lector.Read())
                 {
-                    usuarios.Add(new Usuario
+                    proyectos.Add(new Proyecto
                     {
                         Id = Convert.ToInt32(lector["ID"]),
-                        Nombre = lector["NOMBRE"].ToString(),
+                        Descripcion = lector["DES_PROYECTO"].ToString(),
                         Activo = true
                     });
                 }
             }
 
-            return usuarios;
+            return proyectos;
         }
     }
 }
