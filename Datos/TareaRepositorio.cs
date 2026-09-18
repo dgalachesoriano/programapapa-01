@@ -15,29 +15,19 @@ namespace GestionFacturas.Datos
     /// </summary>
     internal class TareaRepositorio
     {
-        private readonly EstadoTareaRepositorio estadoRepositorio = new EstadoTareaRepositorio();
         private readonly FacturadoRepositorio facturadoRepositorio = new FacturadoRepositorio();
-
-        /// <summary>Nombre del estado inicial que recibe toda tarea nueva.</summary>
-        private const string EstadoRegistrado = "REGISTRADO";
-
-        /// <summary>Nombre del estado tras asignar usuario.</summary>
-        private const string EstadoEnProceso = "EN_PROCESO";
-
-        /// <summary>Nombre del estado tras bloquear la tarea.</summary>
-        private const string EstadoBloqueado = "BLOQUEADO";
-
-        /// <summary>Nombre del estado tras facturar la tarea.</summary>
-        private const string EstadoFacturado = "FACTURADO";
 
         /// <summary>
         /// Busca tareas aplicando el filtro indicado sobre
         /// VW_TAREAS_ESTADO_ACTUAL (estado/usuario/fechas actuales de
         /// cada tarea) y devuelve el resultado como DataTable, listo
         /// para enlazar directamente a un DataGridView. Incluye
-        /// ID_TAREA para que la pantalla pueda identificar la fila
-        /// seleccionada, aunque esa columna se oculta siempre en el
-        /// grid (ver Servicios/FormateadorGridTareas).
+        /// ID_TAREA, COD_SEQ_EST y COD_SEQ_USER para que la pantalla
+        /// pueda identificar la fila seleccionada, su estado y su
+        /// usuario asignado por ID (no por texto: ver
+        /// Datos/EstadosTareaConocidos.cs), aunque las tres columnas
+        /// se ocultan siempre en el grid (ver
+        /// Servicios/FormateadorGridTareas).
         /// </summary>
         public DataTable BuscarPorFiltro(FiltroBusquedaTareas filtro)
         {
@@ -53,7 +43,9 @@ namespace GestionFacturas.Datos
                     DES_PROYECTO,
                     DES_SEGMENTO,
                     IMP_ESTIMADO,
+                    COD_SEQ_EST,
                     DES_ESTADO,
+                    COD_SEQ_USER,
                     NOMBRE_USUARIO,
                     DES_MOTIVO
 
@@ -281,11 +273,9 @@ namespace GestionFacturas.Datos
 
                     InsertarDetalles(idTarea, detalles, conexion, transaccion);
 
-                    int idEstadoRegistrado = estadoRepositorio.ObtenerIdPorDescripcion(
-                        EstadoRegistrado, conexion, transaccion);
-
                     InsertarEventoControl(
-                        idTarea, idUsuario: null, idFacturado: null, idEstado: idEstadoRegistrado,
+                        idTarea, idUsuario: null, idFacturado: null,
+                        idEstado: EstadosTareaConocidos.Registrado,
                         idMotivo: null, conexion, transaccion);
 
                     transaccion.Commit();
@@ -343,13 +333,11 @@ namespace GestionFacturas.Datos
             {
                 try
                 {
-                    int idEstadoEnProceso = estadoRepositorio.ObtenerIdPorDescripcion(
-                        EstadoEnProceso, conexion, transaccion);
-
                     foreach (int idTarea in idsTarea)
                     {
                         InsertarEventoControl(
-                            idTarea, idUsuario, idFacturado: null, idEstado: idEstadoEnProceso,
+                            idTarea, idUsuario, idFacturado: null,
+                            idEstado: EstadosTareaConocidos.EnProceso,
                             idMotivo: null, conexion, transaccion);
                     }
 
@@ -378,13 +366,11 @@ namespace GestionFacturas.Datos
             {
                 try
                 {
-                    int idEstadoBloqueado = estadoRepositorio.ObtenerIdPorDescripcion(
-                        EstadoBloqueado, conexion, transaccion);
-
                     foreach (int idTarea in idsTarea)
                     {
                         InsertarEventoControlConUsuarioActual(
-                            idTarea, idFacturado: null, idEstado: idEstadoBloqueado,
+                            idTarea, idFacturado: null,
+                            idEstado: EstadosTareaConocidos.Pendiente,
                             idMotivo: idMotivo, conexion, transaccion);
                     }
 
@@ -433,6 +419,39 @@ namespace GestionFacturas.Datos
         }
 
         /// <summary>
+        /// Cancela de una sola vez todas las tareas cuyo identificador
+        /// esté en <paramref name="idsTarea"/>, insertando un nuevo
+        /// evento en TBL_CONTROL (estado "Cancelado") por cada una. El
+        /// usuario asignado se mantiene: se copia del evento más
+        /// reciente de cada tarea. No hace nada si la lista de
+        /// identificadores está vacía.
+        /// </summary>
+        public void Cancelar(IEnumerable<int> idsTarea)
+        {
+            using (SqlConnection conexion = ConexionBD.AbrirConexion())
+            using (SqlTransaction transaccion = conexion.BeginTransaction())
+            {
+                try
+                {
+                    foreach (int idTarea in idsTarea)
+                    {
+                        InsertarEventoControlConUsuarioActual(
+                            idTarea, idFacturado: null,
+                            idEstado: EstadosTareaConocidos.Cancelado,
+                            idMotivo: null, conexion, transaccion);
+                    }
+
+                    transaccion.Commit();
+                }
+                catch
+                {
+                    RevertirSinPropagar(transaccion);
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
         /// Registra la facturación de una tarea: inserta el registro
         /// de TBL_FACTURADO y, en la misma transacción, el evento de
         /// TBL_CONTROL (estado "FACTURADO") que la referencia. El
@@ -448,11 +467,8 @@ namespace GestionFacturas.Datos
                 {
                     int idFacturado = facturadoRepositorio.Insertar(facturado, conexion, transaccion);
 
-                    int idEstadoFacturado = estadoRepositorio.ObtenerIdPorDescripcion(
-                        EstadoFacturado, conexion, transaccion);
-
                     InsertarEventoControlConUsuarioActual(
-                        idTarea, idFacturado, idEstado: idEstadoFacturado,
+                        idTarea, idFacturado, idEstado: EstadosTareaConocidos.Facturado,
                         idMotivo: null, conexion, transaccion);
 
                     transaccion.Commit();

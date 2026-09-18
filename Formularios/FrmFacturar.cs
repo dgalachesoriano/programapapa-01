@@ -23,16 +23,12 @@ namespace GestionFacturas.Formularios
         private readonly UsuarioRepositorio usuarioRepositorio = new UsuarioRepositorio();
         private readonly DivisaRepositorio divisaRepositorio = new DivisaRepositorio();
         private readonly TipoFacturaRepositorio tipoFacturaRepositorio = new TipoFacturaRepositorio();
-        private readonly EstadoTareaRepositorio estadoRepositorio = new EstadoTareaRepositorio();
 
         /// <summary>
         /// Cultura usada para interpretar y formatear el importe de
         /// factura (coma como separador decimal).
         /// </summary>
         private static readonly CultureInfo CulturaDecimal = new CultureInfo("es-ES");
-
-        /// <summary>Nombre del estado que deja visibles las tareas pendientes de facturar.</summary>
-        private const string EstadoEnProceso = "EN_PROCESO";
 
         /// <summary>
         /// Valor usado en el combo de filtro de usuario para
@@ -143,7 +139,7 @@ namespace GestionFacturas.Formularios
             {
                 FiltroBusquedaTareas filtro = new FiltroBusquedaTareas
                 {
-                    IdEstado = ObtenerIdEstadoEnProceso(),
+                    IdEstado = EstadosTareaConocidos.EnProceso,
 
                     IdUsuario = cboFiltroUsuario.SelectedValue != null
                         ? Convert.ToInt32(cboFiltroUsuario.SelectedValue)
@@ -168,26 +164,6 @@ namespace GestionFacturas.Formularios
                     "No se han podido buscar las tareas pendientes de facturar.",
                     ex);
             }
-        }
-
-        /// <summary>
-        /// Resuelve el identificador del estado "En Proceso" a partir
-        /// de los estados activos, sin necesitar una transacción
-        /// abierta (a diferencia de TareaRepositorio, que lo hace
-        /// dentro de cada operación de escritura).
-        /// </summary>
-        private int ObtenerIdEstadoEnProceso()
-        {
-            List<EstadoTarea> estados = estadoRepositorio.ObtenerActivos();
-
-            foreach (EstadoTarea estado in estados)
-            {
-                if (estado.Descripcion == EstadoEnProceso)
-                    return estado.Id;
-            }
-
-            throw new InvalidOperationException(
-                "No existe el estado '" + EstadoEnProceso + "' en la tabla TBL_ESTADOS_TAREA.");
         }
 
         /// <summary>

@@ -22,9 +22,14 @@ namespace GestionFacturas.Servicios
             if (grid.Columns.Count == 0)
                 return;
 
-            // El identificador es información interna (para saber
-            // qué fila está seleccionada), nunca debe mostrarse.
+            // El identificador, el id de estado y el id del usuario
+            // asignado son información interna (para saber qué fila
+            // está seleccionada, decidir acciones según su estado real
+            // y poder preseleccionar el combo de asignación), nunca
+            // deben mostrarse.
             grid.Columns["ID_TAREA"].Visible = false;
+            grid.Columns["COD_SEQ_EST"].Visible = false;
+            grid.Columns["COD_SEQ_USER"].Visible = false;
 
             grid.Columns["DES_DOC"].HeaderText = "Documento";
             grid.Columns["FEC_ENT_CAL"].HeaderText = "F. Ent. Calidad";

@@ -54,6 +54,7 @@ namespace GestionFacturas
             this.btnAbrirTarea = new System.Windows.Forms.Button();
             this.btnBloquearTarea = new System.Windows.Forms.Button();
             this.btnDesbloquearTarea = new System.Windows.Forms.Button();
+            this.btnCancelarTarea = new System.Windows.Forms.Button();
             this.grpFiltros.SuspendLayout();
             this.tblFiltros.SuspendLayout();
             this.pnlBotonesFiltro.SuspendLayout();
@@ -295,7 +296,9 @@ namespace GestionFacturas
             //
             // Anclado al fondo del formulario, con alto fijo; los
             // botones se anclan a la derecha para seguir siempre ahí.
-            // Fila 1: asignar usuario. Fila 2: bloquear / abrir / actualizar.
+            // Fila 1: asignar usuario. Fila 2: bloquear/desbloquear.
+            // Fila 3: cancelar (justo debajo de bloquear/desbloquear).
+            this.grpAsignacion.Controls.Add(this.btnCancelarTarea);
             this.grpAsignacion.Controls.Add(this.btnDesbloquearTarea);
             this.grpAsignacion.Controls.Add(this.btnBloquearTarea);
             this.grpAsignacion.Controls.Add(this.btnAbrirTarea);
@@ -306,7 +309,7 @@ namespace GestionFacturas
             this.grpAsignacion.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.grpAsignacion.Location = new System.Drawing.Point(0, 610);
             this.grpAsignacion.Name = "grpAsignacion";
-            this.grpAsignacion.Size = new System.Drawing.Size(1184, 140);
+            this.grpAsignacion.Size = new System.Drawing.Size(1184, 180);
             this.grpAsignacion.TabIndex = 3;
             this.grpAsignacion.TabStop = false;
             this.grpAsignacion.Text = "Asignación y acciones (sobre las tareas seleccionadas)";
@@ -386,11 +389,22 @@ namespace GestionFacturas
             this.btnDesbloquearTarea.UseVisualStyleBackColor = true;
             this.btnDesbloquearTarea.Click += new System.EventHandler(this.btnDesbloquearTarea_Click);
             //
+            // btnCancelarTarea
+            //
+            this.btnCancelarTarea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancelarTarea.Location = new System.Drawing.Point(836, 130);
+            this.btnCancelarTarea.Name = "btnCancelarTarea";
+            this.btnCancelarTarea.Size = new System.Drawing.Size(150, 38);
+            this.btnCancelarTarea.TabIndex = 7;
+            this.btnCancelarTarea.Text = "Cancelar tarea";
+            this.btnCancelarTarea.UseVisualStyleBackColor = true;
+            this.btnCancelarTarea.Click += new System.EventHandler(this.btnCancelarTarea_Click);
+            //
             // FrmPoolTareas
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 800);
+            this.ClientSize = new System.Drawing.Size(1184, 840);
             this.Controls.Add(this.splitPrincipal);
             this.Controls.Add(this.grpAsignacion);
             this.Controls.Add(this.grpFiltros);
@@ -444,5 +458,6 @@ namespace GestionFacturas
         private System.Windows.Forms.Label lblUsuarioAsignado;
         private System.Windows.Forms.Button btnBloquearTarea;
         private System.Windows.Forms.Button btnDesbloquearTarea;
+        private System.Windows.Forms.Button btnCancelarTarea;
     }
 }

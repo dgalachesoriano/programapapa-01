@@ -55,5 +55,16 @@ namespace GestionFacturas
 
             formulario.ShowDialog();
         }
+
+        /// <summary>
+        /// Abre, como diálogo modal, el informe de facturación
+        /// (gráfica de importe facturado/pendiente/bloqueado).
+        /// </summary>
+        private void facturaciónToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmInformeFacturacion formulario = new FrmInformeFacturacion();
+
+            formulario.ShowDialog();
+        }
     }
 }

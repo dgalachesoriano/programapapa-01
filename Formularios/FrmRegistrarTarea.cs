@@ -3,6 +3,7 @@ using GestionFacturas.Modelos;
 using GestionFacturas.Servicios;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 
@@ -40,6 +41,19 @@ namespace GestionFacturas.Formularios
         private const string NombreColumnaDecimalDetalle = "Unidades";
 
         /// <summary>
+        /// Color de fondo "normal" (invisible) de los paneles que
+        /// envuelven cada campo obligatorio, usado para simular que
+        /// no tienen borde.
+        /// </summary>
+        private static readonly Color ColorBordeNormal = SystemColors.Control;
+
+        /// <summary>
+        /// Color de fondo usado en esos mismos paneles para simular
+        /// un borde rojo alrededor de un campo que falta por rellenar.
+        /// </summary>
+        private static readonly Color ColorBordeInvalido = Color.Red;
+
+        /// <summary>
         /// Identificador de la tarea en edición, o 0 cuando el
         /// formulario se usa para dar de alta una tarea nueva.
         /// </summary>
@@ -53,6 +67,7 @@ namespace GestionFacturas.Formularios
             InitializeComponent();
 
             ConfigurarGridDetalle();
+            ConfigurarLimpiezaDeBordes();
             CargarProyectos();
             CargarSegmentos();
         }
@@ -67,6 +82,7 @@ namespace GestionFacturas.Formularios
             InitializeComponent();
 
             ConfigurarGridDetalle();
+            ConfigurarLimpiezaDeBordes();
             CargarProyectos();
             CargarSegmentos();
 
@@ -75,6 +91,24 @@ namespace GestionFacturas.Formularios
             this.Text = "Tratar Tarea";
 
             CargarTarea(idTarea);
+        }
+
+        /// <summary>
+        /// Engancha, en cada campo obligatorio, el evento que quita
+        /// su borde rojo en cuanto el usuario empieza a escribir o a
+        /// elegir un valor (sin esperar a que vuelva a ser válido: el
+        /// aviso desaparece nada más empezar a corregirlo). En el
+        /// grid de detalle, el borde se quita en cuanto se empieza a
+        /// editar cualquier celda.
+        /// </summary>
+        private void ConfigurarLimpiezaDeBordes()
+        {
+            txtDocumento.TextChanged += (s, e) => pnlDocumentoBorde.BackColor = ColorBordeNormal;
+            txtOrgVentas.TextChanged += (s, e) => pnlOrgVentasBorde.BackColor = ColorBordeNormal;
+            cboProyecto.SelectedIndexChanged += (s, e) => pnlProyectoBorde.BackColor = ColorBordeNormal;
+            cboSegmento.SelectedIndexChanged += (s, e) => pnlSegmentoBorde.BackColor = ColorBordeNormal;
+            txtImporteEstimado.TextChanged += (s, e) => pnlImporteEstimadoBorde.BackColor = ColorBordeNormal;
+            dgvDetalle.CellBeginEdit += (s, e) => pnlDetalleBorde.BackColor = ColorBordeNormal;
         }
 
         /// <summary>
@@ -284,13 +318,29 @@ namespace GestionFacturas.Formularios
         }
 
         /// <summary>
-        /// Valida los datos, pide confirmación al usuario y, si
-        /// confirma, graba la tarea.
+        /// Valida los datos; si falta algo, marca en rojo los campos
+        /// pendientes y ofrece completarlos o descartar la tarea. Si
+        /// todo está correcto, pide confirmación y graba.
         /// </summary>
         private void btnGrabar_Click(object sender, EventArgs e)
         {
             if (!ValidarDatos())
+            {
+                using (FrmFaltaInformacion dialogo = new FrmFaltaInformacion(
+                    "No se puede dar de alta la tarea porque falta información.\n\n" +
+                    "Los campos y el detalle pendientes de rellenar han quedado " +
+                    "marcados en rojo."))
+                {
+                    dialogo.ShowDialog(this);
+
+                    if (dialogo.SeHaDescartado)
+                    {
+                        Close();
+                    }
+                }
+
                 return;
+            }
 
             if (!Dialogos.Confirmar(
                 "¿Está seguro de que quiere grabar la tarea?",
@@ -303,101 +353,122 @@ namespace GestionFacturas.Formularios
         }
 
         /// <summary>
-        /// Valida que los campos obligatorios de cabecera (Documento,
-        /// Organización de Ventas, Proyecto y Segmento) estén
-        /// informados. Si falta alguno, muestra un aviso, pone el
-        /// foco en el campo y devuelve false.
+        /// Valida que todos los campos de cabecera (Documento,
+        /// Organización de Ventas, Proyecto, Segmento e Importe
+        /// Estimado) estén informados, y que el detalle tenga al
+        /// menos una línea completamente rellena. A diferencia de la
+        /// validación anterior, no se detiene en el primer campo que
+        /// falla: comprueba todos y marca en rojo (ver
+        /// <see cref="ColorBordeInvalido"/>) cada uno de los que
+        /// falten, para que se vean todos a la vez.
         /// </summary>
         private bool ValidarDatos()
         {
-            if (string.IsNullOrWhiteSpace(txtDocumento.Text))
-            {
-                Dialogos.MostrarAviso("Debe introducir el Documento.", "Validación");
+            bool documentoValido = ValidarCampoTexto(txtDocumento, pnlDocumentoBorde);
+            bool orgVentasValido = ValidarCampoTexto(txtOrgVentas, pnlOrgVentasBorde);
+            bool proyectoValido = ValidarCampoCombo(cboProyecto, pnlProyectoBorde);
+            bool segmentoValido = ValidarCampoCombo(cboSegmento, pnlSegmentoBorde);
+            bool importeValido = ValidarImporteEstimado();
+            bool detalleValido = ValidarDetalle();
 
-                txtDocumento.Focus();
-
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(txtOrgVentas.Text))
-            {
-                Dialogos.MostrarAviso("Debe introducir la Organización de Ventas.", "Validación");
-
-                txtOrgVentas.Focus();
-
-                return false;
-            }
-
-            if (cboProyecto.SelectedIndex == -1 || cboProyecto.SelectedValue == null)
-            {
-                Dialogos.MostrarAviso("Debe seleccionar un Proyecto.", "Validación");
-
-                cboProyecto.Focus();
-
-                return false;
-            }
-
-            if (cboSegmento.SelectedIndex == -1 || cboSegmento.SelectedValue == null)
-            {
-                Dialogos.MostrarAviso("Debe seleccionar un Segmento.", "Validación");
-
-                cboSegmento.Focus();
-
-                return false;
-            }
-
-            decimal importeEstimado;
-
-            if (!string.IsNullOrWhiteSpace(txtImporteEstimado.Text) &&
-                !IntentarObtenerDecimal(txtImporteEstimado.Text, out importeEstimado))
-            {
-                Dialogos.MostrarAviso("El Importe Estimado no es un número válido.", "Validación");
-
-                txtImporteEstimado.Focus();
-
-                return false;
-            }
-
-            if (!ValidarUnidadesDetalle())
-                return false;
-
-            return true;
+            return documentoValido && orgVentasValido && proyectoValido
+                && segmentoValido && importeValido && detalleValido;
         }
 
         /// <summary>
-        /// Comprueba que, en las filas del detalle que no estén
-        /// completamente vacías, la columna "Unidades" (si está
-        /// informada) contenga un número válido.
+        /// Valida que un campo de texto no esté vacío, marcando en
+        /// rojo (o quitando la marca) el panel que lo envuelve.
         /// </summary>
-        private bool ValidarUnidadesDetalle()
+        private bool ValidarCampoTexto(TextBox campo, Panel panelBorde)
         {
+            bool relleno = !string.IsNullOrWhiteSpace(campo.Text);
+
+            panelBorde.BackColor = relleno ? ColorBordeNormal : ColorBordeInvalido;
+
+            return relleno;
+        }
+
+        /// <summary>
+        /// Valida que un combo tenga un elemento seleccionado,
+        /// marcando en rojo (o quitando la marca) el panel que lo
+        /// envuelve.
+        /// </summary>
+        private bool ValidarCampoCombo(ComboBox combo, Panel panelBorde)
+        {
+            bool seleccionado = combo.SelectedIndex != -1 && combo.SelectedValue != null;
+
+            panelBorde.BackColor = seleccionado ? ColorBordeNormal : ColorBordeInvalido;
+
+            return seleccionado;
+        }
+
+        /// <summary>
+        /// Valida el Importe Estimado: ahora es obligatorio, así que
+        /// debe estar relleno y ser un número válido.
+        /// </summary>
+        private bool ValidarImporteEstimado()
+        {
+            decimal importe;
+
+            bool valido = !string.IsNullOrWhiteSpace(txtImporteEstimado.Text) &&
+                IntentarObtenerDecimal(txtImporteEstimado.Text, out importe);
+
+            pnlImporteEstimadoBorde.BackColor = valido ? ColorBordeNormal : ColorBordeInvalido;
+
+            return valido;
+        }
+
+        /// <summary>
+        /// Valida el grid de detalle: tiene que haber, como mínimo,
+        /// una línea con las cinco columnas completamente rellenas, y
+        /// en ninguna línea la columna "Unidades" (si está informada)
+        /// puede contener un valor no numérico. Cualquiera de los dos
+        /// problemas marca en rojo el grid completo.
+        /// </summary>
+        private bool ValidarDetalle()
+        {
+            bool hayLineaCompleta = false;
+            bool unidadesValidasEnTodas = true;
+
             foreach (DataGridViewRow fila in dgvDetalle.Rows)
             {
                 if (fila.IsNewRow)
                     continue;
 
-                string texto = ObtenerTextoCelda(fila, "Unidades");
+                if (FilaCompleta(fila))
+                {
+                    hayLineaCompleta = true;
+                }
 
-                if (string.IsNullOrWhiteSpace(texto))
-                    continue;
-
+                string textoUnidades = ObtenerTextoCelda(fila, "Unidades");
                 decimal valor;
 
-                if (!IntentarObtenerDecimal(texto, out valor))
+                if (!string.IsNullOrWhiteSpace(textoUnidades) &&
+                    !IntentarObtenerDecimal(textoUnidades, out valor))
                 {
-                    Dialogos.MostrarAviso(
-                        "La fila " + (fila.Index + 1) + " del detalle tiene un " +
-                        "valor de Unidades no válido.",
-                        "Validación");
-
-                    dgvDetalle.CurrentCell = fila.Cells["Unidades"];
-                    dgvDetalle.Focus();
-
-                    return false;
+                    unidadesValidasEnTodas = false;
                 }
             }
 
-            return true;
+            bool valido = hayLineaCompleta && unidadesValidasEnTodas;
+
+            pnlDetalleBorde.BackColor = valido ? ColorBordeNormal : ColorBordeInvalido;
+
+            return valido;
+        }
+
+        /// <summary>
+        /// Indica si una fila del detalle tiene sus cinco columnas
+        /// (Pedido de Venta, Pedido de Compra, Pedido de Inspección,
+        /// Entidad de Entrega y Unidades) rellenas.
+        /// </summary>
+        private bool FilaCompleta(DataGridViewRow fila)
+        {
+            return !string.IsNullOrWhiteSpace(ObtenerTextoCelda(fila, "PedidoVenta"))
+                && !string.IsNullOrWhiteSpace(ObtenerTextoCelda(fila, "PedidoCompra"))
+                && !string.IsNullOrWhiteSpace(ObtenerTextoCelda(fila, "PedidoInspeccion"))
+                && !string.IsNullOrWhiteSpace(ObtenerTextoCelda(fila, "EntidadEntrega"))
+                && !string.IsNullOrWhiteSpace(ObtenerTextoCelda(fila, "Unidades"));
         }
 
         /// <summary>

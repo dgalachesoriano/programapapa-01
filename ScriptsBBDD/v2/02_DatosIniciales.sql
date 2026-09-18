@@ -3,30 +3,45 @@
     ----------------------------------------------------------------
     Datos mínimos imprescindibles para que el flujo funcione.
 
-    Los tres estados (REGISTRADO / EN_PROCESO / BLOQUEADO / FACTURADO)
-    son estrictamente obligatorios: el flujo descrito los usa
-    explícitamente en cada paso. El resto (segmento, proyecto, moneda,
-    tipo de factura, motivo, usuario) son datos de ejemplo: ajústalos a
-    los reales del negocio antes de usar la aplicación en serio.
+    Los cinco estados (Registrado / En proceso / Pendiente / Facturado
+    / Cancelado) son estrictamente obligatorios: el flujo los usa
+    explícitamente en cada paso, Y SE INSERTAN EN ESTE ORDEN a
+    propósito, porque el código C# (Datos/EstadosTareaConocidos.cs)
+    referencia cada uno por su ID en vez de por su texto -así se evita
+    depender de una comparación de texto que negocio puede cambiar en
+    cualquier momento, que es justo lo que ya pasó una vez (esta tabla
+    se sembró originalmente con "REGISTRADO"/"EN_PROCESO"/"BLOQUEADO"/
+    "FACTURADO" y se acabó renombrando a los nombres de aquí, rompiendo
+    en silencio cualquier comparación de texto)-. Si alguna vez hace
+    falta añadir, quitar o reordenar un estado, hay que actualizar
+    también esas constantes.
+
+    El resto (segmento, proyecto, moneda, tipo de factura, motivo,
+    usuario) son datos de ejemplo: ajústalos a los reales del negocio
+    antes de usar la aplicación en serio.
 */
 
 USE GestionFacturas;
 GO
 
 -- --------------------------------------------------------
--- TBL_ESTADOS_TAREA (obligatorios: los usa el flujo tal cual)
+-- TBL_ESTADOS_TAREA (obligatorios: los usa el flujo tal cual;
+-- orden de inserción significativo, ver cabecera del script)
 -- --------------------------------------------------------
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'REGISTRADO')
-    INSERT INTO dbo.TBL_ESTADOS_TAREA (DES_ESTADO) VALUES (N'REGISTRADO');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'Registrado')
+    INSERT INTO dbo.TBL_ESTADOS_TAREA (DES_ESTADO) VALUES (N'Registrado');
 
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'EN_PROCESO')
-    INSERT INTO dbo.TBL_ESTADOS_TAREA (DES_ESTADO) VALUES (N'EN_PROCESO');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'En proceso')
+    INSERT INTO dbo.TBL_ESTADOS_TAREA (DES_ESTADO) VALUES (N'En proceso');
 
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'BLOQUEADO')
-    INSERT INTO dbo.TBL_ESTADOS_TAREA (DES_ESTADO) VALUES (N'BLOQUEADO');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'Pendiente')
+    INSERT INTO dbo.TBL_ESTADOS_TAREA (DES_ESTADO) VALUES (N'Pendiente');
 
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'FACTURADO')
-    INSERT INTO dbo.TBL_ESTADOS_TAREA (DES_ESTADO) VALUES (N'FACTURADO');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'Facturado')
+    INSERT INTO dbo.TBL_ESTADOS_TAREA (DES_ESTADO) VALUES (N'Facturado');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'Cancelado')
+    INSERT INTO dbo.TBL_ESTADOS_TAREA (DES_ESTADO) VALUES (N'Cancelado');
 GO
 
 -- --------------------------------------------------------

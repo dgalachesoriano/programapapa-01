@@ -33,14 +33,14 @@ namespace GestionFacturas
 
         /// <summary>
         /// Colores pastel de fondo para las filas de la rejilla de
-        /// tareas, según su estado (columna DES_ESTADO). Los nombres
-        /// de estado coinciden con los sembrados en
-        /// ScriptsBBDD/v2/02_DatosIniciales.sql.
+        /// tareas, según su estado (identificado por ID, ver
+        /// Datos/EstadosTareaConocidos.cs).
         /// </summary>
         private static readonly Color ColorRegistrado = Color.FromArgb(224, 224, 224);
         private static readonly Color ColorEnProceso = Color.FromArgb(187, 222, 251);
-        private static readonly Color ColorBloqueado = Color.FromArgb(255, 205, 210);
+        private static readonly Color ColorPendiente = Color.FromArgb(255, 245, 157);
         private static readonly Color ColorFacturado = Color.FromArgb(200, 230, 201);
+        private static readonly Color ColorCancelado = Color.FromArgb(255, 205, 210);
 
         public FrmPoolTareas()
         {
@@ -158,14 +158,19 @@ namespace GestionFacturas
             {
                 List<Usuario> usuarios = usuarioRepositorio.ObtenerActivos();
 
+                // "Sin asignar" no es aquí una acción real (asignar
+                // exige elegir un usuario concreto, ver
+                // btnAsignarTarea_Click), sino el valor por defecto
+                // del combo: lo que se muestra cuando no hay ninguna
+                // tarea seleccionada, o cuando las seleccionadas no
+                // comparten un único usuario asignado (ver
+                // ActualizarUsuarioAsignadoSegunSeleccion).
+                usuarios.Insert(0, new Usuario { Id = IdTodos, Nombre = "Sin asignar" });
+
                 cboUsuarioAsignado.DataSource = usuarios;
                 cboUsuarioAsignado.DisplayMember = "Nombre";
                 cboUsuarioAsignado.ValueMember = "Id";
-
-                if (usuarios.Count > 0)
-                {
-                    cboUsuarioAsignado.SelectedIndex = 0;
-                }
+                cboUsuarioAsignado.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
@@ -218,8 +223,11 @@ namespace GestionFacturas
         /// <summary>
         /// Colorea el fondo de cada fila de la rejilla de tareas
         /// según su estado actual (Registrado en gris, En Proceso en
-        /// azul, Bloqueado en rojo, Facturado en verde, todos en
-        /// tonos pastel), para poder distinguirlas de un vistazo.
+        /// azul, Pendiente/bloqueado en rojo, Facturado en verde,
+        /// Cancelado en naranja, todos en tonos pastel), para poder
+        /// distinguirlas de un vistazo. Identifica el estado por su
+        /// ID (columna oculta COD_SEQ_EST), no por su texto: ver
+        /// Datos/EstadosTareaConocidos.cs.
         /// </summary>
         private void ColorearFilasPorEstado()
         {
@@ -228,36 +236,38 @@ namespace GestionFacturas
 
             foreach (DataGridViewRow fila in dgvTareas.Rows)
             {
-                if (fila.Cells["DES_ESTADO"].Value == null)
+                if (fila.Cells["COD_SEQ_EST"].Value == null)
                     continue;
 
-                string estado = fila.Cells["DES_ESTADO"].Value.ToString();
+                int idEstado = Convert.ToInt32(fila.Cells["COD_SEQ_EST"].Value);
 
-                fila.DefaultCellStyle.BackColor = ColorDeEstado(estado);
+                fila.DefaultCellStyle.BackColor = ColorDeEstado(idEstado);
             }
         }
 
         /// <summary>
-        /// Traduce el nombre de un estado al color pastel que le
+        /// Traduce el ID de un estado al color pastel que le
         /// corresponde en la rejilla. Devuelve el color de fondo por
-        /// defecto de la rejilla si el estado no es ninguno de los
-        /// cuatro conocidos.
+        /// defecto de la rejilla si no es ninguno de los conocidos.
         /// </summary>
-        private Color ColorDeEstado(string estado)
+        private Color ColorDeEstado(int idEstado)
         {
-            switch (estado)
+            switch (idEstado)
             {
-                case "REGISTRADO":
+                case EstadosTareaConocidos.Registrado:
                     return ColorRegistrado;
 
-                case "EN_PROCESO":
+                case EstadosTareaConocidos.EnProceso:
                     return ColorEnProceso;
 
-                case "BLOQUEADO":
-                    return ColorBloqueado;
+                case EstadosTareaConocidos.Pendiente:
+                    return ColorPendiente;
 
-                case "FACTURADO":
+                case EstadosTareaConocidos.Facturado:
                     return ColorFacturado;
+
+                case EstadosTareaConocidos.Cancelado:
+                    return ColorCancelado;
 
                 default:
                     return dgvTareas.DefaultCellStyle.BackColor;
@@ -281,11 +291,11 @@ namespace GestionFacturas
             {
                 if (seleccionUnica && fila.Selected)
                 {
-                    string estado = fila.Cells["DES_ESTADO"].Value == null
-                        ? null
-                        : fila.Cells["DES_ESTADO"].Value.ToString();
+                    int idEstado = fila.Cells["COD_SEQ_EST"].Value == null
+                        ? 0
+                        : Convert.ToInt32(fila.Cells["COD_SEQ_EST"].Value);
 
-                    fila.DefaultCellStyle.SelectionBackColor = Oscurecer(ColorDeEstado(estado), 0.75f);
+                    fila.DefaultCellStyle.SelectionBackColor = Oscurecer(ColorDeEstado(idEstado), 0.75f);
                     fila.DefaultCellStyle.SelectionForeColor = Color.Black;
                 }
                 else
@@ -339,6 +349,8 @@ namespace GestionFacturas
         {
             AplicarEstiloSeleccion();
 
+            ActualizarUsuarioAsignadoSegunSeleccion();
+
             List<int> idsSeleccionados = ObtenerIdsSeleccionados();
 
             if (idsSeleccionados.Count == 0)
@@ -362,6 +374,51 @@ namespace GestionFacturas
                     "No se ha podido cargar el detalle de las tareas seleccionadas.",
                     ex);
             }
+        }
+
+        /// <summary>
+        /// Preselecciona en el combo de asignación el usuario que
+        /// corresponde a la selección actual de la rejilla de tareas:
+        /// "Sin asignar" si no hay ninguna fila seleccionada, o si las
+        /// seleccionadas no comparten todas el mismo usuario asignado
+        /// (incluida ninguno); en caso contrario, ese usuario común
+        /// (el de la primera tarea, que al ser todas iguales
+        /// representa a cualquiera de ellas).
+        /// </summary>
+        private void ActualizarUsuarioAsignadoSegunSeleccion()
+        {
+            if (dgvTareas.SelectedRows.Count == 0)
+            {
+                cboUsuarioAsignado.SelectedValue = IdTodos;
+                return;
+            }
+
+            int? primerUsuario = null;
+            bool esLaPrimera = true;
+            bool todasComparten = true;
+
+            foreach (DataGridViewRow fila in dgvTareas.SelectedRows)
+            {
+                object valor = fila.Cells["COD_SEQ_USER"].Value;
+
+                int? idUsuarioFila = (valor == null || valor == DBNull.Value)
+                    ? (int?)null
+                    : Convert.ToInt32(valor);
+
+                if (esLaPrimera)
+                {
+                    primerUsuario = idUsuarioFila;
+                    esLaPrimera = false;
+                }
+                else if (idUsuarioFila != primerUsuario)
+                {
+                    todasComparten = false;
+                    break;
+                }
+            }
+
+            cboUsuarioAsignado.SelectedValue =
+                (todasComparten && primerUsuario.HasValue) ? primerUsuario.Value : IdTodos;
         }
 
         /// <summary>
@@ -442,6 +499,15 @@ namespace GestionFacturas
                 return;
 
             int idUsuario = Convert.ToInt32(cboUsuarioAsignado.SelectedValue);
+
+            if (idUsuario == IdTodos)
+            {
+                Dialogos.MostrarAviso(
+                    "Debe seleccionar un usuario concreto para asignar la tarea.",
+                    "Asignar tarea");
+
+                return;
+            }
 
             string mensaje = "¿Asignar " + ids.Count + " tarea(s) a '" + cboUsuarioAsignado.Text + "'?";
 
@@ -537,10 +603,10 @@ namespace GestionFacturas
                 return;
             }
 
-            if (!TodasLasSeleccionadasEnEstado("BLOQUEADO"))
+            if (!TodasLasSeleccionadasEnEstado(EstadosTareaConocidos.Pendiente))
             {
                 Dialogos.MostrarAviso(
-                    "Solo se pueden desbloquear tareas que estén actualmente en estado Bloqueado.",
+                    "Solo se pueden desbloquear tareas que estén actualmente en estado Pendiente (bloqueadas).",
                     "Desbloquear tarea");
 
                 return;
@@ -571,15 +637,58 @@ namespace GestionFacturas
         }
 
         /// <summary>
-        /// Comprueba que todas las filas actualmente seleccionadas en
-        /// la rejilla de tareas tengan el estado indicado.
+        /// Cancela de una sola vez todas las tareas seleccionadas en
+        /// la rejilla (pasan a estado "Cancelado"), previa
+        /// confirmación.
         /// </summary>
-        private bool TodasLasSeleccionadasEnEstado(string estado)
+        private void btnCancelarTarea_Click(object sender, EventArgs e)
+        {
+            List<int> ids = ObtenerIdsSeleccionados();
+
+            if (ids.Count == 0)
+            {
+                Dialogos.MostrarInformacion(
+                    "Seleccione al menos una tarea de la lista.",
+                    "Cancelar tarea");
+
+                return;
+            }
+
+            if (!Dialogos.Confirmar(
+                "¿Cancelar " + ids.Count + " tarea(s)?",
+                "Confirmar cancelación"))
+            {
+                return;
+            }
+
+            try
+            {
+                tareaRepositorio.Cancelar(ids);
+
+                Dialogos.MostrarInformacion("Cancelación realizada correctamente.", "Cancelar tarea");
+
+                BuscarTareas();
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.btnCancelarTarea_Click",
+                    "No se ha podido cancelar la tarea.",
+                    ex);
+            }
+        }
+
+        /// <summary>
+        /// Comprueba que todas las filas actualmente seleccionadas en
+        /// la rejilla de tareas tengan el estado indicado (por ID: ver
+        /// Datos/EstadosTareaConocidos.cs).
+        /// </summary>
+        private bool TodasLasSeleccionadasEnEstado(int idEstado)
         {
             foreach (DataGridViewRow fila in dgvTareas.SelectedRows)
             {
-                if (fila.Cells["DES_ESTADO"].Value == null ||
-                    fila.Cells["DES_ESTADO"].Value.ToString() != estado)
+                if (fila.Cells["COD_SEQ_EST"].Value == null ||
+                    Convert.ToInt32(fila.Cells["COD_SEQ_EST"].Value) != idEstado)
                 {
                     return false;
                 }
