@@ -39,6 +39,12 @@ namespace GestionFacturas.Formularios
         private const string NombreColumnaDecimalDetalle = "Unidades";
 
         /// <summary>
+        /// Cultura usada en todo el formulario para interpretar y
+        /// formatear valores decimales (coma como separador).
+        /// </summary>
+        private static readonly CultureInfo CulturaDecimal = new CultureInfo("es-ES");
+
+        /// <summary>
         /// Número de registro de la factura en edición, o 0 cuando
         /// el formulario se usa para dar de alta una tarea nueva.
         /// </summary>
@@ -176,11 +182,9 @@ namespace GestionFacturas.Formularios
             {
                 if (!Clipboard.ContainsText())
                 {
-                    MessageBox.Show(
+                    Dialogos.MostrarInformacion(
                         "El portapapeles no contiene texto.",
-                        "Pegado",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                        "Pegado");
 
                     return;
                 }
@@ -195,26 +199,21 @@ namespace GestionFacturas.Formularios
                         dgvDetalle,
                         texto,
                         columnaDecimal,
-                        new CultureInfo("es-ES"));
+                        CulturaDecimal);
 
                 if (resultado == ResultadoPegadoPortapapeles.SinCeldaSeleccionada)
                 {
-                    MessageBox.Show(
+                    Dialogos.MostrarInformacion(
                         "Seleccione primero una celda del detalle.",
-                        "Pegado",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                        "Pegado");
                 }
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmRegistrarTarea.PegarDesdePortapapeles", ex);
-
-                MessageBox.Show(
-                    "Se ha producido un error al pegar los datos.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmRegistrarTarea.PegarDesdePortapapeles",
+                    "Se ha producido un error al pegar los datos.",
+                    ex);
             }
         }
 
@@ -280,13 +279,10 @@ namespace GestionFacturas.Formularios
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmRegistrarTarea.CargarUsuarios", ex);
-
-                MessageBox.Show(
-                    "No se han podido cargar los usuarios.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmRegistrarTarea.CargarUsuarios",
+                    "No se han podido cargar los usuarios.",
+                    ex);
             }
         }
 
@@ -307,13 +303,10 @@ namespace GestionFacturas.Formularios
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmRegistrarTarea.CargarSegmentos", ex);
-
-                MessageBox.Show(
-                    "No se han podido cargar los segmentos.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmRegistrarTarea.CargarSegmentos",
+                    "No se han podido cargar los segmentos.",
+                    ex);
             }
         }
 
@@ -335,14 +328,12 @@ namespace GestionFacturas.Formularios
             if (!ValidarDatos())
                 return;
 
-            DialogResult respuesta = MessageBox.Show(
+            if (!Dialogos.Confirmar(
                 "¿Está seguro de que quiere grabar la tarea?",
-                "Confirmar grabación",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (respuesta != DialogResult.Yes)
+                "Confirmar grabación"))
+            {
                 return;
+            }
 
             GrabarTarea();
         }
@@ -357,11 +348,7 @@ namespace GestionFacturas.Formularios
         {
             if (string.IsNullOrWhiteSpace(txtDocumento.Text))
             {
-                MessageBox.Show(
-                    "Debe introducir el Documento.",
-                    "Validación",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                Dialogos.MostrarAviso("Debe introducir el Documento.", "Validación");
 
                 txtDocumento.Focus();
 
@@ -370,11 +357,7 @@ namespace GestionFacturas.Formularios
 
             if (string.IsNullOrWhiteSpace(txtSociedad.Text))
             {
-                MessageBox.Show(
-                    "Debe introducir la Sociedad.",
-                    "Validación",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                Dialogos.MostrarAviso("Debe introducir la Sociedad.", "Validación");
 
                 txtSociedad.Focus();
 
@@ -383,11 +366,7 @@ namespace GestionFacturas.Formularios
 
             if (string.IsNullOrWhiteSpace(txtProyecto.Text))
             {
-                MessageBox.Show(
-                    "Debe introducir el Proyecto.",
-                    "Validación",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                Dialogos.MostrarAviso("Debe introducir el Proyecto.", "Validación");
 
                 txtProyecto.Focus();
 
@@ -396,11 +375,7 @@ namespace GestionFacturas.Formularios
 
             if (cboSegmento.SelectedIndex == -1 || cboSegmento.SelectedValue == null)
             {
-                MessageBox.Show(
-                    "Debe seleccionar un Segmento.",
-                    "Validación",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                Dialogos.MostrarAviso("Debe seleccionar un Segmento.", "Validación");
 
                 cboSegmento.Focus();
 
@@ -412,11 +387,9 @@ namespace GestionFacturas.Formularios
             if (!string.IsNullOrWhiteSpace(txtImporteEstimado.Text) &&
                 !IntentarObtenerDecimal(txtImporteEstimado.Text, out importeEstimado))
             {
-                MessageBox.Show(
+                Dialogos.MostrarAviso(
                     "El Importe Estimado no es un número válido.",
-                    "Validación",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                    "Validación");
 
                 txtImporteEstimado.Focus();
 
@@ -453,12 +426,10 @@ namespace GestionFacturas.Formularios
 
                 if (!IntentarObtenerDecimal(texto, out valor))
                 {
-                    MessageBox.Show(
+                    Dialogos.MostrarAviso(
                         "La fila " + (fila.Index + 1) + " del detalle tiene un " +
                         "valor de Unidades no válido.",
-                        "Validación",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
+                        "Validación");
 
                     dgvDetalle.CurrentCell = fila.Cells["Unidades"];
                     dgvDetalle.Focus();
@@ -487,12 +458,10 @@ namespace GestionFacturas.Formularios
                 {
                     int nuevoRegistro = facturaRepositorio.Insertar(factura, detalles);
 
-                    MessageBox.Show(
+                    Dialogos.MostrarInformacion(
                         "La tarea se ha grabado correctamente.\n\n" +
                         "Registro: " + nuevoRegistro,
-                        "Grabación correcta",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                        "Grabación correcta");
                 }
                 else
                 {
@@ -500,12 +469,10 @@ namespace GestionFacturas.Formularios
 
                     facturaRepositorio.Actualizar(factura, detalles);
 
-                    MessageBox.Show(
+                    Dialogos.MostrarInformacion(
                         "La tarea se ha actualizado correctamente.\n\n" +
                         "Registro: " + registroEdicion,
-                        "Grabación correcta",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                        "Grabación correcta");
                 }
 
                 DialogResult = DialogResult.OK;
@@ -513,13 +480,10 @@ namespace GestionFacturas.Formularios
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmRegistrarTarea.GrabarTarea", ex);
-
-                MessageBox.Show(
-                    "No se ha podido grabar la tarea.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmRegistrarTarea.GrabarTarea",
+                    "No se ha podido grabar la tarea.",
+                    ex);
             }
         }
 
@@ -618,7 +582,7 @@ namespace GestionFacturas.Formularios
             return decimal.TryParse(
                 texto,
                 NumberStyles.Number,
-                new CultureInfo("es-ES"),
+                CulturaDecimal,
                 out valor);
         }
 
@@ -632,7 +596,7 @@ namespace GestionFacturas.Formularios
 
             if (IntentarObtenerDecimal(txtImporteEstimado.Text, out importe))
             {
-                txtImporteEstimado.Text = importe.ToString("N2", new CultureInfo("es-ES"));
+                txtImporteEstimado.Text = importe.ToString("N2", CulturaDecimal);
             }
         }
 
@@ -649,11 +613,7 @@ namespace GestionFacturas.Formularios
 
                 if (factura == null)
                 {
-                    MessageBox.Show(
-                        "No se ha encontrado la tarea.",
-                        "Error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
+                    Dialogos.MostrarAviso("No se ha encontrado la tarea.", "Error");
 
                     return;
                 }
@@ -665,7 +625,7 @@ namespace GestionFacturas.Formularios
                 txtProyecto.Text = factura.Proyecto;
 
                 txtImporteEstimado.Text = factura.ImporteEstimado.HasValue
-                    ? factura.ImporteEstimado.Value.ToString("N2", new CultureInfo("es-ES"))
+                    ? factura.ImporteEstimado.Value.ToString("N2", CulturaDecimal)
                     : string.Empty;
 
                 cboUsuario.SelectedValue = factura.IdUsuarioAsignado ?? 0;
@@ -677,13 +637,10 @@ namespace GestionFacturas.Formularios
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmRegistrarTarea.CargarTarea", ex);
-
-                MessageBox.Show(
-                    "No se ha podido cargar la tarea.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmRegistrarTarea.CargarTarea",
+                    "No se ha podido cargar la tarea.",
+                    ex);
             }
         }
 

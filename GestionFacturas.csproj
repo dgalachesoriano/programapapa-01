@@ -83,6 +83,8 @@
     <Compile Include="Modelos\Factura.cs" />
     <Compile Include="Modelos\DetalleFactura.cs" />
     <Compile Include="Modelos\FiltroBusquedaFacturas.cs" />
+    <Compile Include="Servicios\Dialogos.cs" />
+    <Compile Include="Servicios\FormateadorGridFacturas.cs" />
     <Compile Include="Servicios\PegadoPortapapelesServicio.cs" />
     <Compile Include="Servicios\RegistradorErrores.cs" />
     <Compile Include="Servicios\ResultadoPegadoPortapapeles.cs" />

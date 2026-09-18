@@ -85,13 +85,10 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmPoolTareas.CargarFiltroEstados", ex);
-
-                MessageBox.Show(
-                    "No se han podido cargar los estados.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.CargarFiltroEstados",
+                    "No se han podido cargar los estados.",
+                    ex);
             }
         }
 
@@ -114,13 +111,10 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmPoolTareas.CargarFiltroProyectos", ex);
-
-                MessageBox.Show(
-                    "No se han podido cargar los proyectos.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.CargarFiltroProyectos",
+                    "No se han podido cargar los proyectos.",
+                    ex);
             }
         }
 
@@ -147,13 +141,10 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmPoolTareas.CargarFiltroUsuarios", ex);
-
-                MessageBox.Show(
-                    "No se han podido cargar los usuarios.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.CargarFiltroUsuarios",
+                    "No se han podido cargar los usuarios.",
+                    ex);
             }
         }
 
@@ -182,13 +173,10 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmPoolTareas.CargarUsuarioAsignado", ex);
-
-                MessageBox.Show(
-                    "No se han podido cargar los usuarios.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.CargarUsuarioAsignado",
+                    "No se han podido cargar los usuarios.",
+                    ex);
             }
         }
 
@@ -217,13 +205,10 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmPoolTareas.CargarNuevoEstado", ex);
-
-                MessageBox.Show(
-                    "No se han podido cargar los estados.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.CargarNuevoEstado",
+                    "No se han podido cargar los estados.",
+                    ex);
             }
         }
 
@@ -263,51 +248,15 @@ namespace GestionFacturas
 
                 dgvTareas.DataSource = resultado;
 
-                FormatearGridTareas();
+                FormateadorGridFacturas.AplicarFormato(dgvTareas);
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmPoolTareas.BuscarTareas", ex);
-
-                MessageBox.Show(
-                    "No se han podido buscar las tareas.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.BuscarTareas",
+                    "No se han podido buscar las tareas.",
+                    ex);
             }
-        }
-
-        /// <summary>
-        /// Da formato de presentación a las columnas de la rejilla de
-        /// tareas: cabeceras legibles y formatos de fecha/importe. No
-        /// hace nada si la rejilla aún no tiene columnas (p. ej. una
-        /// búsqueda sin resultados).
-        /// </summary>
-        private void FormatearGridTareas()
-        {
-            if (dgvTareas.Columns.Count == 0)
-                return;
-
-            dgvTareas.Columns["Registro"].HeaderText = "Registro";
-            dgvTareas.Columns["Documento"].HeaderText = "Documento";
-            dgvTareas.Columns["F_Ent_Calidad"].HeaderText = "F. Ent. Calidad";
-            dgvTareas.Columns["F_Registro"].HeaderText = "F. Registro";
-            dgvTareas.Columns["Sociedad"].HeaderText = "Sociedad";
-            dgvTareas.Columns["Proyecto"].HeaderText = "Proyecto";
-            dgvTareas.Columns["Segmento"].HeaderText = "Segmento";
-            dgvTareas.Columns["Estado"].HeaderText = "Estado";
-            dgvTareas.Columns["Usuario"].HeaderText = "Usuario";
-            dgvTareas.Columns["Importe_Estimado"].HeaderText = "Importe Estimado";
-            dgvTareas.Columns["Num_Factura"].HeaderText = "Factura";
-            dgvTareas.Columns["F_Factura"].HeaderText = "F. Factura";
-            dgvTareas.Columns["Importe_Total"].HeaderText = "Importe Total";
-
-            dgvTareas.Columns["F_Ent_Calidad"].DefaultCellStyle.Format = "dd/MM/yyyy";
-            dgvTareas.Columns["F_Registro"].DefaultCellStyle.Format = "dd/MM/yyyy";
-            dgvTareas.Columns["F_Factura"].DefaultCellStyle.Format = "dd/MM/yyyy";
-
-            dgvTareas.Columns["Importe_Estimado"].DefaultCellStyle.Format = "N2";
-            dgvTareas.Columns["Importe_Total"].DefaultCellStyle.Format = "N2";
         }
 
         /// <summary>
@@ -355,13 +304,10 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmPoolTareas.dgvTareas_SelectionChanged", ex);
-
-                MessageBox.Show(
-                    "No se ha podido cargar el detalle de la tarea.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.dgvTareas_SelectionChanged",
+                    "No se ha podido cargar el detalle de la tarea.",
+                    ex);
             }
         }
 
@@ -435,11 +381,9 @@ namespace GestionFacturas
 
             if (registros.Count == 0)
             {
-                MessageBox.Show(
+                Dialogos.MostrarInformacion(
                     "Seleccione al menos una tarea de la lista.",
-                    "Asignar tarea",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    "Asignar tarea");
 
                 return;
             }
@@ -457,36 +401,25 @@ namespace GestionFacturas
                 ? "¿Asignar " + registros.Count + " tarea(s) a '" + cboUsuarioAsignado.Text + "'?"
                 : "¿Quitar la asignación de " + registros.Count + " tarea(s)?";
 
-            DialogResult respuesta = MessageBox.Show(
-                mensaje,
-                "Confirmar asignación",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (respuesta != DialogResult.Yes)
+            if (!Dialogos.Confirmar(mensaje, "Confirmar asignación"))
                 return;
 
             try
             {
                 facturaRepositorio.AsignarUsuario(registros, idUsuario);
 
-                MessageBox.Show(
+                Dialogos.MostrarInformacion(
                     "Asignación realizada correctamente.",
-                    "Asignar tarea",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    "Asignar tarea");
 
                 BuscarTareas();
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmPoolTareas.btnAsignarTarea_Click", ex);
-
-                MessageBox.Show(
-                    "No se ha podido asignar la tarea.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.btnAsignarTarea_Click",
+                    "No se ha podido asignar la tarea.",
+                    ex);
             }
         }
 
@@ -502,11 +435,9 @@ namespace GestionFacturas
 
             if (registros.Count == 0)
             {
-                MessageBox.Show(
+                Dialogos.MostrarInformacion(
                     "Seleccione al menos una tarea de la lista.",
-                    "Cambiar estado",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    "Cambiar estado");
 
                 return;
             }
@@ -516,37 +447,28 @@ namespace GestionFacturas
 
             int idEstado = Convert.ToInt32(cboNuevoEstado.SelectedValue);
 
-            DialogResult respuesta = MessageBox.Show(
-                "¿Cambiar el estado de " + registros.Count + " tarea(s) a '" +
-                cboNuevoEstado.Text + "'?",
-                "Confirmar cambio de estado",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
+            string mensaje = "¿Cambiar el estado de " + registros.Count + " tarea(s) a '" +
+                cboNuevoEstado.Text + "'?";
 
-            if (respuesta != DialogResult.Yes)
+            if (!Dialogos.Confirmar(mensaje, "Confirmar cambio de estado"))
                 return;
 
             try
             {
                 facturaRepositorio.CambiarEstado(registros, idEstado);
 
-                MessageBox.Show(
+                Dialogos.MostrarInformacion(
                     "Estado actualizado correctamente.",
-                    "Cambiar estado",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    "Cambiar estado");
 
                 BuscarTareas();
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmPoolTareas.btnCambiarEstado_Click", ex);
-
-                MessageBox.Show(
-                    "No se ha podido cambiar el estado.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.btnCambiarEstado_Click",
+                    "No se ha podido cambiar el estado.",
+                    ex);
             }
         }
 
@@ -559,11 +481,7 @@ namespace GestionFacturas
         {
             if (dgvTareas.CurrentRow == null)
             {
-                MessageBox.Show(
-                    "Debe seleccionar una tarea.",
-                    "Abrir tarea",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                Dialogos.MostrarInformacion("Debe seleccionar una tarea.", "Abrir tarea");
 
                 return;
             }

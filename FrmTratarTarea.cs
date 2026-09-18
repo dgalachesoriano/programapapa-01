@@ -89,13 +89,10 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmTratarTarea.CargarEstados", ex);
-
-                MessageBox.Show(
-                    "No se han podido cargar los estados.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmTratarTarea.CargarEstados",
+                    "No se han podido cargar los estados.",
+                    ex);
             }
         }
 
@@ -123,13 +120,10 @@ namespace GestionFacturas
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmTratarTarea.CargarUsuarios", ex);
-
-                MessageBox.Show(
-                    "No se han podido cargar los usuarios.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmTratarTarea.CargarUsuarios",
+                    "No se han podido cargar los usuarios.",
+                    ex);
             }
         }
 
@@ -154,51 +148,15 @@ namespace GestionFacturas
 
                 dgvTareas.DataSource = resultado;
 
-                FormatearGrid();
+                FormateadorGridFacturas.AplicarFormato(dgvTareas);
             }
             catch (Exception ex)
             {
-                RegistradorErrores.Registrar("FrmTratarTarea.BuscarTareas", ex);
-
-                MessageBox.Show(
-                    "No se han podido buscar las tareas.\n\n" + ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                Dialogos.MostrarError(
+                    "FrmTratarTarea.BuscarTareas",
+                    "No se han podido buscar las tareas.",
+                    ex);
             }
-        }
-
-        /// <summary>
-        /// Da formato de presentación a las columnas de la rejilla de
-        /// resultados: cabeceras legibles y formatos de fecha/importe.
-        /// No hace nada si la rejilla aún no tiene columnas (p. ej.
-        /// una búsqueda sin resultados).
-        /// </summary>
-        private void FormatearGrid()
-        {
-            if (dgvTareas.Columns.Count == 0)
-                return;
-
-            dgvTareas.Columns["Registro"].HeaderText = "Registro";
-            dgvTareas.Columns["Documento"].HeaderText = "Documento";
-            dgvTareas.Columns["F_Ent_Calidad"].HeaderText = "F. Ent. Calidad";
-            dgvTareas.Columns["F_Registro"].HeaderText = "F. Registro";
-            dgvTareas.Columns["Sociedad"].HeaderText = "Sociedad";
-            dgvTareas.Columns["Proyecto"].HeaderText = "Proyecto";
-            dgvTareas.Columns["Segmento"].HeaderText = "Segmento";
-            dgvTareas.Columns["Estado"].HeaderText = "Estado";
-            dgvTareas.Columns["Usuario"].HeaderText = "Usuario";
-            dgvTareas.Columns["Importe_Estimado"].HeaderText = "Importe Estimado";
-            dgvTareas.Columns["Num_Factura"].HeaderText = "Factura";
-            dgvTareas.Columns["F_Factura"].HeaderText = "F. Factura";
-            dgvTareas.Columns["Importe_Total"].HeaderText = "Importe Total";
-
-            dgvTareas.Columns["F_Ent_Calidad"].DefaultCellStyle.Format = "dd/MM/yyyy";
-            dgvTareas.Columns["F_Registro"].DefaultCellStyle.Format = "dd/MM/yyyy";
-            dgvTareas.Columns["F_Factura"].DefaultCellStyle.Format = "dd/MM/yyyy";
-
-            dgvTareas.Columns["Importe_Estimado"].DefaultCellStyle.Format = "N2";
-            dgvTareas.Columns["Importe_Total"].DefaultCellStyle.Format = "N2";
         }
 
         /// <summary>
@@ -246,11 +204,7 @@ namespace GestionFacturas
         {
             if (dgvTareas.CurrentRow == null)
             {
-                MessageBox.Show(
-                    "Debe seleccionar una tarea.",
-                    "Abrir tarea",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                Dialogos.MostrarInformacion("Debe seleccionar una tarea.", "Abrir tarea");
 
                 return;
             }
