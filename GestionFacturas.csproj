@@ -57,6 +57,7 @@
     <Compile Include="Datos\InformeRepositorio.cs" />
     <Compile Include="Datos\MotivoRepositorio.cs" />
     <Compile Include="Datos\ProyectoRepositorio.cs" />
+    <Compile Include="Datos\ResumenPrincipalRepositorio.cs" />
     <Compile Include="Datos\SegmentoRepositorio.cs" />
     <Compile Include="Datos\TareaRepositorio.cs" />
     <Compile Include="Datos\TipoFacturaRepositorio.cs" />
