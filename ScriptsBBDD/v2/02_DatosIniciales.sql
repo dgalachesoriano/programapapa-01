@@ -17,8 +17,9 @@
     también esas constantes.
 
     El resto (segmento, proyecto, moneda, tipo de factura, motivo,
-    usuario) son datos de ejemplo: ajústalos a los reales del negocio
-    antes de usar la aplicación en serio.
+    usuario) son los catálogos reales usados en el entorno de trabajo
+    actual (volcado desde la base de datos el 2026-09-19). Ajústalos
+    si el negocio los cambia.
 */
 
 USE GestionFacturas;
@@ -45,44 +46,95 @@ IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'Cancelad
 GO
 
 -- --------------------------------------------------------
--- TBL_PROYECTOS (ejemplo orientativo)
+-- TBL_PROYECTOS
 -- --------------------------------------------------------
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_PROYECTOS WHERE DES_PROYECTO = N'General')
-    INSERT INTO dbo.TBL_PROYECTOS (DES_PROYECTO) VALUES (N'General');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_PROYECTOS WHERE DES_PROYECTO = N'Proyecto1')
+    INSERT INTO dbo.TBL_PROYECTOS (DES_PROYECTO) VALUES (N'Proyecto1');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_PROYECTOS WHERE DES_PROYECTO = N'Proyecto2')
+    INSERT INTO dbo.TBL_PROYECTOS (DES_PROYECTO) VALUES (N'Proyecto2');
 
 -- --------------------------------------------------------
--- TBL_SEGMENTOS (ejemplo orientativo)
+-- TBL_SEGMENTOS
 -- --------------------------------------------------------
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_SEGMENTOS WHERE DES_SEGMENTO = N'General')
-    INSERT INTO dbo.TBL_SEGMENTOS (DES_SEGMENTO) VALUES (N'General');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_SEGMENTOS WHERE DES_SEGMENTO = N'01 - PIPING')
+    INSERT INTO dbo.TBL_SEGMENTOS (DES_SEGMENTO) VALUES (N'01 - PIPING');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_SEGMENTOS WHERE DES_SEGMENTO = N'02 - VALVULAS')
+    INSERT INTO dbo.TBL_SEGMENTOS (DES_SEGMENTO) VALUES (N'02 - VALVULAS');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_SEGMENTOS WHERE DES_SEGMENTO = N'03 - CABLES')
+    INSERT INTO dbo.TBL_SEGMENTOS (DES_SEGMENTO) VALUES (N'03 - CABLES');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_SEGMENTOS WHERE DES_SEGMENTO = N'04 - ESTRUCTURAS')
+    INSERT INTO dbo.TBL_SEGMENTOS (DES_SEGMENTO) VALUES (N'04 - ESTRUCTURAS');
 
 -- --------------------------------------------------------
--- TBL_DIVISAS (ejemplo orientativo)
+-- TBL_DIVISAS
 -- --------------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM dbo.TBL_DIVISAS WHERE COD_DIV = N'EUR')
     INSERT INTO dbo.TBL_DIVISAS (COD_DIV) VALUES (N'EUR');
 
--- --------------------------------------------------------
--- TBL_TIPFACTURAS (ejemplo orientativo)
--- --------------------------------------------------------
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_TIPFACTURAS WHERE DES_TIP_FACT = N'Estándar')
-    INSERT INTO dbo.TBL_TIPFACTURAS (DES_TIP_FACT) VALUES (N'Estándar');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_DIVISAS WHERE COD_DIV = N'USD')
+    INSERT INTO dbo.TBL_DIVISAS (COD_DIV) VALUES (N'USD');
 
 -- --------------------------------------------------------
--- TBL_MOTIVO (ejemplo orientativo, para el bloqueo de tareas)
+-- TBL_TIPFACTURAS
 -- --------------------------------------------------------
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Pendiente de documentación')
-    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Pendiente de documentación');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_TIPFACTURAS WHERE DES_TIP_FACT = N'Factura')
+    INSERT INTO dbo.TBL_TIPFACTURAS (DES_TIP_FACT) VALUES (N'Factura');
 
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Pendiente de validación del cliente')
-    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Pendiente de validación del cliente');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_TIPFACTURAS WHERE DES_TIP_FACT = N'Abono')
+    INSERT INTO dbo.TBL_TIPFACTURAS (DES_TIP_FACT) VALUES (N'Abono');
 
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Otros')
-    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Otros');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_TIPFACTURAS WHERE DES_TIP_FACT = N'Anticipo')
+    INSERT INTO dbo.TBL_TIPFACTURAS (DES_TIP_FACT) VALUES (N'Anticipo');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_TIPFACTURAS WHERE DES_TIP_FACT = N'Retención')
+    INSERT INTO dbo.TBL_TIPFACTURAS (DES_TIP_FACT) VALUES (N'Retención');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_TIPFACTURAS WHERE DES_TIP_FACT = N'Proforma')
+    INSERT INTO dbo.TBL_TIPFACTURAS (DES_TIP_FACT) VALUES (N'Proforma');
 
 -- --------------------------------------------------------
--- TBL_USUARIOS (ejemplo orientativo)
+-- TBL_MOTIVO (usado al bloquear una tarea)
 -- --------------------------------------------------------
-IF NOT EXISTS (SELECT 1 FROM dbo.TBL_USUARIOS WHERE NOMBRE = N'Administrador')
-    INSERT INTO dbo.TBL_USUARIOS (NOMBRE) VALUES (N'Administrador');
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Activador')
+    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Activador');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Cliente')
+    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Cliente');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Contabilidad')
+    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Contabilidad');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Error SAP')
+    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Error SAP');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Facturación')
+    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Facturación');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Grabación')
+    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Grabación');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Ofertador')
+    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Ofertador');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Proveedor')
+    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Proveedor');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_MOTIVO WHERE DES_MOTIVO = N'Transporte')
+    INSERT INTO dbo.TBL_MOTIVO (DES_MOTIVO) VALUES (N'Transporte');
+
+-- --------------------------------------------------------
+-- TBL_USUARIOS
+-- --------------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_USUARIOS WHERE NOMBRE = N'JGalache')
+    INSERT INTO dbo.TBL_USUARIOS (NOMBRE) VALUES (N'JGalache');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_USUARIOS WHERE NOMBRE = N'NLopez')
+    INSERT INTO dbo.TBL_USUARIOS (NOMBRE) VALUES (N'NLopez');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_USUARIOS WHERE NOMBRE = N'POlaechea')
+    INSERT INTO dbo.TBL_USUARIOS (NOMBRE) VALUES (N'POlaechea');
 GO
