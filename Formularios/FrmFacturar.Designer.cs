@@ -50,16 +50,21 @@ namespace GestionFacturas.Formularios
             this.btnColapsarDetalle = new System.Windows.Forms.Button();
             this.grpFacturacion = new System.Windows.Forms.GroupBox();
             this.lblEntidadSalida = new System.Windows.Forms.Label();
+            this.pnlEntidadSalidaBorde = new System.Windows.Forms.Panel();
             this.txtEntidadSalida = new System.Windows.Forms.TextBox();
             this.lblFechaFactura = new System.Windows.Forms.Label();
             this.dtpFechaFactura = new System.Windows.Forms.DateTimePicker();
             this.lblCodigoFactura = new System.Windows.Forms.Label();
+            this.pnlCodigoFacturaBorde = new System.Windows.Forms.Panel();
             this.txtCodigoFactura = new System.Windows.Forms.TextBox();
             this.lblImporteFactura = new System.Windows.Forms.Label();
+            this.pnlImporteFacturaBorde = new System.Windows.Forms.Panel();
             this.txtImporteFactura = new System.Windows.Forms.TextBox();
             this.lblDivisa = new System.Windows.Forms.Label();
+            this.pnlDivisaBorde = new System.Windows.Forms.Panel();
             this.cboDivisa = new System.Windows.Forms.ComboBox();
             this.lblTipoFactura = new System.Windows.Forms.Label();
+            this.pnlTipoFacturaBorde = new System.Windows.Forms.Panel();
             this.cboTipoFactura = new System.Windows.Forms.ComboBox();
             this.btnGrabar = new System.Windows.Forms.Button();
             this.btnCerrar = new System.Windows.Forms.Button();
@@ -72,6 +77,11 @@ namespace GestionFacturas.Formularios
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetalleTarea)).BeginInit();
             this.pnlDetalleHeader.SuspendLayout();
             this.grpFacturacion.SuspendLayout();
+            this.pnlEntidadSalidaBorde.SuspendLayout();
+            this.pnlCodigoFacturaBorde.SuspendLayout();
+            this.pnlImporteFacturaBorde.SuspendLayout();
+            this.pnlDivisaBorde.SuspendLayout();
+            this.pnlTipoFacturaBorde.SuspendLayout();
             this.SuspendLayout();
             //
             // grpFiltros
@@ -311,17 +321,17 @@ namespace GestionFacturas.Formularios
             // campos se posicionan de forma absoluta (igual que la
             // franja de acciones del Pool de Tareas).
             this.grpFacturacion.Controls.Add(this.lblEntidadSalida);
-            this.grpFacturacion.Controls.Add(this.txtEntidadSalida);
+            this.grpFacturacion.Controls.Add(this.pnlEntidadSalidaBorde);
             this.grpFacturacion.Controls.Add(this.lblFechaFactura);
             this.grpFacturacion.Controls.Add(this.dtpFechaFactura);
             this.grpFacturacion.Controls.Add(this.lblCodigoFactura);
-            this.grpFacturacion.Controls.Add(this.txtCodigoFactura);
+            this.grpFacturacion.Controls.Add(this.pnlCodigoFacturaBorde);
             this.grpFacturacion.Controls.Add(this.lblImporteFactura);
-            this.grpFacturacion.Controls.Add(this.txtImporteFactura);
+            this.grpFacturacion.Controls.Add(this.pnlImporteFacturaBorde);
             this.grpFacturacion.Controls.Add(this.lblDivisa);
-            this.grpFacturacion.Controls.Add(this.cboDivisa);
+            this.grpFacturacion.Controls.Add(this.pnlDivisaBorde);
             this.grpFacturacion.Controls.Add(this.lblTipoFactura);
-            this.grpFacturacion.Controls.Add(this.cboTipoFactura);
+            this.grpFacturacion.Controls.Add(this.pnlTipoFacturaBorde);
             this.grpFacturacion.Controls.Add(this.btnGrabar);
             this.grpFacturacion.Controls.Add(this.btnCerrar);
             this.grpFacturacion.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -341,12 +351,22 @@ namespace GestionFacturas.Formularios
             this.lblEntidadSalida.TabIndex = 0;
             this.lblEntidadSalida.Text = "Entidad de Salida:";
             //
-            // txtEntidadSalida
+            // pnlEntidadSalidaBorde
             //
-            this.txtEntidadSalida.Location = new System.Drawing.Point(140, 30);
+            this.pnlEntidadSalidaBorde.BackColor = System.Drawing.SystemColors.Control;
+            this.pnlEntidadSalidaBorde.Controls.Add(this.txtEntidadSalida);
+            this.pnlEntidadSalidaBorde.Location = new System.Drawing.Point(140, 30);
+            this.pnlEntidadSalidaBorde.Name = "pnlEntidadSalidaBorde";
+            this.pnlEntidadSalidaBorde.Padding = new System.Windows.Forms.Padding(2);
+            this.pnlEntidadSalidaBorde.Size = new System.Drawing.Size(180, 24);
+            this.pnlEntidadSalidaBorde.TabIndex = 1;
+            //
+            this.txtEntidadSalida.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtEntidadSalida.Location = new System.Drawing.Point(2, 2);
+            this.txtEntidadSalida.Margin = new System.Windows.Forms.Padding(0);
             this.txtEntidadSalida.Name = "txtEntidadSalida";
-            this.txtEntidadSalida.Size = new System.Drawing.Size(180, 20);
-            this.txtEntidadSalida.TabIndex = 1;
+            this.txtEntidadSalida.Size = new System.Drawing.Size(176, 20);
+            this.txtEntidadSalida.TabIndex = 0;
             //
             // lblFechaFactura
             //
@@ -375,12 +395,22 @@ namespace GestionFacturas.Formularios
             this.lblCodigoFactura.TabIndex = 4;
             this.lblCodigoFactura.Text = "Código Factura:";
             //
-            // txtCodigoFactura
+            // pnlCodigoFacturaBorde
             //
-            this.txtCodigoFactura.Location = new System.Drawing.Point(140, 65);
+            this.pnlCodigoFacturaBorde.BackColor = System.Drawing.SystemColors.Control;
+            this.pnlCodigoFacturaBorde.Controls.Add(this.txtCodigoFactura);
+            this.pnlCodigoFacturaBorde.Location = new System.Drawing.Point(140, 65);
+            this.pnlCodigoFacturaBorde.Name = "pnlCodigoFacturaBorde";
+            this.pnlCodigoFacturaBorde.Padding = new System.Windows.Forms.Padding(2);
+            this.pnlCodigoFacturaBorde.Size = new System.Drawing.Size(180, 24);
+            this.pnlCodigoFacturaBorde.TabIndex = 5;
+            //
+            this.txtCodigoFactura.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtCodigoFactura.Location = new System.Drawing.Point(2, 2);
+            this.txtCodigoFactura.Margin = new System.Windows.Forms.Padding(0);
             this.txtCodigoFactura.Name = "txtCodigoFactura";
-            this.txtCodigoFactura.Size = new System.Drawing.Size(180, 20);
-            this.txtCodigoFactura.TabIndex = 5;
+            this.txtCodigoFactura.Size = new System.Drawing.Size(176, 20);
+            this.txtCodigoFactura.TabIndex = 0;
             //
             // lblImporteFactura
             //
@@ -391,12 +421,23 @@ namespace GestionFacturas.Formularios
             this.lblImporteFactura.TabIndex = 6;
             this.lblImporteFactura.Text = "Importe Fra.:";
             //
-            // txtImporteFactura
+            // pnlImporteFacturaBorde
             //
-            this.txtImporteFactura.Location = new System.Drawing.Point(440, 65);
+            this.pnlImporteFacturaBorde.BackColor = System.Drawing.SystemColors.Control;
+            this.pnlImporteFacturaBorde.Controls.Add(this.txtImporteFactura);
+            this.pnlImporteFacturaBorde.Location = new System.Drawing.Point(440, 65);
+            this.pnlImporteFacturaBorde.Name = "pnlImporteFacturaBorde";
+            this.pnlImporteFacturaBorde.Padding = new System.Windows.Forms.Padding(2);
+            this.pnlImporteFacturaBorde.Size = new System.Drawing.Size(150, 24);
+            this.pnlImporteFacturaBorde.TabIndex = 7;
+            //
+            this.txtImporteFactura.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtImporteFactura.Location = new System.Drawing.Point(2, 2);
+            this.txtImporteFactura.Margin = new System.Windows.Forms.Padding(0);
             this.txtImporteFactura.Name = "txtImporteFactura";
-            this.txtImporteFactura.Size = new System.Drawing.Size(150, 20);
-            this.txtImporteFactura.TabIndex = 7;
+            this.txtImporteFactura.Size = new System.Drawing.Size(146, 20);
+            this.txtImporteFactura.TabIndex = 0;
+            this.txtImporteFactura.Leave += new System.EventHandler(this.txtImporteFactura_Leave);
             //
             // lblDivisa
             //
@@ -407,14 +448,24 @@ namespace GestionFacturas.Formularios
             this.lblDivisa.TabIndex = 8;
             this.lblDivisa.Text = "Divisa:";
             //
-            // cboDivisa
+            // pnlDivisaBorde
             //
+            this.pnlDivisaBorde.BackColor = System.Drawing.SystemColors.Control;
+            this.pnlDivisaBorde.Controls.Add(this.cboDivisa);
+            this.pnlDivisaBorde.Location = new System.Drawing.Point(140, 100);
+            this.pnlDivisaBorde.Name = "pnlDivisaBorde";
+            this.pnlDivisaBorde.Padding = new System.Windows.Forms.Padding(2);
+            this.pnlDivisaBorde.Size = new System.Drawing.Size(120, 25);
+            this.pnlDivisaBorde.TabIndex = 9;
+            //
+            this.cboDivisa.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cboDivisa.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboDivisa.FormattingEnabled = true;
-            this.cboDivisa.Location = new System.Drawing.Point(140, 100);
+            this.cboDivisa.Location = new System.Drawing.Point(2, 2);
+            this.cboDivisa.Margin = new System.Windows.Forms.Padding(0);
             this.cboDivisa.Name = "cboDivisa";
-            this.cboDivisa.Size = new System.Drawing.Size(120, 21);
-            this.cboDivisa.TabIndex = 9;
+            this.cboDivisa.Size = new System.Drawing.Size(116, 21);
+            this.cboDivisa.TabIndex = 0;
             //
             // lblTipoFactura
             //
@@ -425,14 +476,24 @@ namespace GestionFacturas.Formularios
             this.lblTipoFactura.TabIndex = 10;
             this.lblTipoFactura.Text = "Tipo Factura:";
             //
-            // cboTipoFactura
+            // pnlTipoFacturaBorde
             //
+            this.pnlTipoFacturaBorde.BackColor = System.Drawing.SystemColors.Control;
+            this.pnlTipoFacturaBorde.Controls.Add(this.cboTipoFactura);
+            this.pnlTipoFacturaBorde.Location = new System.Drawing.Point(440, 100);
+            this.pnlTipoFacturaBorde.Name = "pnlTipoFacturaBorde";
+            this.pnlTipoFacturaBorde.Padding = new System.Windows.Forms.Padding(2);
+            this.pnlTipoFacturaBorde.Size = new System.Drawing.Size(250, 25);
+            this.pnlTipoFacturaBorde.TabIndex = 11;
+            //
+            this.cboTipoFactura.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cboTipoFactura.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboTipoFactura.FormattingEnabled = true;
-            this.cboTipoFactura.Location = new System.Drawing.Point(440, 100);
+            this.cboTipoFactura.Location = new System.Drawing.Point(2, 2);
+            this.cboTipoFactura.Margin = new System.Windows.Forms.Padding(0);
             this.cboTipoFactura.Name = "cboTipoFactura";
-            this.cboTipoFactura.Size = new System.Drawing.Size(250, 21);
-            this.cboTipoFactura.TabIndex = 11;
+            this.cboTipoFactura.Size = new System.Drawing.Size(246, 21);
+            this.cboTipoFactura.TabIndex = 0;
             //
             // btnGrabar
             //
@@ -441,7 +502,7 @@ namespace GestionFacturas.Formularios
             this.btnGrabar.Name = "btnGrabar";
             this.btnGrabar.Size = new System.Drawing.Size(109, 34);
             this.btnGrabar.TabIndex = 12;
-            this.btnGrabar.Text = "Facturar";
+            this.btnGrabar.Text = "Grabar";
             this.btnGrabar.UseVisualStyleBackColor = true;
             this.btnGrabar.Click += new System.EventHandler(this.btnGrabar_Click);
             //
@@ -468,7 +529,7 @@ namespace GestionFacturas.Formularios
             this.MinimumSize = new System.Drawing.Size(900, 600);
             this.Name = "FrmFacturar";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Facturar";
+            this.Text = "Registrar Factura";
             this.grpFiltros.ResumeLayout(false);
             this.tblFiltros.ResumeLayout(false);
             this.tblFiltros.PerformLayout();
@@ -481,6 +542,14 @@ namespace GestionFacturas.Formularios
             this.pnlDetalleHeader.PerformLayout();
             this.grpFacturacion.ResumeLayout(false);
             this.grpFacturacion.PerformLayout();
+            this.pnlEntidadSalidaBorde.ResumeLayout(false);
+            this.pnlEntidadSalidaBorde.PerformLayout();
+            this.pnlCodigoFacturaBorde.ResumeLayout(false);
+            this.pnlCodigoFacturaBorde.PerformLayout();
+            this.pnlImporteFacturaBorde.ResumeLayout(false);
+            this.pnlImporteFacturaBorde.PerformLayout();
+            this.pnlDivisaBorde.ResumeLayout(false);
+            this.pnlTipoFacturaBorde.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -509,16 +578,21 @@ namespace GestionFacturas.Formularios
         private System.Windows.Forms.Button btnColapsarDetalle;
         private System.Windows.Forms.GroupBox grpFacturacion;
         private System.Windows.Forms.Label lblEntidadSalida;
+        private System.Windows.Forms.Panel pnlEntidadSalidaBorde;
         private System.Windows.Forms.TextBox txtEntidadSalida;
         private System.Windows.Forms.Label lblFechaFactura;
         private System.Windows.Forms.DateTimePicker dtpFechaFactura;
         private System.Windows.Forms.Label lblCodigoFactura;
+        private System.Windows.Forms.Panel pnlCodigoFacturaBorde;
         private System.Windows.Forms.TextBox txtCodigoFactura;
         private System.Windows.Forms.Label lblImporteFactura;
+        private System.Windows.Forms.Panel pnlImporteFacturaBorde;
         private System.Windows.Forms.TextBox txtImporteFactura;
         private System.Windows.Forms.Label lblDivisa;
+        private System.Windows.Forms.Panel pnlDivisaBorde;
         private System.Windows.Forms.ComboBox cboDivisa;
         private System.Windows.Forms.Label lblTipoFactura;
+        private System.Windows.Forms.Panel pnlTipoFacturaBorde;
         private System.Windows.Forms.ComboBox cboTipoFactura;
         private System.Windows.Forms.Button btnGrabar;
         private System.Windows.Forms.Button btnCerrar;

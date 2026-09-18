@@ -34,7 +34,7 @@ namespace GestionFacturas.Servicios
             grid.Columns["DES_DOC"].HeaderText = "Documento";
             grid.Columns["FEC_ENT_CAL"].HeaderText = "F. Ent. Calidad";
             grid.Columns["FEC_REG"].HeaderText = "F. Registro";
-            grid.Columns["DES_ORG_VENTAS"].HeaderText = "Organización de Ventas";
+            grid.Columns["DES_ORG_VENTAS"].HeaderText = "Org. Ventas";
             grid.Columns["DES_PROYECTO"].HeaderText = "Proyecto";
             grid.Columns["DES_SEGMENTO"].HeaderText = "Segmento";
             grid.Columns["IMP_ESTIMADO"].HeaderText = "Importe Estimado";
@@ -45,6 +45,7 @@ namespace GestionFacturas.Servicios
             grid.Columns["FEC_ENT_CAL"].DefaultCellStyle.Format = "dd/MM/yyyy";
             grid.Columns["FEC_REG"].DefaultCellStyle.Format = "dd/MM/yyyy";
             grid.Columns["IMP_ESTIMADO"].DefaultCellStyle.Format = "N2";
+            grid.Columns["IMP_ESTIMADO"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
         }
     }
 }

@@ -335,6 +335,9 @@ namespace GestionFacturas
             dgvDetalle.Columns["COD_PED_INSPEC"].HeaderText = "Pedido de Inspección";
             dgvDetalle.Columns["COD_ENT_ENTR"].HeaderText = "Entidad de Entrega";
             dgvDetalle.Columns["NBR_UNIDADES"].HeaderText = "Unidades";
+
+            dgvDetalle.Columns["NBR_UNIDADES"].DefaultCellStyle.Format = "N2";
+            dgvDetalle.Columns["NBR_UNIDADES"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
         }
 
         /// <summary>

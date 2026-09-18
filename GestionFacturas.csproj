@@ -119,6 +119,7 @@
     <Compile Include="Servicios\PegadoPortapapelesServicio.cs" />
     <Compile Include="Servicios\RegistradorErrores.cs" />
     <Compile Include="Servicios\ResultadoPegadoPortapapeles.cs" />
+    <Compile Include="Servicios\ValidadorCampos.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Formularios\FrmRegistrarTarea.resx">

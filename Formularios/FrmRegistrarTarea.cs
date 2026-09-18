@@ -3,7 +3,6 @@ using GestionFacturas.Modelos;
 using GestionFacturas.Servicios;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 
@@ -39,19 +38,6 @@ namespace GestionFacturas.Formularios
         /// desde el portapapeles.
         /// </summary>
         private const string NombreColumnaDecimalDetalle = "Unidades";
-
-        /// <summary>
-        /// Color de fondo "normal" (invisible) de los paneles que
-        /// envuelven cada campo obligatorio, usado para simular que
-        /// no tienen borde.
-        /// </summary>
-        private static readonly Color ColorBordeNormal = SystemColors.Control;
-
-        /// <summary>
-        /// Color de fondo usado en esos mismos paneles para simular
-        /// un borde rojo alrededor de un campo que falta por rellenar.
-        /// </summary>
-        private static readonly Color ColorBordeInvalido = Color.Red;
 
         /// <summary>
         /// Identificador de la tarea en edición, o 0 cuando el
@@ -103,12 +89,12 @@ namespace GestionFacturas.Formularios
         /// </summary>
         private void ConfigurarLimpiezaDeBordes()
         {
-            txtDocumento.TextChanged += (s, e) => pnlDocumentoBorde.BackColor = ColorBordeNormal;
-            txtOrgVentas.TextChanged += (s, e) => pnlOrgVentasBorde.BackColor = ColorBordeNormal;
-            cboProyecto.SelectedIndexChanged += (s, e) => pnlProyectoBorde.BackColor = ColorBordeNormal;
-            cboSegmento.SelectedIndexChanged += (s, e) => pnlSegmentoBorde.BackColor = ColorBordeNormal;
-            txtImporteEstimado.TextChanged += (s, e) => pnlImporteEstimadoBorde.BackColor = ColorBordeNormal;
-            dgvDetalle.CellBeginEdit += (s, e) => pnlDetalleBorde.BackColor = ColorBordeNormal;
+            txtDocumento.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlDocumentoBorde);
+            txtOrgVentas.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlOrgVentasBorde);
+            cboProyecto.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlProyectoBorde);
+            cboSegmento.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlSegmentoBorde);
+            txtImporteEstimado.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlImporteEstimadoBorde);
+            dgvDetalle.CellBeginEdit += (s, e) => ValidadorCampos.Limpiar(pnlDetalleBorde);
         }
 
         /// <summary>
@@ -359,47 +345,20 @@ namespace GestionFacturas.Formularios
         /// menos una línea completamente rellena. A diferencia de la
         /// validación anterior, no se detiene en el primer campo que
         /// falla: comprueba todos y marca en rojo (ver
-        /// <see cref="ColorBordeInvalido"/>) cada uno de los que
-        /// falten, para que se vean todos a la vez.
+        /// <see cref="ValidadorCampos"/>) cada uno de los que falten,
+        /// para que se vean todos a la vez.
         /// </summary>
         private bool ValidarDatos()
         {
-            bool documentoValido = ValidarCampoTexto(txtDocumento, pnlDocumentoBorde);
-            bool orgVentasValido = ValidarCampoTexto(txtOrgVentas, pnlOrgVentasBorde);
-            bool proyectoValido = ValidarCampoCombo(cboProyecto, pnlProyectoBorde);
-            bool segmentoValido = ValidarCampoCombo(cboSegmento, pnlSegmentoBorde);
+            bool documentoValido = ValidadorCampos.ValidarTexto(txtDocumento, pnlDocumentoBorde);
+            bool orgVentasValido = ValidadorCampos.ValidarTexto(txtOrgVentas, pnlOrgVentasBorde);
+            bool proyectoValido = ValidadorCampos.ValidarCombo(cboProyecto, pnlProyectoBorde);
+            bool segmentoValido = ValidadorCampos.ValidarCombo(cboSegmento, pnlSegmentoBorde);
             bool importeValido = ValidarImporteEstimado();
             bool detalleValido = ValidarDetalle();
 
             return documentoValido && orgVentasValido && proyectoValido
                 && segmentoValido && importeValido && detalleValido;
-        }
-
-        /// <summary>
-        /// Valida que un campo de texto no esté vacío, marcando en
-        /// rojo (o quitando la marca) el panel que lo envuelve.
-        /// </summary>
-        private bool ValidarCampoTexto(TextBox campo, Panel panelBorde)
-        {
-            bool relleno = !string.IsNullOrWhiteSpace(campo.Text);
-
-            panelBorde.BackColor = relleno ? ColorBordeNormal : ColorBordeInvalido;
-
-            return relleno;
-        }
-
-        /// <summary>
-        /// Valida que un combo tenga un elemento seleccionado,
-        /// marcando en rojo (o quitando la marca) el panel que lo
-        /// envuelve.
-        /// </summary>
-        private bool ValidarCampoCombo(ComboBox combo, Panel panelBorde)
-        {
-            bool seleccionado = combo.SelectedIndex != -1 && combo.SelectedValue != null;
-
-            panelBorde.BackColor = seleccionado ? ColorBordeNormal : ColorBordeInvalido;
-
-            return seleccionado;
         }
 
         /// <summary>
@@ -413,7 +372,7 @@ namespace GestionFacturas.Formularios
             bool valido = !string.IsNullOrWhiteSpace(txtImporteEstimado.Text) &&
                 IntentarObtenerDecimal(txtImporteEstimado.Text, out importe);
 
-            pnlImporteEstimadoBorde.BackColor = valido ? ColorBordeNormal : ColorBordeInvalido;
+            pnlImporteEstimadoBorde.BackColor = valido ? ValidadorCampos.ColorNormal : ValidadorCampos.ColorInvalido;
 
             return valido;
         }
@@ -452,7 +411,7 @@ namespace GestionFacturas.Formularios
 
             bool valido = hayLineaCompleta && unidadesValidasEnTodas;
 
-            pnlDetalleBorde.BackColor = valido ? ColorBordeNormal : ColorBordeInvalido;
+            pnlDetalleBorde.BackColor = valido ? ValidadorCampos.ColorNormal : ValidadorCampos.ColorInvalido;
 
             return valido;
         }

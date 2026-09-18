@@ -49,10 +49,27 @@ namespace GestionFacturas.Formularios
             dgvDetalleTarea.AutoGenerateColumns = true;
             dgvDetalleTarea.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
+            ConfigurarLimpiezaDeBordes();
+
             CargarFiltroUsuarios();
             CargarDivisas();
             CargarTiposFactura();
             BuscarTareasPendientes();
+        }
+
+        /// <summary>
+        /// Engancha, en cada campo obligatorio de los datos de
+        /// facturación, el evento que quita su borde rojo en cuanto
+        /// el usuario empieza a escribir o a elegir un valor (igual
+        /// que en FrmRegistrarTarea).
+        /// </summary>
+        private void ConfigurarLimpiezaDeBordes()
+        {
+            txtEntidadSalida.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlEntidadSalidaBorde);
+            txtCodigoFactura.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlCodigoFacturaBorde);
+            txtImporteFactura.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlImporteFacturaBorde);
+            cboDivisa.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlDivisaBorde);
+            cboTipoFactura.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlTipoFacturaBorde);
         }
 
         /// <summary>
@@ -180,6 +197,9 @@ namespace GestionFacturas.Formularios
             dgvDetalleTarea.Columns["PedidoInspeccion"].HeaderText = "Pedido de Inspección";
             dgvDetalleTarea.Columns["EntidadEntrega"].HeaderText = "Entidad de Entrega";
             dgvDetalleTarea.Columns["Unidades"].HeaderText = "Unidades";
+
+            dgvDetalleTarea.Columns["Unidades"].DefaultCellStyle.Format = "N2";
+            dgvDetalleTarea.Columns["Unidades"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
         }
 
         /// <summary>
@@ -257,8 +277,10 @@ namespace GestionFacturas.Formularios
         }
 
         /// <summary>
-        /// Valida los datos, pide confirmación y, si el usuario
-        /// confirma, registra la facturación de la tarea seleccionada.
+        /// Valida los datos; si falta algo, marca en rojo los campos
+        /// pendientes y ofrece completarlos o descartar la
+        /// facturación (igual que FrmRegistrarTarea). Si todo está
+        /// correcto, pide confirmación y graba.
         /// </summary>
         private void btnGrabar_Click(object sender, EventArgs e)
         {
@@ -266,13 +288,27 @@ namespace GestionFacturas.Formularios
             {
                 Dialogos.MostrarInformacion(
                     "Seleccione una tarea pendiente de facturar.",
-                    "Facturar");
+                    "Registrar Factura");
 
                 return;
             }
 
             if (!ValidarDatos())
+            {
+                using (FrmFaltaInformacion dialogo = new FrmFaltaInformacion(
+                    "No se puede grabar la factura porque falta información.\n\n" +
+                    "Los campos pendientes de rellenar han quedado marcados en rojo."))
+                {
+                    dialogo.ShowDialog(this);
+
+                    if (dialogo.SeHaDescartado)
+                    {
+                        Close();
+                    }
+                }
+
                 return;
+            }
 
             if (!Dialogos.Confirmar(
                 "¿Confirma la facturación de la tarea seleccionada?",
@@ -306,51 +342,40 @@ namespace GestionFacturas.Formularios
         }
 
         /// <summary>
-        /// Valida que los campos obligatorios de facturación
-        /// (Código de Factura, Importe, Divisa y Tipo de Factura)
-        /// estén informados.
+        /// Valida que todos los campos de facturación (Entidad de
+        /// Salida, Código de Factura, Importe, Divisa y Tipo de
+        /// Factura) estén informados. No se detiene en el primero que
+        /// falla: comprueba todos y marca en rojo cada uno de los que
+        /// falten, para que se vean todos a la vez (igual que
+        /// FrmRegistrarTarea.ValidarDatos). La Fecha de Factura no se
+        /// valida: un DateTimePicker nunca está vacío.
         /// </summary>
         private bool ValidarDatos()
         {
-            if (string.IsNullOrWhiteSpace(txtCodigoFactura.Text))
-            {
-                Dialogos.MostrarAviso("Debe introducir el Código de Factura.", "Validación");
+            bool entidadSalidaValida = ValidadorCampos.ValidarTexto(txtEntidadSalida, pnlEntidadSalidaBorde);
+            bool codigoFacturaValido = ValidadorCampos.ValidarTexto(txtCodigoFactura, pnlCodigoFacturaBorde);
+            bool importeValido = ValidarImporteFactura();
+            bool divisaValida = ValidadorCampos.ValidarCombo(cboDivisa, pnlDivisaBorde);
+            bool tipoFacturaValido = ValidadorCampos.ValidarCombo(cboTipoFactura, pnlTipoFacturaBorde);
 
-                txtCodigoFactura.Focus();
+            return entidadSalidaValida && codigoFacturaValido && importeValido
+                && divisaValida && tipoFacturaValido;
+        }
 
-                return false;
-            }
-
+        /// <summary>
+        /// Valida el Importe de Factura: debe estar relleno y ser un
+        /// número válido.
+        /// </summary>
+        private bool ValidarImporteFactura()
+        {
             decimal importe;
 
-            if (!IntentarObtenerDecimal(txtImporteFactura.Text, out importe))
-            {
-                Dialogos.MostrarAviso("El Importe de Factura no es un número válido.", "Validación");
+            bool valido = !string.IsNullOrWhiteSpace(txtImporteFactura.Text) &&
+                IntentarObtenerDecimal(txtImporteFactura.Text, out importe);
 
-                txtImporteFactura.Focus();
+            pnlImporteFacturaBorde.BackColor = valido ? ValidadorCampos.ColorNormal : ValidadorCampos.ColorInvalido;
 
-                return false;
-            }
-
-            if (cboDivisa.SelectedIndex == -1 || cboDivisa.SelectedValue == null)
-            {
-                Dialogos.MostrarAviso("Debe seleccionar una Divisa.", "Validación");
-
-                cboDivisa.Focus();
-
-                return false;
-            }
-
-            if (cboTipoFactura.SelectedIndex == -1 || cboTipoFactura.SelectedValue == null)
-            {
-                Dialogos.MostrarAviso("Debe seleccionar un Tipo de Factura.", "Validación");
-
-                cboTipoFactura.Focus();
-
-                return false;
-            }
-
-            return true;
+            return valido;
         }
 
         /// <summary>
@@ -381,6 +406,21 @@ namespace GestionFacturas.Formularios
         private bool IntentarObtenerDecimal(string texto, out decimal valor)
         {
             return decimal.TryParse(texto, NumberStyles.Number, CulturaDecimal, out valor);
+        }
+
+        /// <summary>
+        /// Al salir del campo de importe de factura, si el texto es
+        /// un número válido lo reformatea con dos decimales en
+        /// formato español (punto de millares, coma decimal).
+        /// </summary>
+        private void txtImporteFactura_Leave(object sender, EventArgs e)
+        {
+            decimal importe;
+
+            if (IntentarObtenerDecimal(txtImporteFactura.Text, out importe))
+            {
+                txtImporteFactura.Text = importe.ToString("N2", CulturaDecimal);
+            }
         }
 
         /// <summary>
