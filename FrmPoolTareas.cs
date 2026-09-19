@@ -74,6 +74,7 @@ namespace GestionFacturas
             // antes de mostrar el formulario), sus filas aún no
             // existen de verdad y no hay nada que colorear.
             dgvTareas.DataBindingComplete += dgvTareas_DataBindingComplete;
+            dgvTareas.CellDoubleClick += dgvTareas_CellDoubleClick;
 
             dgvDetalle.AutoGenerateColumns = true;
             dgvDetalle.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -701,9 +702,10 @@ namespace GestionFacturas
         }
 
         /// <summary>
-        /// Abre en modo edición la tarea con el foco en la rejilla de
-        /// resultados y, al cerrarse ese formulario, refresca la
-        /// búsqueda para reflejar los cambios.
+        /// Abre la pantalla de detalle/edición completa de la tarea
+        /// con el foco en la rejilla de resultados y, al cerrarse ese
+        /// formulario, refresca la búsqueda para reflejar los
+        /// cambios.
         /// </summary>
         private void btnAbrirTarea_Click(object sender, EventArgs e)
         {
@@ -716,7 +718,34 @@ namespace GestionFacturas
 
             int idTarea = Convert.ToInt32(dgvTareas.CurrentRow.Cells["ID_TAREA"].Value);
 
-            using (FrmRegistrarTarea formulario = new FrmRegistrarTarea(idTarea))
+            AbrirDetalleTarea(idTarea);
+        }
+
+        /// <summary>
+        /// Abre la pantalla de detalle/edición completa de la tarea
+        /// de la fila en la que se ha hecho doble clic.
+        /// </summary>
+        private void dgvTareas_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0)
+                return;
+
+            object valor = dgvTareas.Rows[e.RowIndex].Cells["ID_TAREA"].Value;
+
+            if (valor == null)
+                return;
+
+            AbrirDetalleTarea(Convert.ToInt32(valor));
+        }
+
+        /// <summary>
+        /// Abre, como diálogo modal, la pantalla de detalle/edición
+        /// completa de la tarea indicada y, al cerrarse, refresca la
+        /// búsqueda para reflejar cualquier cambio realizado en ella.
+        /// </summary>
+        private void AbrirDetalleTarea(int idTarea)
+        {
+            using (FrmDetalleTarea formulario = new FrmDetalleTarea(idTarea))
             {
                 formulario.ShowDialog();
             }

@@ -13,6 +13,11 @@
         motivo de bloqueo), con filtro por estado/fechas/usuario.
       - Pantalla de Facturación: selección de tareas pendientes de
         facturar (DES_ESTADO = 'EN_PROCESO', por ejemplo).
+      - Pantalla de Detalle de Tarea (FrmDetalleTarea): además de lo
+        anterior, necesita los campos de TBL_FACTURADO/TBL_DIVISAS/
+        TBL_TIPFACTURAS (COD_ENT_SAL, COD_SEQ_MON/COD_DIV,
+        COD_SEQ_TPF/DES_TIP_FACT) para poder mostrar y editar los
+        datos de facturación de la tarea, no solo el importe.
 */
 
 USE GestionFacturas;
@@ -47,9 +52,14 @@ SELECT
     MOT.DES_MOTIVO,
 
     C.COD_SEQ_FAC,
-    FAC.COD_FACT,
+    FAC.COD_ENT_SAL,
     FAC.FEC_FACT,
-    FAC.IMP_FACT
+    FAC.COD_FACT,
+    FAC.IMP_FACT,
+    FAC.COD_SEQ_MON,
+    DIV.COD_DIV,
+    FAC.COD_SEQ_TPF,
+    TPF.DES_TIP_FACT
 
 FROM dbo.TBL_TAREAS AS T
 
@@ -65,5 +75,7 @@ LEFT JOIN dbo.TBL_SEGMENTOS AS SEG ON SEG.ID = T.COD_SEQ_SEG
 LEFT JOIN dbo.TBL_USUARIOS  AS USR ON USR.ID = C.COD_SEQ_USER
 LEFT JOIN dbo.TBL_ESTADOS_TAREA AS EST ON EST.ID = C.COD_SEQ_EST
 LEFT JOIN dbo.TBL_MOTIVO    AS MOT ON MOT.ID = C.COD_SEQ_MOTIVO
-LEFT JOIN dbo.TBL_FACTURADO AS FAC ON FAC.ID = C.COD_SEQ_FAC;
+LEFT JOIN dbo.TBL_FACTURADO AS FAC ON FAC.ID = C.COD_SEQ_FAC
+LEFT JOIN dbo.TBL_DIVISAS   AS DIV ON DIV.ID = FAC.COD_SEQ_MON
+LEFT JOIN dbo.TBL_TIPFACTURAS AS TPF ON TPF.ID = FAC.COD_SEQ_TPF;
 GO

@@ -62,6 +62,12 @@
     <Compile Include="Datos\TareaRepositorio.cs" />
     <Compile Include="Datos\TipoFacturaRepositorio.cs" />
     <Compile Include="Datos\UsuarioRepositorio.cs" />
+    <Compile Include="Formularios\FrmDetalleTarea.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmDetalleTarea.Designer.cs">
+      <DependentUpon>FrmDetalleTarea.cs</DependentUpon>
+    </Compile>
     <Compile Include="Formularios\FrmFacturar.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,6 +112,7 @@
     </Compile>
     <Compile Include="Modelos\Divisa.cs" />
     <Compile Include="Modelos\DetalleTarea.cs" />
+    <Compile Include="Modelos\EstadoActualTarea.cs" />
     <Compile Include="Modelos\EstadoTarea.cs" />
     <Compile Include="Modelos\Facturado.cs" />
     <Compile Include="Modelos\FiltroBusquedaTareas.cs" />

@@ -9,13 +9,12 @@ using System.Windows.Forms;
 namespace GestionFacturas.Formularios
 {
     /// <summary>
-    /// Pantalla de alta y edición de una tarea, incluyendo sus líneas
-    /// de detalle. Se usa tanto para registrar una tarea nueva
-    /// (constructor sin parámetros) como para editar una ya existente
-    /// (constructor con el identificador). Al dar de alta una tarea
-    /// nueva, se crea además el evento inicial de TBL_CONTROL con
-    /// estado "REGISTRADO" (ver TareaRepositorio.Insertar); editar
-    /// una tarea existente nunca toca su estado en el flujo.
+    /// Pantalla de alta de una tarea nueva, incluyendo sus líneas de
+    /// detalle. Crea además el evento inicial de TBL_CONTROL con
+    /// estado "Registrado" (ver TareaRepositorio.Insertar). Editar una
+    /// tarea ya existente (cabecera, detalle, estado, usuario y
+    /// facturación) es responsabilidad de FrmDetalleTarea, que se abre
+    /// desde el Pool de Tareas.
     /// </summary>
     public partial class FrmRegistrarTarea : Form
     {
@@ -39,15 +38,6 @@ namespace GestionFacturas.Formularios
         /// </summary>
         private const string NombreColumnaDecimalDetalle = "Unidades";
 
-        /// <summary>
-        /// Identificador de la tarea en edición, o 0 cuando el
-        /// formulario se usa para dar de alta una tarea nueva.
-        /// </summary>
-        private int idTareaEdicion = 0;
-
-        /// <summary>
-        /// Crea el formulario en modo "nueva tarea".
-        /// </summary>
         public FrmRegistrarTarea()
         {
             InitializeComponent();
@@ -56,27 +46,6 @@ namespace GestionFacturas.Formularios
             ConfigurarLimpiezaDeBordes();
             CargarProyectos();
             CargarSegmentos();
-        }
-
-        /// <summary>
-        /// Crea el formulario en modo edición, cargando los datos de
-        /// la tarea indicada.
-        /// </summary>
-        /// <param name="idTarea">Identificador de la tarea a editar.</param>
-        public FrmRegistrarTarea(int idTarea)
-        {
-            InitializeComponent();
-
-            ConfigurarGridDetalle();
-            ConfigurarLimpiezaDeBordes();
-            CargarProyectos();
-            CargarSegmentos();
-
-            idTareaEdicion = idTarea;
-
-            this.Text = "Tratar Tarea";
-
-            CargarTarea(idTarea);
         }
 
         /// <summary>
@@ -432,8 +401,7 @@ namespace GestionFacturas.Formularios
 
         /// <summary>
         /// Construye la cabecera y el detalle a partir de los
-        /// controles de pantalla y delega en el repositorio la
-        /// inserción (tarea nueva) o actualización (edición).
+        /// controles de pantalla y delega en el repositorio el alta.
         /// </summary>
         private void GrabarTarea()
         {
@@ -442,24 +410,11 @@ namespace GestionFacturas.Formularios
                 Tarea tarea = ConstruirTareaDesdeFormulario();
                 List<DetalleTarea> detalles = ObtenerDetallesDesdeGrid();
 
-                if (idTareaEdicion == 0)
-                {
-                    int nuevoId = tareaRepositorio.Insertar(tarea, detalles);
+                tareaRepositorio.Insertar(tarea, detalles);
 
-                    Dialogos.MostrarInformacion(
-                        "La tarea se ha registrado correctamente.",
-                        "Grabación correcta");
-                }
-                else
-                {
-                    tarea.Id = idTareaEdicion;
-
-                    tareaRepositorio.Actualizar(tarea, detalles);
-
-                    Dialogos.MostrarInformacion(
-                        "La tarea se ha actualizado correctamente.",
-                        "Grabación correcta");
-                }
+                Dialogos.MostrarInformacion(
+                    "La tarea se ha registrado correctamente.",
+                    "Grabación correcta");
 
                 DialogResult = DialogResult.OK;
                 Close();
@@ -562,67 +517,6 @@ namespace GestionFacturas.Formularios
             if (IntentarObtenerDecimal(txtImporteEstimado.Text, out importe))
             {
                 txtImporteEstimado.Text = importe.ToString("N2", CulturaDecimal);
-            }
-        }
-
-        /// <summary>
-        /// Carga en pantalla los datos de cabecera y detalle de la
-        /// tarea indicada. Si no se encuentra, muestra un aviso y
-        /// deja el formulario sin rellenar.
-        /// </summary>
-        private void CargarTarea(int idTarea)
-        {
-            try
-            {
-                Tarea tarea = tareaRepositorio.ObtenerPorId(idTarea);
-
-                if (tarea == null)
-                {
-                    Dialogos.MostrarAviso("No se ha encontrado la tarea.", "Error");
-
-                    return;
-                }
-
-                txtDocumento.Text = tarea.Documento;
-                dtpFEntCalidad.Value = tarea.FechaEntradaCalidad;
-                dtpFRegistro.Value = tarea.FechaRegistro;
-                txtOrgVentas.Text = tarea.OrganizacionVentas;
-
-                txtImporteEstimado.Text = tarea.ImporteEstimado.HasValue
-                    ? tarea.ImporteEstimado.Value.ToString("N2", CulturaDecimal)
-                    : string.Empty;
-
-                cboProyecto.SelectedValue = tarea.IdProyecto;
-                cboSegmento.SelectedValue = tarea.IdSegmento;
-
-                List<DetalleTarea> detalles = tareaRepositorio.ObtenerDetalle(idTarea);
-
-                CargarDetalleEnGrid(detalles);
-            }
-            catch (Exception ex)
-            {
-                Dialogos.MostrarError(
-                    "FrmRegistrarTarea.CargarTarea",
-                    "No se ha podido cargar la tarea.",
-                    ex);
-            }
-        }
-
-        /// <summary>
-        /// Vuelca en el grid de detalle la lista de líneas obtenida
-        /// del repositorio, añadiendo una fila por cada línea.
-        /// </summary>
-        private void CargarDetalleEnGrid(List<DetalleTarea> detalles)
-        {
-            foreach (DetalleTarea detalle in detalles)
-            {
-                int fila = dgvDetalle.Rows.Add();
-
-                dgvDetalle.Rows[fila].Cells["PedidoVenta"].Value = detalle.PedidoVenta;
-                dgvDetalle.Rows[fila].Cells["PedidoCompra"].Value = detalle.PedidoCompra;
-                dgvDetalle.Rows[fila].Cells["PedidoInspeccion"].Value = detalle.PedidoInspeccion;
-                dgvDetalle.Rows[fila].Cells["EntidadEntrega"].Value = detalle.EntidadEntrega;
-                dgvDetalle.Rows[fila].Cells["Unidades"].Value = detalle.Unidades;
             }
         }
 
