@@ -14,6 +14,8 @@
     Nota: la base de datos GestionFacturas debe existir ya (ver
     ../00_CrearBaseDatos.sql).
 */
+scripts
+
 
 :r .\01_CrearTablas.sql
 :r .\02_DatosIniciales.sql
