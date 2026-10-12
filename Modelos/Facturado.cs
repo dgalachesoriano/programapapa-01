@@ -23,8 +23,5 @@ namespace GestionFacturas.Modelos
 
         /// <summary>Divisa en la que está expresado el importe.</summary>
         public int IdDivisa { get; set; }
-
-        /// <summary>Tipo de factura.</summary>
-        public int IdTipoFactura { get; set; }
     }
 }

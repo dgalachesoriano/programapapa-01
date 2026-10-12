@@ -6,23 +6,29 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace GestionFacturas
 {
     /// <summary>
     /// Pantalla del "pool de tareas": permite consultar las tareas
-    /// filtrando por estado, usuario asignado y rango de fechas de
-    /// registro, ver el detalle de cada una, asignar (paso 2 del
+    /// filtrando por estado, usuario asignado, proyecto, segmento y
+    /// rango de fechas de registro, ver el detalle de cada una (panel
+    /// colapsable, ver btnColapsarDetalle_Click), asignar (paso 2 del
     /// flujo: pasa a estado "En Proceso") de una sola vez el usuario
     /// responsable de una o varias tareas seleccionadas, y bloquear
     /// tareas (pasa a estado "Bloqueado") indicando un motivo
-    /// obligatorio de una lista.
+    /// obligatorio de una lista. Con selección múltiple, muestra
+    /// además la suma del Importe Estimado de las tareas marcadas
+    /// (ver ActualizarResumenSeleccion).
     /// </summary>
     public partial class FrmPoolTareas : Form
     {
         private readonly EstadoTareaRepositorio estadoRepositorio = new EstadoTareaRepositorio();
         private readonly UsuarioRepositorio usuarioRepositorio = new UsuarioRepositorio();
+        private readonly ProyectoRepositorio proyectoRepositorio = new ProyectoRepositorio();
+        private readonly SegmentoRepositorio segmentoRepositorio = new SegmentoRepositorio();
         private readonly TareaRepositorio tareaRepositorio = new TareaRepositorio();
 
         /// <summary>
@@ -30,6 +36,12 @@ namespace GestionFacturas
         /// filtrar por este campo" (Estado/Usuario).
         /// </summary>
         private const int IdTodos = 0;
+
+        /// <summary>
+        /// Cultura usada para formatear la suma de Importe Estimado
+        /// del resumen de selección (coma como separador decimal).
+        /// </summary>
+        private static readonly CultureInfo CulturaDecimal = new CultureInfo("es-ES");
 
         /// <summary>
         /// Colores pastel de fondo para las filas de la rejilla de
@@ -49,6 +61,8 @@ namespace GestionFacturas
             ConfigurarGrids();
             CargarFiltroEstados();
             CargarFiltroUsuarios();
+            CargarFiltroProyectos();
+            CargarFiltroSegmentos();
             CargarUsuarioAsignado();
 
             BuscarTareas();
@@ -74,6 +88,7 @@ namespace GestionFacturas
             // antes de mostrar el formulario), sus filas aún no
             // existen de verdad y no hay nada que colorear.
             dgvTareas.DataBindingComplete += dgvTareas_DataBindingComplete;
+            dgvTareas.CellDoubleClick += dgvTareas_CellDoubleClick;
 
             dgvDetalle.AutoGenerateColumns = true;
             dgvDetalle.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -147,6 +162,58 @@ namespace GestionFacturas
         }
 
         /// <summary>
+        /// Carga en el combo de filtro de proyectos todos los
+        /// proyectos activos más la opción "Todos" (Id = 0).
+        /// </summary>
+        private void CargarFiltroProyectos()
+        {
+            try
+            {
+                List<Proyecto> proyectos = proyectoRepositorio.ObtenerActivos();
+
+                proyectos.Insert(0, new Proyecto { Id = IdTodos, Descripcion = "Todos" });
+
+                cboFiltroProyecto.DataSource = proyectos;
+                cboFiltroProyecto.DisplayMember = "Descripcion";
+                cboFiltroProyecto.ValueMember = "Id";
+                cboFiltroProyecto.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.CargarFiltroProyectos",
+                    "No se han podido cargar los proyectos.",
+                    ex);
+            }
+        }
+
+        /// <summary>
+        /// Carga en el combo de filtro de segmentos todos los
+        /// segmentos activos más la opción "Todos" (Id = 0).
+        /// </summary>
+        private void CargarFiltroSegmentos()
+        {
+            try
+            {
+                List<Segmento> segmentos = segmentoRepositorio.ObtenerActivos();
+
+                segmentos.Insert(0, new Segmento { Id = IdTodos, Descripcion = "Todos" });
+
+                cboFiltroSegmento.DataSource = segmentos;
+                cboFiltroSegmento.DisplayMember = "Descripcion";
+                cboFiltroSegmento.ValueMember = "Id";
+                cboFiltroSegmento.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmPoolTareas.CargarFiltroSegmentos",
+                    "No se han podido cargar los segmentos.",
+                    ex);
+            }
+        }
+
+        /// <summary>
         /// Carga en el combo de usuario destino de la asignación los
         /// usuarios activos. A diferencia del filtro, aquí no hay
         /// opción "Todos"/"Sin asignar": asignar una tarea siempre
@@ -198,6 +265,14 @@ namespace GestionFacturas
 
                     IdUsuario = cboFiltroUsuario.SelectedValue != null
                         ? Convert.ToInt32(cboFiltroUsuario.SelectedValue)
+                        : IdTodos,
+
+                    IdProyecto = cboFiltroProyecto.SelectedValue != null
+                        ? Convert.ToInt32(cboFiltroProyecto.SelectedValue)
+                        : IdTodos,
+
+                    IdSegmento = cboFiltroSegmento.SelectedValue != null
+                        ? Convert.ToInt32(cboFiltroSegmento.SelectedValue)
                         : IdTodos,
 
                     FechaDesde = dtpFechaDesde.Checked ? (DateTime?)dtpFechaDesde.Value.Date : null,
@@ -354,6 +429,8 @@ namespace GestionFacturas
 
             ActualizarUsuarioAsignadoSegunSeleccion();
 
+            ActualizarResumenSeleccion();
+
             List<int> idsSeleccionados = ObtenerIdsSeleccionados();
 
             if (idsSeleccionados.Count == 0)
@@ -377,6 +454,56 @@ namespace GestionFacturas
                     "No se ha podido cargar el detalle de las tareas seleccionadas.",
                     ex);
             }
+        }
+
+        /// <summary>
+        /// Actualiza, al estilo de la barra de estado de una hoja de
+        /// cálculo, el resumen que aparece justo sobre la franja de
+        /// acciones: la suma del Importe Estimado de las tareas
+        /// seleccionadas. Solo se muestra con selección múltiple (más
+        /// de una tarea); con ninguna o una sola seleccionada queda en
+        /// blanco, igual que Excel no muestra suma con una sola celda.
+        /// </summary>
+        private void ActualizarResumenSeleccion()
+        {
+            if (dgvTareas.SelectedRows.Count <= 1)
+            {
+                lblResumenSeleccion.Text = string.Empty;
+                return;
+            }
+
+            decimal suma = 0;
+
+            foreach (DataGridViewRow fila in dgvTareas.SelectedRows)
+            {
+                object valor = fila.Cells["IMP_ESTIMADO"].Value;
+
+                if (valor != null && valor != DBNull.Value)
+                {
+                    suma += Convert.ToDecimal(valor);
+                }
+            }
+
+            lblResumenSeleccion.Text =
+                "Suma Importe Estimado (" + dgvTareas.SelectedRows.Count + " tareas): " +
+                suma.ToString("N2", CulturaDecimal);
+        }
+
+        /// <summary>
+        /// Muestra u oculta el panel de detalle (Panel2 del
+        /// SplitContainer), para dejar más espacio a la rejilla de
+        /// tareas cuando no hace falta verlo (igual que FrmFacturar).
+        /// El botón vive en la rejilla de tareas, no en el propio
+        /// panel de detalle, para seguir siendo accesible aunque este
+        /// se oculte del todo.
+        /// </summary>
+        private void btnColapsarDetalle_Click(object sender, EventArgs e)
+        {
+            bool colapsar = !splitPrincipal.Panel2Collapsed;
+
+            splitPrincipal.Panel2Collapsed = colapsar;
+
+            btnColapsarDetalle.Text = colapsar ? "▲ Mostrar detalle" : "▼ Ocultar detalle";
         }
 
         /// <summary>
@@ -466,6 +593,8 @@ namespace GestionFacturas
         {
             cboFiltroEstado.SelectedIndex = 0;
             cboFiltroUsuario.SelectedIndex = 0;
+            cboFiltroProyecto.SelectedIndex = 0;
+            cboFiltroSegmento.SelectedIndex = 0;
             dtpFechaDesde.Checked = false;
             dtpFechaHasta.Checked = false;
 
@@ -520,8 +649,6 @@ namespace GestionFacturas
             try
             {
                 tareaRepositorio.AsignarUsuario(ids, idUsuario);
-
-                Dialogos.MostrarInformacion("Asignación realizada correctamente.", "Asignar tarea");
 
                 BuscarTareas();
             }
@@ -701,9 +828,10 @@ namespace GestionFacturas
         }
 
         /// <summary>
-        /// Abre en modo edición la tarea con el foco en la rejilla de
-        /// resultados y, al cerrarse ese formulario, refresca la
-        /// búsqueda para reflejar los cambios.
+        /// Abre la pantalla de detalle/edición completa de la tarea
+        /// con el foco en la rejilla de resultados y, al cerrarse ese
+        /// formulario, refresca la búsqueda para reflejar los
+        /// cambios.
         /// </summary>
         private void btnAbrirTarea_Click(object sender, EventArgs e)
         {
@@ -716,7 +844,34 @@ namespace GestionFacturas
 
             int idTarea = Convert.ToInt32(dgvTareas.CurrentRow.Cells["ID_TAREA"].Value);
 
-            using (FrmRegistrarTarea formulario = new FrmRegistrarTarea(idTarea))
+            AbrirDetalleTarea(idTarea);
+        }
+
+        /// <summary>
+        /// Abre la pantalla de detalle/edición completa de la tarea
+        /// de la fila en la que se ha hecho doble clic.
+        /// </summary>
+        private void dgvTareas_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0)
+                return;
+
+            object valor = dgvTareas.Rows[e.RowIndex].Cells["ID_TAREA"].Value;
+
+            if (valor == null)
+                return;
+
+            AbrirDetalleTarea(Convert.ToInt32(valor));
+        }
+
+        /// <summary>
+        /// Abre, como diálogo modal, la pantalla de detalle/edición
+        /// completa de la tarea indicada y, al cerrarse, refresca la
+        /// búsqueda para reflejar cualquier cambio realizado en ella.
+        /// </summary>
+        private void AbrirDetalleTarea(int idTarea)
+        {
+            using (FrmDetalleTarea formulario = new FrmDetalleTarea(idTarea))
             {
                 formulario.ShowDialog();
             }

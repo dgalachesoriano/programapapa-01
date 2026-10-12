@@ -4,16 +4,21 @@ namespace GestionFacturas.Modelos
 {
     /// <summary>
     /// Agrupa los criterios de búsqueda usados para filtrar tareas
-    /// (sobre VW_TAREAS_ESTADO_ACTUAL), tanto en el Pool de Tareas
-    /// como en la pantalla de Facturación. Un valor de 0 en
-    /// IdEstado/IdUsuario, cadena vacía en Documento, o null en
-    /// FechaDesde/FechaHasta, significa "sin filtrar por ese campo".
+    /// (sobre VW_TAREAS_ESTADO_ACTUAL), tanto en el Pool de Tareas y
+    /// la pantalla de Facturación como en los informes. Un valor de 0
+    /// en IdEstado/IdUsuario/IdProyecto/IdSegmento, cadena vacía en
+    /// Documento, o null en FechaDesde/FechaHasta, significa "sin
+    /// filtrar por ese campo".
     /// </summary>
     internal class FiltroBusquedaTareas
     {
         public int IdEstado { get; set; }
 
         public int IdUsuario { get; set; }
+
+        public int IdProyecto { get; set; }
+
+        public int IdSegmento { get; set; }
 
         /// <summary>Coincidencia parcial sobre el Documento de la tarea.</summary>
         public string Documento { get; set; } = string.Empty;

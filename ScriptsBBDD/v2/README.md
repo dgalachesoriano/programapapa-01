@@ -29,23 +29,25 @@ existentes.
 
 Catálogos (patrón común: `ID` identity, una descripción, y
 `XTI_ACTIVO CHAR(1)` con `CHECK IN ('S','N')`, por defecto `'S'`):
-`TBL_USUARIOS`, `TBL_PROYECTOS`, `TBL_SEGMENTOS`, `TBL_DIVISAS`,
-`TBL_TIPFACTURAS`, `TBL_MOTIVO`, `TBL_ESTADOS_TAREA`.
+`TBL_USUARIOS`, `TBL_ORGANIZACIONES_VENTAS`, `TBL_PROYECTOS`,
+`TBL_SEGMENTOS`, `TBL_DIVISAS`, `TBL_TIPFACTURAS`, `TBL_MOTIVO`,
+`TBL_ESTADOS_TAREA`.
 
 Entidades del proceso: `TBL_TAREAS`, `TBL_DETALLETAREA`,
 `TBL_FACTURADO`, `TBL_CONTROL`.
 
 ```
-TBL_PROYECTOS ──┐
-TBL_SEGMENTOS ──┼──► TBL_TAREAS ──1───*── TBL_DETALLETAREA
-                │         ▲
-                │         │ COD_SEQ_TAR
-                │         │
-TBL_USUARIOS ───┼──► TBL_CONTROL ◄──── COD_SEQ_FAC ──── TBL_FACTURADO ──► TBL_DIVISAS
-TBL_ESTADOS_TAREA┤         │                                          └─► TBL_TIPFACTURAS
-TBL_MOTIVO ──────┘   (1 fila por evento:
-                       alta / asignación /
-                       bloqueo / facturación)
+TBL_ORGANIZACIONES_VENTAS ─┐
+TBL_PROYECTOS ─────────────┤
+TBL_SEGMENTOS ─────────────┼──► TBL_TAREAS ──1───*── TBL_DETALLETAREA
+TBL_TIPFACTURAS ───────────┤         ▲
+TBL_DIVISAS ────────────────┘         │ COD_SEQ_TAR
+                                      │
+TBL_USUARIOS ───────────────────► TBL_CONTROL ◄──── COD_SEQ_FAC ──── TBL_FACTURADO ──► TBL_DIVISAS
+TBL_ESTADOS_TAREA┤                      │
+TBL_MOTIVO ──────┘                (1 fila por evento:
+                                    alta / asignación /
+                                    bloqueo / facturación)
 ```
 
 ## Diferencias respecto a lo pedido, y por qué
@@ -129,8 +131,19 @@ están resueltas:
   `COD_SEQ_MOTIVO` como `NULL`-able porque solo aplica a los eventos
   de bloqueo, no a los demás (alta, asignación, facturación).
 
-**Sigue abierta** (no bloquea nada, es una mejora opcional):
-`TBL_TAREAS.DES_ORG_VENTAS` (equivalente a la antigua `Sociedad`) se
-mantiene como texto libre, tal y como se pidió. Si el conjunto de
-organizaciones de venta es cerrado y estable, se podría normalizar
-igual que `TBL_PROYECTOS`/`TBL_SEGMENTOS` más adelante.
+**Resuelta:** `TBL_TAREAS.DES_ORG_VENTAS` (equivalente a la antigua
+`Sociedad`) ya no es texto libre: se ha normalizado en
+`TBL_ORGANIZACIONES_VENTAS` + `TBL_TAREAS.COD_SEQ_ORG_VTA`, con la
+misma forma que `TBL_PROYECTOS`/`TBL_SEGMENTOS` (catálogo con
+ID/descripción/activo, mostrado como desplegable en pantalla).
+
+**`TBL_TAREAS` incorpora tipo de documento, moneda estimada y
+notas**, las tres informadas al Registrar Tarea:
+- `COD_SEQ_TPF` (tipo de documento): antes era
+  `TBL_FACTURADO.COD_SEQ_TPF` ("tipo de factura"), informado solo al
+  facturar. Es en realidad un dato de la tarea, no de su facturación,
+  así que se mueve a `TBL_TAREAS` y `TBL_FACTURADO` deja de tenerlo.
+- `COD_SEQ_MON` (moneda estimada): FK a `TBL_DIVISAS`, independiente
+  de la divisa real de `TBL_FACTURADO.COD_SEQ_MON` (estimada en el
+  alta vs. real al facturar).
+- `DES_NOTAS`: texto libre opcional (`NVARCHAR(255) NULL`).

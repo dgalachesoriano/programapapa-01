@@ -20,7 +20,7 @@ namespace GestionFacturas.Modelos
         public DateTime FechaRegistro { get; set; }
 
         /// <summary>Organización de ventas asociada a la tarea.</summary>
-        public string OrganizacionVentas { get; set; }
+        public int IdOrganizacionVentas { get; set; }
 
         /// <summary>Proyecto al que pertenece la tarea.</summary>
         public int IdProyecto { get; set; }
@@ -30,5 +30,18 @@ namespace GestionFacturas.Modelos
 
         /// <summary>Importe estimado (puede no haberse informado aún).</summary>
         public decimal? ImporteEstimado { get; set; }
+
+        /// <summary>
+        /// Tipo de documento de la tarea. Se da de alta en el proceso
+        /// de registro (antes vivía en TBL_FACTURADO.COD_SEQ_TPF, pero
+        /// en realidad corresponde a la tarea, no a su facturación).
+        /// </summary>
+        public int IdTipoDocumento { get; set; }
+
+        /// <summary>Divisa estimada en la que se espera facturar la tarea.</summary>
+        public int IdDivisaEstimada { get; set; }
+
+        /// <summary>Notas libres sobre la tarea (máximo 255 caracteres). Opcional.</summary>
+        public string Notas { get; set; }
     }
 }

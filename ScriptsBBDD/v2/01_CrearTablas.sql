@@ -50,6 +50,33 @@
          UNIQUE (COD_SEQ_TAR) y hacer UPDATE en vez de INSERT desde la
          aplicación.
 
+      5. TBL_TAREAS.DES_ORG_VENTAS (texto libre) se sustituye por
+         TBL_ORGANIZACIONES_VENTAS + COD_SEQ_ORG_VTA, con la misma
+         forma que TBL_PROYECTOS (catálogo con ID/descripción/activo).
+         Resuelve la mejora pendiente que señalaba el README de esta
+         carpeta: Organización de Ventas pasa a ser un desplegable
+         cuyas opciones vienen de este catálogo, igual que Proyecto o
+         Segmento.
+
+      6. TBL_TAREAS incorpora tres columnas nuevas, todas informadas
+         al Registrar Tarea (igual que Proyecto/Segmento):
+           - COD_SEQ_TPF (tipo de documento): antes vivía en
+             TBL_FACTURADO (como "tipo de factura", informado solo al
+             facturar). En realidad es un dato de la propia tarea, no
+             de su facturación, así que se mueve aquí y TBL_FACTURADO
+             deja de tenerlo; de ahí que FrmFacturar y la sección de
+             facturación de FrmDetalleTarea ya no pidan tipo de
+             factura.
+           - COD_SEQ_MON (moneda estimada): FK a TBL_DIVISAS, el mismo
+             catálogo que usa TBL_FACTURADO.COD_SEQ_MON para la
+             divisa real de la factura; son conceptos independientes
+             (estimado en el alta vs. real al facturar), por lo que
+             TBL_TAREAS tiene su propia columna en vez de reutilizar
+             la de TBL_FACTURADO.
+           - DES_NOTAS: texto libre opcional (NULL-able, a diferencia
+             del resto de columnas de este bloque), sin catálogo
+             detrás al no ser un campo categórico.
+
     Decisiones confirmadas tras revisar las preguntas abiertas de la
     primera versión de este script:
 
@@ -99,6 +126,24 @@ BEGIN
         CONSTRAINT PK_TBL_PROYECTOS PRIMARY KEY CLUSTERED (ID),
         CONSTRAINT UQ_TBL_PROYECTOS_DES_PROYECTO UNIQUE (DES_PROYECTO),
         CONSTRAINT CK_TBL_PROYECTOS_XTI_ACTIVO CHECK (XTI_ACTIVO IN ('S', 'N'))
+    );
+END
+GO
+
+-- TBL_ORGANIZACIONES_VENTAS: catálogo de organizaciones de venta,
+-- con la misma forma que TBL_PROYECTOS (ver nota 5 de la cabecera).
+-- Sustituye al antiguo TBL_TAREAS.DES_ORG_VENTAS de texto libre.
+IF OBJECT_ID(N'dbo.TBL_ORGANIZACIONES_VENTAS', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TBL_ORGANIZACIONES_VENTAS
+    (
+        ID              INT IDENTITY(1,1) NOT NULL,
+        DES_ORG_VENTAS  NVARCHAR(100)     NOT NULL,
+        XTI_ACTIVO      CHAR(1)           NOT NULL CONSTRAINT DF_TBL_ORGANIZACIONES_VENTAS_XTI_ACTIVO DEFAULT ('S'),
+
+        CONSTRAINT PK_TBL_ORGANIZACIONES_VENTAS PRIMARY KEY CLUSTERED (ID),
+        CONSTRAINT UQ_TBL_ORGANIZACIONES_VENTAS_DES_ORG_VENTAS UNIQUE (DES_ORG_VENTAS),
+        CONSTRAINT CK_TBL_ORGANIZACIONES_VENTAS_XTI_ACTIVO CHECK (XTI_ACTIVO IN ('S', 'N'))
     );
 END
 GO
@@ -196,15 +241,22 @@ BEGIN
         DES_DOC         NVARCHAR(100)     NOT NULL,
         FEC_ENT_CAL     DATE              NOT NULL,
         FEC_REG         DATE              NOT NULL,
-        DES_ORG_VENTAS  NVARCHAR(100)     NOT NULL,
+        COD_SEQ_ORG_VTA INT               NOT NULL,
         COD_SEQ_PRY     INT               NOT NULL,
         COD_SEQ_SEG     INT               NOT NULL,
         IMP_ESTIMADO    DECIMAL(18, 2)    NULL,
+        COD_SEQ_TPF     INT               NOT NULL,
+        COD_SEQ_MON     INT               NOT NULL,
+        DES_NOTAS       NVARCHAR(255)     NULL,
 
         CONSTRAINT PK_TBL_TAREAS PRIMARY KEY CLUSTERED (ID),
 
         -- "no puede ser nulo ni duplicarse", tal cual se ha pedido.
         CONSTRAINT UQ_TBL_TAREAS_DES_DOC UNIQUE (DES_DOC),
+
+        CONSTRAINT FK_TBL_TAREAS_TBL_ORGANIZACIONES_VENTAS
+            FOREIGN KEY (COD_SEQ_ORG_VTA)
+            REFERENCES dbo.TBL_ORGANIZACIONES_VENTAS (ID),
 
         CONSTRAINT FK_TBL_TAREAS_TBL_PROYECTOS
             FOREIGN KEY (COD_SEQ_PRY)
@@ -214,12 +266,23 @@ BEGIN
             FOREIGN KEY (COD_SEQ_SEG)
             REFERENCES dbo.TBL_SEGMENTOS (ID),
 
+        CONSTRAINT FK_TBL_TAREAS_TBL_TIPFACTURAS
+            FOREIGN KEY (COD_SEQ_TPF)
+            REFERENCES dbo.TBL_TIPFACTURAS (ID),
+
+        CONSTRAINT FK_TBL_TAREAS_TBL_DIVISAS
+            FOREIGN KEY (COD_SEQ_MON)
+            REFERENCES dbo.TBL_DIVISAS (ID),
+
         CONSTRAINT CK_TBL_TAREAS_IMP_ESTIMADO
             CHECK (IMP_ESTIMADO IS NULL OR IMP_ESTIMADO >= 0)
     );
 
+    CREATE NONCLUSTERED INDEX IX_TBL_TAREAS_COD_SEQ_ORG_VTA ON dbo.TBL_TAREAS (COD_SEQ_ORG_VTA);
     CREATE NONCLUSTERED INDEX IX_TBL_TAREAS_COD_SEQ_PRY ON dbo.TBL_TAREAS (COD_SEQ_PRY);
     CREATE NONCLUSTERED INDEX IX_TBL_TAREAS_COD_SEQ_SEG ON dbo.TBL_TAREAS (COD_SEQ_SEG);
+    CREATE NONCLUSTERED INDEX IX_TBL_TAREAS_COD_SEQ_TPF ON dbo.TBL_TAREAS (COD_SEQ_TPF);
+    CREATE NONCLUSTERED INDEX IX_TBL_TAREAS_COD_SEQ_MON ON dbo.TBL_TAREAS (COD_SEQ_MON);
 END
 GO
 
@@ -269,7 +332,6 @@ BEGIN
         COD_FACT        NVARCHAR(50)      NOT NULL,
         IMP_FACT        DECIMAL(18, 2)    NOT NULL,
         COD_SEQ_MON     INT               NOT NULL,
-        COD_SEQ_TPF     INT               NOT NULL,
 
         CONSTRAINT PK_TBL_FACTURADO PRIMARY KEY CLUSTERED (ID),
 
@@ -277,16 +339,11 @@ BEGIN
             FOREIGN KEY (COD_SEQ_MON)
             REFERENCES dbo.TBL_DIVISAS (ID),
 
-        CONSTRAINT FK_TBL_FACTURADO_TBL_TIPFACTURAS
-            FOREIGN KEY (COD_SEQ_TPF)
-            REFERENCES dbo.TBL_TIPFACTURAS (ID),
-
         CONSTRAINT CK_TBL_FACTURADO_IMP_FACT
             CHECK (IMP_FACT >= 0)
     );
 
     CREATE NONCLUSTERED INDEX IX_TBL_FACTURADO_COD_SEQ_MON ON dbo.TBL_FACTURADO (COD_SEQ_MON);
-    CREATE NONCLUSTERED INDEX IX_TBL_FACTURADO_COD_SEQ_TPF ON dbo.TBL_FACTURADO (COD_SEQ_TPF);
 END
 GO
 

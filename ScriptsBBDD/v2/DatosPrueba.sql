@@ -9,8 +9,9 @@
     más de volumen que un par de filas sueltas.
 
     Usa los catálogos que YA existen en tu base de datos (usuarios,
-    proyectos, segmentos, divisas, tipos de factura, motivos, estados)
-    tal cual están cargados; no inserta ni modifica ningún catálogo.
+    organizaciones de venta, proyectos, segmentos, divisas, tipos de
+    factura, motivos, estados) tal cual están cargados; no inserta ni
+    modifica ningún catálogo.
 
     Los nombres de estado se buscan por su texto EXACTO actual en
     TBL_ESTADOS_TAREA: "Registrado", "En proceso", "Pendiente",
@@ -66,6 +67,9 @@ BEGIN TRY
     DECLARE @Usuarios TABLE (Idx INT IDENTITY(1, 1), ID INT);
     INSERT INTO @Usuarios (ID) SELECT ID FROM dbo.TBL_USUARIOS WHERE XTI_ACTIVO = 'S' ORDER BY ID;
 
+    DECLARE @OrganizacionesVenta TABLE (Idx INT IDENTITY(1, 1), ID INT);
+    INSERT INTO @OrganizacionesVenta (ID) SELECT ID FROM dbo.TBL_ORGANIZACIONES_VENTAS WHERE XTI_ACTIVO = 'S' ORDER BY ID;
+
     DECLARE @Proyectos TABLE (Idx INT IDENTITY(1, 1), ID INT);
     INSERT INTO @Proyectos (ID) SELECT ID FROM dbo.TBL_PROYECTOS WHERE XTI_ACTIVO = 'S' ORDER BY ID;
 
@@ -82,16 +86,17 @@ BEGIN TRY
     INSERT INTO @Motivos (ID) SELECT ID FROM dbo.TBL_MOTIVO WHERE XTI_ACTIVO = 'S' ORDER BY ID;
 
     DECLARE @NumUsuarios INT = (SELECT COUNT(*) FROM @Usuarios);
+    DECLARE @NumOrganizacionesVenta INT = (SELECT COUNT(*) FROM @OrganizacionesVenta);
     DECLARE @NumProyectos INT = (SELECT COUNT(*) FROM @Proyectos);
     DECLARE @NumSegmentos INT = (SELECT COUNT(*) FROM @Segmentos);
     DECLARE @NumDivisas INT = (SELECT COUNT(*) FROM @Divisas);
     DECLARE @NumTiposFactura INT = (SELECT COUNT(*) FROM @TiposFactura);
     DECLARE @NumMotivos INT = (SELECT COUNT(*) FROM @Motivos);
 
-    IF @NumUsuarios = 0 OR @NumProyectos = 0 OR @NumSegmentos = 0
+    IF @NumUsuarios = 0 OR @NumOrganizacionesVenta = 0 OR @NumProyectos = 0 OR @NumSegmentos = 0
         OR @NumDivisas = 0 OR @NumTiposFactura = 0 OR @NumMotivos = 0
     BEGIN
-        RAISERROR(N'Falta algún catálogo activo (usuarios/proyectos/segmentos/divisas/tipos de factura/motivos); no se puede generar la carga de prueba.', 16, 1);
+        RAISERROR(N'Falta algún catálogo activo (usuarios/organizaciones de venta/proyectos/segmentos/divisas/tipos de factura/motivos); no se puede generar la carga de prueba.', 16, 1);
     END
 
     -- --------------------------------------------------------
@@ -118,12 +123,12 @@ BEGIN TRY
     DECLARE @Contador INT = 0;
 
     DECLARE @IdUsuario INT;
-    DECLARE @IdProyecto INT, @IdSegmento INT, @IdDivisa INT, @IdTipoFactura INT, @IdMotivo INT;
-    DECLARE @OrgVentas NVARCHAR(100);
+    DECLARE @IdOrgVentas INT, @IdProyecto INT, @IdSegmento INT, @IdDivisa INT, @IdTipoDocumento INT, @IdMotivo INT;
     DECLARE @ImporteEstimado DECIMAL(18, 2);
     DECLARE @ImporteFactura DECIMAL(18, 2);
     DECLARE @FecReg DATE, @FecEntCal DATE;
     DECLARE @Documento NVARCHAR(100);
+    DECLARE @Notas NVARCHAR(255);
     DECLARE @IdTarea INT;
     DECLARE @IdFacturado INT;
 
@@ -137,17 +142,12 @@ BEGIN TRY
         BEGIN
             SET @Contador = @Contador + 1;
 
+            SELECT @IdOrgVentas = ID FROM @OrganizacionesVenta WHERE Idx = ((@Contador - 1) % @NumOrganizacionesVenta) + 1;
             SELECT @IdProyecto = ID FROM @Proyectos WHERE Idx = ((@Contador - 1) % @NumProyectos) + 1;
             SELECT @IdSegmento = ID FROM @Segmentos WHERE Idx = ((@Contador - 1) % @NumSegmentos) + 1;
             SELECT @IdDivisa = ID FROM @Divisas WHERE Idx = ((@Contador - 1) % @NumDivisas) + 1;
-            SELECT @IdTipoFactura = ID FROM @TiposFactura WHERE Idx = ((@Contador - 1) % @NumTiposFactura) + 1;
+            SELECT @IdTipoDocumento = ID FROM @TiposFactura WHERE Idx = ((@Contador - 1) % @NumTiposFactura) + 1;
             SELECT @IdMotivo = ID FROM @Motivos WHERE Idx = ((@Contador - 1) % @NumMotivos) + 1;
-
-            SET @OrgVentas = (CASE (@Contador % 3)
-                                  WHEN 0 THEN N'ACME Ingeniería SL'
-                                  WHEN 1 THEN N'Grupo Industrial Norte SA'
-                                  ELSE N'Suministros del Sur SL'
-                              END);
 
             -- Importe entre 150 y 2149, con dos decimales; fecha de
             -- registro escalonada hacia atrás para que el informe de
@@ -157,11 +157,20 @@ BEGIN TRY
             SET @FecEntCal = DATEADD(day, -2, @FecReg);
             SET @Documento = N'DOC-PRUEBA-' + RIGHT('000' + CAST(@Contador AS VARCHAR(3)), 3);
 
-            -- Cabecera de la tarea
+            -- Notas: solo en la mitad de las tareas, para probar
+            -- también el caso de que se dejen vacías (son opcionales).
+            SET @Notas = (CASE WHEN @Contador % 2 = 0
+                              THEN N'Nota de prueba de la tarea ' + CAST(@Contador AS VARCHAR(6))
+                              ELSE NULL
+                          END);
+
+            -- Cabecera de la tarea. COD_SEQ_TPF (tipo de documento) y
+            -- COD_SEQ_MON (moneda estimada) se dan de alta aquí, igual
+            -- que en FrmRegistrarTarea (ver nota 6 de 01_CrearTablas.sql).
             INSERT INTO dbo.TBL_TAREAS
-                (DES_DOC, FEC_ENT_CAL, FEC_REG, DES_ORG_VENTAS, COD_SEQ_PRY, COD_SEQ_SEG, IMP_ESTIMADO)
+                (DES_DOC, FEC_ENT_CAL, FEC_REG, COD_SEQ_ORG_VTA, COD_SEQ_PRY, COD_SEQ_SEG, IMP_ESTIMADO, COD_SEQ_TPF, COD_SEQ_MON, DES_NOTAS)
             VALUES
-                (@Documento, @FecEntCal, @FecReg, @OrgVentas, @IdProyecto, @IdSegmento, @ImporteEstimado);
+                (@Documento, @FecEntCal, @FecReg, @IdOrgVentas, @IdProyecto, @IdSegmento, @ImporteEstimado, @IdTipoDocumento, @IdDivisa, @Notas);
 
             SET @IdTarea = SCOPE_IDENTITY();
 
@@ -215,14 +224,13 @@ BEGIN TRY
                 SET @ImporteFactura = CAST(@ImporteEstimado * (0.90 + ((@Contador % 4) * 0.05)) AS DECIMAL(18, 2));
 
                 INSERT INTO dbo.TBL_FACTURADO
-                    (COD_ENT_SAL, FEC_FACT, COD_FACT, IMP_FACT, COD_SEQ_MON, COD_SEQ_TPF)
+                    (COD_ENT_SAL, FEC_FACT, COD_FACT, IMP_FACT, COD_SEQ_MON)
                 VALUES
                     (N'ES-' + CAST(@Contador AS VARCHAR(6)),
                      DATEADD(day, 5, @FecReg),
                      N'FAC-PRUEBA-' + RIGHT('000' + CAST(@Contador AS VARCHAR(3)), 3),
                      @ImporteFactura,
-                     @IdDivisa,
-                     @IdTipoFactura);
+                     @IdDivisa);
 
                 SET @IdFacturado = SCOPE_IDENTITY();
 

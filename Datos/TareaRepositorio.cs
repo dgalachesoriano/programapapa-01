@@ -60,6 +60,14 @@ namespace GestionFacturas.Datos
 
                     AND
 
+                    (@COD_SEQ_PRY = 0 OR COD_SEQ_PRY = @COD_SEQ_PRY)
+
+                    AND
+
+                    (@COD_SEQ_SEG = 0 OR COD_SEQ_SEG = @COD_SEQ_SEG)
+
+                    AND
+
                     (@DES_DOC = '' OR DES_DOC LIKE '%' + @DES_DOC + '%')
 
                     AND
@@ -79,6 +87,10 @@ namespace GestionFacturas.Datos
                 comando.Parameters.Add("@COD_SEQ_EST", SqlDbType.Int).Value = filtro.IdEstado;
 
                 comando.Parameters.Add("@COD_SEQ_USER", SqlDbType.Int).Value = filtro.IdUsuario;
+
+                comando.Parameters.Add("@COD_SEQ_PRY", SqlDbType.Int).Value = filtro.IdProyecto;
+
+                comando.Parameters.Add("@COD_SEQ_SEG", SqlDbType.Int).Value = filtro.IdSegmento;
 
                 comando.Parameters.Add("@DES_DOC", SqlDbType.NVarChar).Value = filtro.Documento ?? string.Empty;
 
@@ -109,10 +121,13 @@ namespace GestionFacturas.Datos
                     DES_DOC,
                     FEC_ENT_CAL,
                     FEC_REG,
-                    DES_ORG_VENTAS,
+                    COD_SEQ_ORG_VTA,
                     COD_SEQ_PRY,
                     COD_SEQ_SEG,
-                    IMP_ESTIMADO
+                    IMP_ESTIMADO,
+                    COD_SEQ_TPF,
+                    COD_SEQ_MON,
+                    DES_NOTAS
 
                 FROM dbo.TBL_TAREAS
 
@@ -134,13 +149,18 @@ namespace GestionFacturas.Datos
                         Documento = lector["DES_DOC"].ToString(),
                         FechaEntradaCalidad = Convert.ToDateTime(lector["FEC_ENT_CAL"]),
                         FechaRegistro = Convert.ToDateTime(lector["FEC_REG"]),
-                        OrganizacionVentas = lector["DES_ORG_VENTAS"].ToString(),
+                        IdOrganizacionVentas = Convert.ToInt32(lector["COD_SEQ_ORG_VTA"]),
                         IdProyecto = Convert.ToInt32(lector["COD_SEQ_PRY"]),
                         IdSegmento = Convert.ToInt32(lector["COD_SEQ_SEG"]),
 
                         ImporteEstimado = lector["IMP_ESTIMADO"] == DBNull.Value
                             ? (decimal?)null
-                            : Convert.ToDecimal(lector["IMP_ESTIMADO"])
+                            : Convert.ToDecimal(lector["IMP_ESTIMADO"]),
+
+                        IdTipoDocumento = Convert.ToInt32(lector["COD_SEQ_TPF"]),
+                        IdDivisaEstimada = Convert.ToInt32(lector["COD_SEQ_MON"]),
+
+                        Notas = ObtenerTextoONulo(lector, "DES_NOTAS")
                     };
                 }
             }
@@ -291,12 +311,83 @@ namespace GestionFacturas.Datos
         }
 
         /// <summary>
-        /// Actualiza la cabecera de una tarea existente y sustituye
-        /// por completo sus líneas de detalle, en una única
-        /// transacción. No modifica TBL_CONTROL: editar los datos de
-        /// una tarea no cambia su estado en el flujo.
+        /// Obtiene una instantánea del estado actual de una tarea
+        /// (estado, usuario, motivo de bloqueo y datos de facturación
+        /// si los hay) a partir de VW_TAREAS_ESTADO_ACTUAL. Devuelve
+        /// null si la tarea no existe. Usado por FrmDetalleTarea para
+        /// mostrar y editar todo eso en una sola pantalla.
         /// </summary>
-        public void Actualizar(Tarea tarea, List<DetalleTarea> detalles)
+        public EstadoActualTarea ObtenerEstadoActual(int idTarea)
+        {
+            const string sql = @"
+                SELECT
+                    COD_SEQ_EST, DES_ESTADO,
+                    COD_SEQ_USER, NOMBRE_USUARIO,
+                    COD_SEQ_MOTIVO, DES_MOTIVO,
+                    COD_SEQ_FAC, COD_ENT_SAL, FEC_FACT, COD_FACT, IMP_FACT,
+                    COD_SEQ_MON_FAC, COD_DIV_FAC
+
+                FROM dbo.VW_TAREAS_ESTADO_ACTUAL
+
+                WHERE ID_TAREA = @ID_TAREA;";
+
+            using (SqlConnection conexion = ConexionBD.AbrirConexion())
+            using (SqlCommand comando = new SqlCommand(sql, conexion))
+            {
+                comando.Parameters.Add("@ID_TAREA", SqlDbType.Int).Value = idTarea;
+
+                using (SqlDataReader lector = comando.ExecuteReader())
+                {
+                    if (!lector.Read())
+                        return null;
+
+                    return new EstadoActualTarea
+                    {
+                        IdEstado = Convert.ToInt32(lector["COD_SEQ_EST"]),
+                        DescripcionEstado = lector["DES_ESTADO"].ToString(),
+
+                        IdUsuario = ObtenerIntONulo(lector, "COD_SEQ_USER"),
+                        NombreUsuario = ObtenerTextoONulo(lector, "NOMBRE_USUARIO"),
+
+                        IdMotivo = ObtenerIntONulo(lector, "COD_SEQ_MOTIVO"),
+                        DescripcionMotivo = ObtenerTextoONulo(lector, "DES_MOTIVO"),
+
+                        IdFacturado = ObtenerIntONulo(lector, "COD_SEQ_FAC"),
+                        EntidadSalida = ObtenerTextoONulo(lector, "COD_ENT_SAL"),
+
+                        FechaFactura = lector["FEC_FACT"] == DBNull.Value
+                            ? (DateTime?)null
+                            : Convert.ToDateTime(lector["FEC_FACT"]),
+
+                        CodigoFactura = ObtenerTextoONulo(lector, "COD_FACT"),
+
+                        ImporteFactura = lector["IMP_FACT"] == DBNull.Value
+                            ? (decimal?)null
+                            : Convert.ToDecimal(lector["IMP_FACT"]),
+
+                        IdDivisa = ObtenerIntONulo(lector, "COD_SEQ_MON_FAC"),
+                        CodigoDivisa = ObtenerTextoONulo(lector, "COD_DIV_FAC")
+                    };
+                }
+            }
+        }
+
+        /// <summary>
+        /// Guarda, en una única transacción, la edición completa de
+        /// una tarea desde FrmDetalleTarea: cabecera, líneas de
+        /// detalle y, si <paramref name="aplicarReglaEstado"/> es
+        /// true, el estado/usuario/facturación (ver
+        /// AplicarReglaEstadoAutomatica). Debe pasarse false cuando la
+        /// tarea está actualmente Bloqueada o Cancelada, para no tocar
+        /// esos estados desde aquí: solo cambian con los botones
+        /// dedicados (Bloquear/Desbloquear/Cancelar).
+        /// </summary>
+        public void GuardarEdicionCompleta(
+            Tarea tarea,
+            List<DetalleTarea> detalles,
+            bool aplicarReglaEstado,
+            int? idUsuarioNuevo,
+            Facturado facturado)
         {
             using (SqlConnection conexion = ConexionBD.AbrirConexion())
             using (SqlTransaction transaccion = conexion.BeginTransaction())
@@ -309,12 +400,115 @@ namespace GestionFacturas.Datos
 
                     InsertarDetalles(tarea.Id, detalles, conexion, transaccion);
 
+                    if (aplicarReglaEstado)
+                    {
+                        AplicarReglaEstadoAutomatica(tarea.Id, idUsuarioNuevo, facturado, conexion, transaccion);
+                    }
+
                     transaccion.Commit();
                 }
                 catch
                 {
                     RevertirSinPropagar(transaccion);
                     throw;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Aplica la regla automática de estado al guardar desde
+        /// FrmDetalleTarea: si <paramref name="facturado"/> es null
+        /// (datos de facturación vacíos), la tarea queda en En Proceso
+        /// o Registrado según haya o no usuario asignado; si no es
+        /// null (datos completos), pasa a Facturado, actualizando en
+        /// el sitio la factura ya existente si la tarea ya estaba
+        /// Facturada (no crea una segunda), o creando una nueva si no
+        /// lo estaba. No inserta un nuevo evento de TBL_CONTROL si ni
+        /// el estado ni el usuario cambian respecto al vigente.
+        /// </summary>
+        private void AplicarReglaEstadoAutomatica(
+            int idTarea,
+            int? idUsuarioNuevo,
+            Facturado facturado,
+            SqlConnection conexion,
+            SqlTransaction transaccion)
+        {
+            int idEstadoActual;
+            int? idUsuarioActual;
+            int? idFacturadoActual;
+
+            ObtenerUltimoEventoControl(
+                idTarea, conexion, transaccion,
+                out idEstadoActual, out idUsuarioActual, out idFacturadoActual);
+
+            bool facturaCompleta = facturado != null;
+
+            int idEstadoNuevo = facturaCompleta
+                ? EstadosTareaConocidos.Facturado
+                : (idUsuarioNuevo.HasValue ? EstadosTareaConocidos.EnProceso : EstadosTareaConocidos.Registrado);
+
+            if (facturaCompleta && idEstadoActual == EstadosTareaConocidos.Facturado && idFacturadoActual.HasValue)
+            {
+                facturadoRepositorio.Actualizar(idFacturadoActual.Value, facturado, conexion, transaccion);
+
+                if (idUsuarioNuevo != idUsuarioActual)
+                {
+                    InsertarEventoControl(
+                        idTarea, idUsuarioNuevo, idFacturadoActual,
+                        EstadosTareaConocidos.Facturado, idMotivo: null, conexion, transaccion);
+                }
+
+                return;
+            }
+
+            if (idEstadoNuevo == idEstadoActual && idUsuarioNuevo == idUsuarioActual)
+                return;
+
+            int? idFacturadoNuevo = facturaCompleta
+                ? facturadoRepositorio.Insertar(facturado, conexion, transaccion)
+                : (int?)null;
+
+            InsertarEventoControl(
+                idTarea, idUsuarioNuevo, idFacturadoNuevo,
+                idEstadoNuevo, idMotivo: null, conexion, transaccion);
+        }
+
+        /// <summary>
+        /// Obtiene el estado, usuario y factura del evento más
+        /// reciente de TBL_CONTROL de una tarea, dentro de la
+        /// transacción indicada (para no depender de una instantánea
+        /// potencialmente desactualizada leída antes de abrir la
+        /// transacción de guardado).
+        /// </summary>
+        private void ObtenerUltimoEventoControl(
+            int idTarea,
+            SqlConnection conexion,
+            SqlTransaction transaccion,
+            out int idEstado,
+            out int? idUsuario,
+            out int? idFacturado)
+        {
+            const string sql = @"
+                SELECT TOP (1) COD_SEQ_EST, COD_SEQ_USER, COD_SEQ_FAC
+                FROM dbo.TBL_CONTROL
+                WHERE COD_SEQ_TAR = @COD_SEQ_TAR
+                ORDER BY FEC_ALTA DESC, ID DESC;";
+
+            using (SqlCommand comando = new SqlCommand(sql, conexion, transaccion))
+            {
+                comando.Parameters.Add("@COD_SEQ_TAR", SqlDbType.Int).Value = idTarea;
+
+                using (SqlDataReader lector = comando.ExecuteReader())
+                {
+                    if (!lector.Read())
+                    {
+                        throw new InvalidOperationException(
+                            "No se ha encontrado el estado actual de la tarea " + idTarea + ".");
+                    }
+
+                    idEstado = Convert.ToInt32(lector["COD_SEQ_EST"]);
+                    idUsuario = ObtenerIntONulo(lector, "COD_SEQ_USER");
+                    idFacturado = ObtenerIntONulo(lector, "COD_SEQ_FAC");
                 }
             }
         }
@@ -493,20 +687,26 @@ namespace GestionFacturas.Datos
                     DES_DOC,
                     FEC_ENT_CAL,
                     FEC_REG,
-                    DES_ORG_VENTAS,
+                    COD_SEQ_ORG_VTA,
                     COD_SEQ_PRY,
                     COD_SEQ_SEG,
-                    IMP_ESTIMADO
+                    IMP_ESTIMADO,
+                    COD_SEQ_TPF,
+                    COD_SEQ_MON,
+                    DES_NOTAS
                 )
                 VALUES
                 (
                     @DES_DOC,
                     @FEC_ENT_CAL,
                     @FEC_REG,
-                    @DES_ORG_VENTAS,
+                    @COD_SEQ_ORG_VTA,
                     @COD_SEQ_PRY,
                     @COD_SEQ_SEG,
-                    @IMP_ESTIMADO
+                    @IMP_ESTIMADO,
+                    @COD_SEQ_TPF,
+                    @COD_SEQ_MON,
+                    @DES_NOTAS
                 );
 
                 SELECT CAST(SCOPE_IDENTITY() AS INT);";
@@ -531,10 +731,13 @@ namespace GestionFacturas.Datos
                     DES_DOC = @DES_DOC,
                     FEC_ENT_CAL = @FEC_ENT_CAL,
                     FEC_REG = @FEC_REG,
-                    DES_ORG_VENTAS = @DES_ORG_VENTAS,
+                    COD_SEQ_ORG_VTA = @COD_SEQ_ORG_VTA,
                     COD_SEQ_PRY = @COD_SEQ_PRY,
                     COD_SEQ_SEG = @COD_SEQ_SEG,
-                    IMP_ESTIMADO = @IMP_ESTIMADO
+                    IMP_ESTIMADO = @IMP_ESTIMADO,
+                    COD_SEQ_TPF = @COD_SEQ_TPF,
+                    COD_SEQ_MON = @COD_SEQ_MON,
+                    DES_NOTAS = @DES_NOTAS
                 WHERE ID = @ID;";
 
             using (SqlCommand comando = new SqlCommand(sql, conexion, transaccion))
@@ -563,12 +766,18 @@ namespace GestionFacturas.Datos
             comando.Parameters.AddWithValue("@DES_DOC", tarea.Documento ?? string.Empty);
             comando.Parameters.AddWithValue("@FEC_ENT_CAL", tarea.FechaEntradaCalidad);
             comando.Parameters.AddWithValue("@FEC_REG", tarea.FechaRegistro);
-            comando.Parameters.AddWithValue("@DES_ORG_VENTAS", tarea.OrganizacionVentas ?? string.Empty);
+            comando.Parameters.Add("@COD_SEQ_ORG_VTA", SqlDbType.Int).Value = tarea.IdOrganizacionVentas;
             comando.Parameters.Add("@COD_SEQ_PRY", SqlDbType.Int).Value = tarea.IdProyecto;
             comando.Parameters.Add("@COD_SEQ_SEG", SqlDbType.Int).Value = tarea.IdSegmento;
 
             comando.Parameters.Add("@IMP_ESTIMADO", SqlDbType.Decimal).Value =
                 tarea.ImporteEstimado.HasValue ? (object)tarea.ImporteEstimado.Value : DBNull.Value;
+
+            comando.Parameters.Add("@COD_SEQ_TPF", SqlDbType.Int).Value = tarea.IdTipoDocumento;
+            comando.Parameters.Add("@COD_SEQ_MON", SqlDbType.Int).Value = tarea.IdDivisaEstimada;
+
+            comando.Parameters.Add("@DES_NOTAS", SqlDbType.NVarChar, 255).Value =
+                string.IsNullOrWhiteSpace(tarea.Notas) ? (object)DBNull.Value : tarea.Notas;
         }
 
         /// <summary>
@@ -819,6 +1028,15 @@ namespace GestionFacturas.Datos
         private string ObtenerTextoONulo(SqlDataReader lector, string nombreColumna)
         {
             return lector[nombreColumna] == DBNull.Value ? null : lector[nombreColumna].ToString();
+        }
+
+        /// <summary>
+        /// Lee una columna entera de un SqlDataReader, devolviendo
+        /// null si el valor es DBNull.
+        /// </summary>
+        private int? ObtenerIntONulo(SqlDataReader lector, string nombreColumna)
+        {
+            return lector[nombreColumna] == DBNull.Value ? (int?)null : Convert.ToInt32(lector[nombreColumna]);
         }
 
         /// <summary>

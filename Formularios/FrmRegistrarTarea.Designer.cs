@@ -39,7 +39,7 @@ namespace GestionFacturas.Formularios
             this.dtpFRegistro = new System.Windows.Forms.DateTimePicker();
             this.lblOrgVentas = new System.Windows.Forms.Label();
             this.pnlOrgVentasBorde = new System.Windows.Forms.Panel();
-            this.txtOrgVentas = new System.Windows.Forms.TextBox();
+            this.cboOrgVentas = new System.Windows.Forms.ComboBox();
             this.lblProyecto = new System.Windows.Forms.Label();
             this.pnlProyectoBorde = new System.Windows.Forms.Panel();
             this.cboProyecto = new System.Windows.Forms.ComboBox();
@@ -49,6 +49,15 @@ namespace GestionFacturas.Formularios
             this.lblImporteEstimado = new System.Windows.Forms.Label();
             this.pnlImporteEstimadoBorde = new System.Windows.Forms.Panel();
             this.txtImporteEstimado = new System.Windows.Forms.TextBox();
+            this.lblTipoDocumento = new System.Windows.Forms.Label();
+            this.pnlTipoDocumentoBorde = new System.Windows.Forms.Panel();
+            this.cboTipoDocumento = new System.Windows.Forms.ComboBox();
+            this.lblMonedaEstimada = new System.Windows.Forms.Label();
+            this.pnlMonedaEstimadaBorde = new System.Windows.Forms.Panel();
+            this.cboMonedaEstimada = new System.Windows.Forms.ComboBox();
+            this.lblNotas = new System.Windows.Forms.Label();
+            this.pnlNotasBorde = new System.Windows.Forms.Panel();
+            this.txtNotas = new System.Windows.Forms.TextBox();
             this.grpDetalle = new System.Windows.Forms.GroupBox();
             this.pnlDetalleBorde = new System.Windows.Forms.Panel();
             this.dgvDetalle = new System.Windows.Forms.DataGridView();
@@ -62,6 +71,9 @@ namespace GestionFacturas.Formularios
             this.pnlProyectoBorde.SuspendLayout();
             this.pnlSegmentoBorde.SuspendLayout();
             this.pnlImporteEstimadoBorde.SuspendLayout();
+            this.pnlTipoDocumentoBorde.SuspendLayout();
+            this.pnlMonedaEstimadaBorde.SuspendLayout();
+            this.pnlNotasBorde.SuspendLayout();
             this.grpDetalle.SuspendLayout();
             this.pnlDetalleBorde.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetalle)).BeginInit();
@@ -78,7 +90,7 @@ namespace GestionFacturas.Formularios
             this.grpCabecera.Location = new System.Drawing.Point(0, 0);
             this.grpCabecera.Name = "grpCabecera";
             this.grpCabecera.Padding = new System.Windows.Forms.Padding(10);
-            this.grpCabecera.Size = new System.Drawing.Size(1184, 183);
+            this.grpCabecera.Size = new System.Drawing.Size(1184, 247);
             this.grpCabecera.TabIndex = 0;
             this.grpCabecera.TabStop = false;
             this.grpCabecera.Text = "Datos de la Tarea";
@@ -101,12 +113,14 @@ namespace GestionFacturas.Formularios
             this.tblCabecera.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tblCabecera.Location = new System.Drawing.Point(10, 23);
             this.tblCabecera.Name = "tblCabecera";
-            this.tblCabecera.RowCount = 4;
+            this.tblCabecera.RowCount = 6;
             this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.tblCabecera.Size = new System.Drawing.Size(1164, 150);
+            this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
+            this.tblCabecera.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
+            this.tblCabecera.Size = new System.Drawing.Size(1164, 214);
             this.tblCabecera.TabIndex = 0;
             //
             // Fila 0: Documento (ocupa las 3 columnas de control)
@@ -193,20 +207,22 @@ namespace GestionFacturas.Formularios
             //
             this.pnlOrgVentasBorde.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlOrgVentasBorde.BackColor = System.Drawing.SystemColors.Control;
-            this.pnlOrgVentasBorde.Controls.Add(this.txtOrgVentas);
+            this.pnlOrgVentasBorde.Controls.Add(this.cboOrgVentas);
             this.pnlOrgVentasBorde.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pnlOrgVentasBorde.Name = "pnlOrgVentasBorde";
             this.pnlOrgVentasBorde.Padding = new System.Windows.Forms.Padding(2);
-            this.pnlOrgVentasBorde.Size = new System.Drawing.Size(150, 24);
+            this.pnlOrgVentasBorde.Size = new System.Drawing.Size(150, 25);
             this.pnlOrgVentasBorde.TabIndex = 7;
             this.tblCabecera.Controls.Add(this.pnlOrgVentasBorde, 1, 2);
             //
-            this.txtOrgVentas.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtOrgVentas.Location = new System.Drawing.Point(2, 2);
-            this.txtOrgVentas.Margin = new System.Windows.Forms.Padding(0);
-            this.txtOrgVentas.Name = "txtOrgVentas";
-            this.txtOrgVentas.Size = new System.Drawing.Size(146, 20);
-            this.txtOrgVentas.TabIndex = 0;
+            this.cboOrgVentas.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cboOrgVentas.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboOrgVentas.FormattingEnabled = true;
+            this.cboOrgVentas.Location = new System.Drawing.Point(2, 2);
+            this.cboOrgVentas.Margin = new System.Windows.Forms.Padding(0);
+            this.cboOrgVentas.Name = "cboOrgVentas";
+            this.cboOrgVentas.Size = new System.Drawing.Size(146, 21);
+            this.cboOrgVentas.TabIndex = 0;
             //
             this.lblProyecto.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblProyecto.AutoSize = true;
@@ -299,6 +315,100 @@ namespace GestionFacturas.Formularios
             this.txtImporteEstimado.TabIndex = 0;
             this.txtImporteEstimado.Leave += new System.EventHandler(this.txtImporteEstimado_Leave);
             //
+            // Fila 4: Tipo de Documento / Moneda Estimada
+            //
+            this.lblTipoDocumento.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblTipoDocumento.AutoSize = true;
+            this.lblTipoDocumento.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.lblTipoDocumento.Name = "lblTipoDocumento";
+            this.lblTipoDocumento.Size = new System.Drawing.Size(101, 13);
+            this.lblTipoDocumento.TabIndex = 14;
+            this.lblTipoDocumento.Text = "Tipo de Documento:";
+            this.tblCabecera.Controls.Add(this.lblTipoDocumento, 0, 4);
+            //
+            // pnlTipoDocumentoBorde
+            //
+            this.pnlTipoDocumentoBorde.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlTipoDocumentoBorde.BackColor = System.Drawing.SystemColors.Control;
+            this.pnlTipoDocumentoBorde.Controls.Add(this.cboTipoDocumento);
+            this.pnlTipoDocumentoBorde.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.pnlTipoDocumentoBorde.Name = "pnlTipoDocumentoBorde";
+            this.pnlTipoDocumentoBorde.Padding = new System.Windows.Forms.Padding(2);
+            this.pnlTipoDocumentoBorde.Size = new System.Drawing.Size(150, 25);
+            this.pnlTipoDocumentoBorde.TabIndex = 15;
+            this.tblCabecera.Controls.Add(this.pnlTipoDocumentoBorde, 1, 4);
+            //
+            this.cboTipoDocumento.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cboTipoDocumento.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboTipoDocumento.FormattingEnabled = true;
+            this.cboTipoDocumento.Location = new System.Drawing.Point(2, 2);
+            this.cboTipoDocumento.Margin = new System.Windows.Forms.Padding(0);
+            this.cboTipoDocumento.Name = "cboTipoDocumento";
+            this.cboTipoDocumento.Size = new System.Drawing.Size(146, 21);
+            this.cboTipoDocumento.TabIndex = 0;
+            //
+            this.lblMonedaEstimada.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblMonedaEstimada.AutoSize = true;
+            this.lblMonedaEstimada.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.lblMonedaEstimada.Name = "lblMonedaEstimada";
+            this.lblMonedaEstimada.Size = new System.Drawing.Size(97, 13);
+            this.lblMonedaEstimada.TabIndex = 16;
+            this.lblMonedaEstimada.Text = "Moneda Estimada:";
+            this.tblCabecera.Controls.Add(this.lblMonedaEstimada, 2, 4);
+            //
+            // pnlMonedaEstimadaBorde
+            //
+            this.pnlMonedaEstimadaBorde.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlMonedaEstimadaBorde.BackColor = System.Drawing.SystemColors.Control;
+            this.pnlMonedaEstimadaBorde.Controls.Add(this.cboMonedaEstimada);
+            this.pnlMonedaEstimadaBorde.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.pnlMonedaEstimadaBorde.Name = "pnlMonedaEstimadaBorde";
+            this.pnlMonedaEstimadaBorde.Padding = new System.Windows.Forms.Padding(2);
+            this.pnlMonedaEstimadaBorde.Size = new System.Drawing.Size(150, 25);
+            this.pnlMonedaEstimadaBorde.TabIndex = 17;
+            this.tblCabecera.Controls.Add(this.pnlMonedaEstimadaBorde, 3, 4);
+            //
+            this.cboMonedaEstimada.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cboMonedaEstimada.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMonedaEstimada.FormattingEnabled = true;
+            this.cboMonedaEstimada.Location = new System.Drawing.Point(2, 2);
+            this.cboMonedaEstimada.Margin = new System.Windows.Forms.Padding(0);
+            this.cboMonedaEstimada.Name = "cboMonedaEstimada";
+            this.cboMonedaEstimada.Size = new System.Drawing.Size(146, 21);
+            this.cboMonedaEstimada.TabIndex = 0;
+            //
+            // Fila 5: Notas (ocupa las 3 columnas de control)
+            //
+            this.lblNotas.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblNotas.AutoSize = true;
+            this.lblNotas.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.lblNotas.Name = "lblNotas";
+            this.lblNotas.Size = new System.Drawing.Size(39, 13);
+            this.lblNotas.TabIndex = 18;
+            this.lblNotas.Text = "Notas:";
+            this.tblCabecera.Controls.Add(this.lblNotas, 0, 5);
+            //
+            // pnlNotasBorde
+            //
+            this.pnlNotasBorde.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlNotasBorde.BackColor = System.Drawing.SystemColors.Control;
+            this.pnlNotasBorde.Controls.Add(this.txtNotas);
+            this.pnlNotasBorde.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.pnlNotasBorde.Name = "pnlNotasBorde";
+            this.pnlNotasBorde.Padding = new System.Windows.Forms.Padding(2);
+            this.pnlNotasBorde.Size = new System.Drawing.Size(200, 24);
+            this.pnlNotasBorde.TabIndex = 19;
+            this.tblCabecera.SetColumnSpan(this.pnlNotasBorde, 3);
+            this.tblCabecera.Controls.Add(this.pnlNotasBorde, 1, 5);
+            //
+            this.txtNotas.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtNotas.Location = new System.Drawing.Point(2, 2);
+            this.txtNotas.Margin = new System.Windows.Forms.Padding(0);
+            this.txtNotas.MaxLength = 255;
+            this.txtNotas.Name = "txtNotas";
+            this.txtNotas.Size = new System.Drawing.Size(196, 20);
+            this.txtNotas.TabIndex = 0;
+            //
             // grpDetalle
             //
             // Ocupa todo el espacio central que quede libre entre la
@@ -306,7 +416,7 @@ namespace GestionFacturas.Formularios
             // al maximizar como al redimensionar la ventana.
             this.grpDetalle.Controls.Add(this.pnlDetalleBorde);
             this.grpDetalle.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpDetalle.Location = new System.Drawing.Point(0, 183);
+            this.grpDetalle.Location = new System.Drawing.Point(0, 247);
             this.grpDetalle.Name = "grpDetalle";
             this.grpDetalle.Padding = new System.Windows.Forms.Padding(10);
             this.grpDetalle.Size = new System.Drawing.Size(1184, 428);
@@ -346,7 +456,7 @@ namespace GestionFacturas.Formularios
             this.pnlBotones.Controls.Add(this.btnCancelar);
             this.pnlBotones.Controls.Add(this.btnGrabar);
             this.pnlBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlBotones.Location = new System.Drawing.Point(0, 611);
+            this.pnlBotones.Location = new System.Drawing.Point(0, 675);
             this.pnlBotones.Name = "pnlBotones";
             this.pnlBotones.Padding = new System.Windows.Forms.Padding(0, 8, 12, 8);
             this.pnlBotones.Size = new System.Drawing.Size(1184, 50);
@@ -378,7 +488,7 @@ namespace GestionFacturas.Formularios
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 661);
+            this.ClientSize = new System.Drawing.Size(1184, 725);
             this.Controls.Add(this.grpDetalle);
             this.Controls.Add(this.pnlBotones);
             this.Controls.Add(this.grpCabecera);
@@ -399,6 +509,10 @@ namespace GestionFacturas.Formularios
             this.pnlSegmentoBorde.ResumeLayout(false);
             this.pnlImporteEstimadoBorde.ResumeLayout(false);
             this.pnlImporteEstimadoBorde.PerformLayout();
+            this.pnlTipoDocumentoBorde.ResumeLayout(false);
+            this.pnlMonedaEstimadaBorde.ResumeLayout(false);
+            this.pnlNotasBorde.ResumeLayout(false);
+            this.pnlNotasBorde.PerformLayout();
             this.grpDetalle.ResumeLayout(false);
             this.pnlDetalleBorde.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetalle)).EndInit();
@@ -417,7 +531,7 @@ namespace GestionFacturas.Formularios
         private System.Windows.Forms.TextBox txtDocumento;
         private System.Windows.Forms.Label lblDocumento;
         private System.Windows.Forms.Panel pnlOrgVentasBorde;
-        private System.Windows.Forms.TextBox txtOrgVentas;
+        private System.Windows.Forms.ComboBox cboOrgVentas;
         private System.Windows.Forms.Label lblOrgVentas;
         private System.Windows.Forms.DateTimePicker dtpFRegistro;
         private System.Windows.Forms.Label lblFRegistro;
@@ -436,5 +550,14 @@ namespace GestionFacturas.Formularios
         private System.Windows.Forms.Label lblSegmento;
         private System.Windows.Forms.Panel pnlSegmentoBorde;
         private System.Windows.Forms.ComboBox cboSegmento;
+        private System.Windows.Forms.Label lblTipoDocumento;
+        private System.Windows.Forms.Panel pnlTipoDocumentoBorde;
+        private System.Windows.Forms.ComboBox cboTipoDocumento;
+        private System.Windows.Forms.Label lblMonedaEstimada;
+        private System.Windows.Forms.Panel pnlMonedaEstimadaBorde;
+        private System.Windows.Forms.ComboBox cboMonedaEstimada;
+        private System.Windows.Forms.Label lblNotas;
+        private System.Windows.Forms.Panel pnlNotasBorde;
+        private System.Windows.Forms.TextBox txtNotas;
     }
 }
