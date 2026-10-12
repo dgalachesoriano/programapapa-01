@@ -401,3 +401,38 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_TBL_CONTROL_COD_SEQ_USER ON dbo.TBL_CONTROL (COD_SEQ_USER);
 END
 GO
+
+-- ========================================================
+-- TBL_CONSULTAS
+-- Catálogo de consultas SQL predefinidas que se lanzan desde la
+-- pantalla Datos > Consultas SQL (FrmConsultasSql): previsualización
+-- de los 10 primeros registros y exportación completa a Excel.
+--
+-- No hay pantalla de mantenimiento: las consultas se dan de alta
+-- (o se modifican) a mano en la BBDD con AltaConsulta.sql.
+--
+--   - NOM_CONSULTA: nombre mostrado en el desplegable (único).
+--   - DES_CONSULTA: descripción opcional, mostrada al seleccionarla.
+--   - TXT_CONSULTA: texto SQL de la consulta. Puede incluir
+--     parámetros con la sintaxis :Nombre; la pantalla pide un valor
+--     por cada parámetro distinto antes de ejecutarla (ver
+--     README.md de esta carpeta).
+--   - XTI_ACTIVO: solo las consultas activas ('S') aparecen en
+--     pantalla.
+-- ========================================================
+IF OBJECT_ID(N'dbo.TBL_CONSULTAS', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TBL_CONSULTAS
+    (
+        ID              INT IDENTITY(1,1) NOT NULL,
+        NOM_CONSULTA    NVARCHAR(100)     NOT NULL,
+        DES_CONSULTA    NVARCHAR(500)     NULL,
+        TXT_CONSULTA    VARCHAR(8000)     NOT NULL,
+        XTI_ACTIVO      CHAR(1)           NOT NULL CONSTRAINT DF_TBL_CONSULTAS_XTI_ACTIVO DEFAULT ('S'),
+
+        CONSTRAINT PK_TBL_CONSULTAS PRIMARY KEY CLUSTERED (ID),
+        CONSTRAINT UQ_TBL_CONSULTAS_NOM_CONSULTA UNIQUE (NOM_CONSULTA),
+        CONSTRAINT CK_TBL_CONSULTAS_XTI_ACTIVO CHECK (XTI_ACTIVO IN ('S', 'N'))
+    );
+END
+GO

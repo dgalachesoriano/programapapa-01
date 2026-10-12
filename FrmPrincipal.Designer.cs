@@ -152,6 +152,7 @@ namespace GestionFacturas
             this.consultasSQLToolStripMenuItem.Name = "consultasSQLToolStripMenuItem";
             this.consultasSQLToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.consultasSQLToolStripMenuItem.Text = "Consultas SQL";
+            this.consultasSQLToolStripMenuItem.Click += new System.EventHandler(this.consultasSQLToolStripMenuItem_Click);
             //
             // informesToolStripMenuItem
             //

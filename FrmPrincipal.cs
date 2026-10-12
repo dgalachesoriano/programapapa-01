@@ -1054,5 +1054,16 @@ namespace GestionFacturas
 
             formulario.ShowDialog();
         }
+
+        /// <summary>
+        /// Abre, como diálogo modal, la pantalla de consultas SQL
+        /// predefinidas (TBL_CONSULTAS).
+        /// </summary>
+        private void consultasSQLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmConsultasSql formulario = new FrmConsultasSql();
+
+            formulario.ShowDialog();
+        }
     }
 }
