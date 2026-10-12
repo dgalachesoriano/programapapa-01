@@ -14,10 +14,18 @@
       - Pantalla de Facturación: selección de tareas pendientes de
         facturar (DES_ESTADO = 'EN_PROCESO', por ejemplo).
       - Pantalla de Detalle de Tarea (FrmDetalleTarea): además de lo
-        anterior, necesita los campos de TBL_FACTURADO/TBL_DIVISAS/
-        TBL_TIPFACTURAS (COD_ENT_SAL, COD_SEQ_MON/COD_DIV,
-        COD_SEQ_TPF/DES_TIP_FACT) para poder mostrar y editar los
-        datos de facturación de la tarea, no solo el importe.
+        anterior, necesita los campos de TBL_FACTURADO/TBL_DIVISAS
+        (COD_ENT_SAL, COD_SEQ_MON/COD_DIV) para poder mostrar y editar
+        los datos de facturación de la tarea, no solo el importe.
+
+    COD_SEQ_TPF (tipo de documento) ya no es de TBL_FACTURADO: ahora
+    es, junto con COD_SEQ_MON (moneda estimada) y DES_NOTAS (notas),
+    un atributo de la propia TBL_TAREAS, informado al Registrar Tarea
+    (ver nota 6 de 01_CrearTablas.sql). Como TBL_TAREAS y TBL_FACTURADO
+    tienen ambas una columna COD_SEQ_MON (moneda estimada de la tarea
+    y moneda real de la factura, respectivamente), esta vista expone
+    la de TBL_FACTURADO con el sufijo "_FAC" para no chocar con la de
+    TBL_TAREAS (sin sufijo).
 */
 
 USE GestionFacturas;
@@ -30,7 +38,9 @@ SELECT
     T.DES_DOC,
     T.FEC_ENT_CAL,
     T.FEC_REG,
-    T.DES_ORG_VENTAS,
+    T.COD_SEQ_ORG_VTA,
+    OVTA.DES_ORG_VENTAS,
+
     T.IMP_ESTIMADO,
 
     T.COD_SEQ_PRY,
@@ -38,6 +48,14 @@ SELECT
 
     T.COD_SEQ_SEG,
     SEG.DES_SEGMENTO,
+
+    T.COD_SEQ_TPF,
+    TPF.DES_TIP_FACT,
+
+    T.COD_SEQ_MON,
+    DIVEST.COD_DIV           AS COD_DIV_EST,
+
+    T.DES_NOTAS,
 
     C.ID                    AS ID_CONTROL,
     C.FEC_ALTA              AS FEC_ULTIMO_CAMBIO,
@@ -56,10 +74,8 @@ SELECT
     FAC.FEC_FACT,
     FAC.COD_FACT,
     FAC.IMP_FACT,
-    FAC.COD_SEQ_MON,
-    DIV.COD_DIV,
-    FAC.COD_SEQ_TPF,
-    TPF.DES_TIP_FACT
+    FAC.COD_SEQ_MON          AS COD_SEQ_MON_FAC,
+    DIV.COD_DIV              AS COD_DIV_FAC
 
 FROM dbo.TBL_TAREAS AS T
 
@@ -70,12 +86,14 @@ CROSS APPLY (
     ORDER BY CC.FEC_ALTA DESC, CC.ID DESC
 ) AS C
 
+LEFT JOIN dbo.TBL_ORGANIZACIONES_VENTAS AS OVTA ON OVTA.ID = T.COD_SEQ_ORG_VTA
 LEFT JOIN dbo.TBL_PROYECTOS AS PRY ON PRY.ID = T.COD_SEQ_PRY
 LEFT JOIN dbo.TBL_SEGMENTOS AS SEG ON SEG.ID = T.COD_SEQ_SEG
+LEFT JOIN dbo.TBL_TIPFACTURAS AS TPF ON TPF.ID = T.COD_SEQ_TPF
+LEFT JOIN dbo.TBL_DIVISAS   AS DIVEST ON DIVEST.ID = T.COD_SEQ_MON
 LEFT JOIN dbo.TBL_USUARIOS  AS USR ON USR.ID = C.COD_SEQ_USER
 LEFT JOIN dbo.TBL_ESTADOS_TAREA AS EST ON EST.ID = C.COD_SEQ_EST
 LEFT JOIN dbo.TBL_MOTIVO    AS MOT ON MOT.ID = C.COD_SEQ_MOTIVO
 LEFT JOIN dbo.TBL_FACTURADO AS FAC ON FAC.ID = C.COD_SEQ_FAC
-LEFT JOIN dbo.TBL_DIVISAS   AS DIV ON DIV.ID = FAC.COD_SEQ_MON
-LEFT JOIN dbo.TBL_TIPFACTURAS AS TPF ON TPF.ID = FAC.COD_SEQ_TPF;
+LEFT JOIN dbo.TBL_DIVISAS   AS DIV ON DIV.ID = FAC.COD_SEQ_MON;
 GO

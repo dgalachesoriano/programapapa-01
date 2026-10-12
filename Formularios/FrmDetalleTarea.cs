@@ -32,6 +32,7 @@ namespace GestionFacturas.Formularios
     public partial class FrmDetalleTarea : Form
     {
         private readonly TareaRepositorio tareaRepositorio = new TareaRepositorio();
+        private readonly OrganizacionVentaRepositorio organizacionVentaRepositorio = new OrganizacionVentaRepositorio();
         private readonly ProyectoRepositorio proyectoRepositorio = new ProyectoRepositorio();
         private readonly SegmentoRepositorio segmentoRepositorio = new SegmentoRepositorio();
         private readonly UsuarioRepositorio usuarioRepositorio = new UsuarioRepositorio();
@@ -75,11 +76,13 @@ namespace GestionFacturas.Formularios
             ConfigurarGridDetalle();
             ConfigurarLimpiezaDeBordes();
 
+            CargarOrganizacionesVenta();
             CargarProyectos();
             CargarSegmentos();
+            CargarTiposDocumento();
+            CargarMonedasEstimadas();
             CargarUsuarios();
             CargarDivisas();
-            CargarTiposFactura();
 
             CargarTarea();
         }
@@ -92,17 +95,18 @@ namespace GestionFacturas.Formularios
         private void ConfigurarLimpiezaDeBordes()
         {
             txtDocumento.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlDocumentoBorde);
-            txtOrgVentas.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlOrgVentasBorde);
+            cboOrgVentas.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlOrgVentasBorde);
             cboProyecto.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlProyectoBorde);
             cboSegmento.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlSegmentoBorde);
             txtImporteEstimado.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlImporteEstimadoBorde);
+            cboTipoDocumento.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlTipoDocumentoBorde);
+            cboMonedaEstimada.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlMonedaEstimadaBorde);
             dgvDetalle.CellBeginEdit += (s, e) => ValidadorCampos.Limpiar(pnlDetalleBorde);
 
             txtEntidadSalida.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlEntidadSalidaBorde);
             txtCodigoFactura.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlCodigoFacturaBorde);
             txtImporteFactura.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlImporteFacturaBorde);
             cboDivisa.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlDivisaBorde);
-            cboTipoFactura.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlTipoFacturaBorde);
         }
 
         /// <summary>
@@ -257,6 +261,30 @@ namespace GestionFacturas.Formularios
             return columna;
         }
 
+        /// <summary>
+        /// Carga en el combo de organizaciones de ventas las
+        /// organizaciones de ventas activas.
+        /// </summary>
+        private void CargarOrganizacionesVenta()
+        {
+            try
+            {
+                List<OrganizacionVenta> organizaciones = organizacionVentaRepositorio.ObtenerActivos();
+
+                cboOrgVentas.DataSource = organizaciones;
+                cboOrgVentas.DisplayMember = "Descripcion";
+                cboOrgVentas.ValueMember = "Id";
+                cboOrgVentas.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmDetalleTarea.CargarOrganizacionesVenta",
+                    "No se han podido cargar las organizaciones de ventas.",
+                    ex);
+            }
+        }
+
         /// <summary>Carga en el combo de proyectos los proyectos activos.</summary>
         private void CargarProyectos()
         {
@@ -346,23 +374,44 @@ namespace GestionFacturas.Formularios
             }
         }
 
-        /// <summary>Carga en el combo de tipos de factura los tipos activos.</summary>
-        private void CargarTiposFactura()
+        /// <summary>Carga en el combo de tipo de documento los tipos activos.</summary>
+        private void CargarTiposDocumento()
         {
             try
             {
                 List<TipoFactura> tipos = tipoFacturaRepositorio.ObtenerActivos();
 
-                cboTipoFactura.DataSource = tipos;
-                cboTipoFactura.DisplayMember = "Descripcion";
-                cboTipoFactura.ValueMember = "Id";
-                cboTipoFactura.SelectedIndex = -1;
+                cboTipoDocumento.DataSource = tipos;
+                cboTipoDocumento.DisplayMember = "Descripcion";
+                cboTipoDocumento.ValueMember = "Id";
+                cboTipoDocumento.SelectedIndex = -1;
             }
             catch (Exception ex)
             {
                 Dialogos.MostrarError(
-                    "FrmDetalleTarea.CargarTiposFactura",
-                    "No se han podido cargar los tipos de factura.",
+                    "FrmDetalleTarea.CargarTiposDocumento",
+                    "No se han podido cargar los tipos de documento.",
+                    ex);
+            }
+        }
+
+        /// <summary>Carga en el combo de moneda estimada las divisas activas.</summary>
+        private void CargarMonedasEstimadas()
+        {
+            try
+            {
+                List<Divisa> divisas = divisaRepositorio.ObtenerActivas();
+
+                cboMonedaEstimada.DataSource = divisas;
+                cboMonedaEstimada.DisplayMember = "Codigo";
+                cboMonedaEstimada.ValueMember = "Id";
+                cboMonedaEstimada.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmDetalleTarea.CargarMonedasEstimadas",
+                    "No se han podido cargar las divisas.",
                     ex);
             }
         }
@@ -394,7 +443,7 @@ namespace GestionFacturas.Formularios
                 txtDocumento.Text = tarea.Documento;
                 dtpFEntCalidad.Value = tarea.FechaEntradaCalidad;
                 dtpFRegistro.Value = tarea.FechaRegistro;
-                txtOrgVentas.Text = tarea.OrganizacionVentas;
+                cboOrgVentas.SelectedValue = tarea.IdOrganizacionVentas;
 
                 txtImporteEstimado.Text = tarea.ImporteEstimado.HasValue
                     ? tarea.ImporteEstimado.Value.ToString("N2", CulturaDecimal)
@@ -402,6 +451,9 @@ namespace GestionFacturas.Formularios
 
                 cboProyecto.SelectedValue = tarea.IdProyecto;
                 cboSegmento.SelectedValue = tarea.IdSegmento;
+                cboTipoDocumento.SelectedValue = tarea.IdTipoDocumento;
+                cboMonedaEstimada.SelectedValue = tarea.IdDivisaEstimada;
+                txtNotas.Text = tarea.Notas;
 
                 List<DetalleTarea> detalles = tareaRepositorio.ObtenerDetalle(idTarea);
 
@@ -471,7 +523,6 @@ namespace GestionFacturas.Formularios
                 txtCodigoFactura.Clear();
                 txtImporteFactura.Clear();
                 cboDivisa.SelectedIndex = -1;
-                cboTipoFactura.SelectedIndex = -1;
 
                 return;
             }
@@ -485,7 +536,6 @@ namespace GestionFacturas.Formularios
                 : string.Empty;
 
             cboDivisa.SelectedValue = estadoActual.IdDivisa;
-            cboTipoFactura.SelectedValue = estadoActual.IdTipoFactura;
         }
 
         /// <summary>
@@ -563,10 +613,13 @@ namespace GestionFacturas.Formularios
             txtDocumento.Enabled = false;
             dtpFEntCalidad.Enabled = false;
             dtpFRegistro.Enabled = false;
-            txtOrgVentas.Enabled = false;
+            cboOrgVentas.Enabled = false;
             cboProyecto.Enabled = false;
             cboSegmento.Enabled = false;
             txtImporteEstimado.Enabled = false;
+            cboTipoDocumento.Enabled = false;
+            cboMonedaEstimada.Enabled = false;
+            txtNotas.Enabled = false;
             dgvDetalle.Enabled = false;
 
             txtEntidadSalida.Enabled = false;
@@ -574,7 +627,6 @@ namespace GestionFacturas.Formularios
             txtCodigoFactura.Enabled = false;
             txtImporteFactura.Enabled = false;
             cboDivisa.Enabled = false;
-            cboTipoFactura.Enabled = false;
         }
 
         /// <summary>
@@ -786,15 +838,18 @@ namespace GestionFacturas.Formularios
         private bool ValidarDatos()
         {
             bool documentoValido = ValidadorCampos.ValidarTexto(txtDocumento, pnlDocumentoBorde);
-            bool orgVentasValido = ValidadorCampos.ValidarTexto(txtOrgVentas, pnlOrgVentasBorde);
+            bool orgVentasValido = ValidadorCampos.ValidarCombo(cboOrgVentas, pnlOrgVentasBorde);
             bool proyectoValido = ValidadorCampos.ValidarCombo(cboProyecto, pnlProyectoBorde);
             bool segmentoValido = ValidadorCampos.ValidarCombo(cboSegmento, pnlSegmentoBorde);
             bool importeValido = ValidarImporteEstimado();
+            bool tipoDocumentoValido = ValidadorCampos.ValidarCombo(cboTipoDocumento, pnlTipoDocumentoBorde);
+            bool monedaEstimadaValida = ValidadorCampos.ValidarCombo(cboMonedaEstimada, pnlMonedaEstimadaBorde);
             bool detalleValido = ValidarDetalle();
             bool facturacionValida = ValidarFacturacion();
 
             return documentoValido && orgVentasValido && proyectoValido
-                && segmentoValido && importeValido && detalleValido && facturacionValida;
+                && segmentoValido && importeValido && tipoDocumentoValido
+                && monedaEstimadaValida && detalleValido && facturacionValida;
         }
 
         /// <summary>
@@ -873,8 +928,7 @@ namespace GestionFacturas.Formularios
             return string.IsNullOrWhiteSpace(txtEntidadSalida.Text)
                 && string.IsNullOrWhiteSpace(txtCodigoFactura.Text)
                 && string.IsNullOrWhiteSpace(txtImporteFactura.Text)
-                && cboDivisa.SelectedValue == null
-                && cboTipoFactura.SelectedValue == null;
+                && cboDivisa.SelectedValue == null;
         }
 
         /// <summary>
@@ -892,7 +946,6 @@ namespace GestionFacturas.Formularios
                 ValidadorCampos.Limpiar(pnlCodigoFacturaBorde);
                 ValidadorCampos.Limpiar(pnlImporteFacturaBorde);
                 ValidadorCampos.Limpiar(pnlDivisaBorde);
-                ValidadorCampos.Limpiar(pnlTipoFacturaBorde);
 
                 return true;
             }
@@ -901,9 +954,8 @@ namespace GestionFacturas.Formularios
             bool codigoValido = ValidadorCampos.ValidarTexto(txtCodigoFactura, pnlCodigoFacturaBorde);
             bool importeValido = ValidarImporteFactura();
             bool divisaValida = ValidadorCampos.ValidarCombo(cboDivisa, pnlDivisaBorde);
-            bool tipoValido = ValidadorCampos.ValidarCombo(cboTipoFactura, pnlTipoFacturaBorde);
 
-            return entidadValida && codigoValido && importeValido && divisaValida && tipoValido;
+            return entidadValida && codigoValido && importeValido && divisaValida;
         }
 
         /// <summary>
@@ -938,10 +990,13 @@ namespace GestionFacturas.Formularios
                 Documento = txtDocumento.Text.Trim(),
                 FechaEntradaCalidad = dtpFEntCalidad.Value.Date,
                 FechaRegistro = dtpFRegistro.Value.Date,
-                OrganizacionVentas = txtOrgVentas.Text.Trim(),
+                IdOrganizacionVentas = Convert.ToInt32(cboOrgVentas.SelectedValue),
                 IdProyecto = Convert.ToInt32(cboProyecto.SelectedValue),
                 IdSegmento = Convert.ToInt32(cboSegmento.SelectedValue),
-                ImporteEstimado = importeValido ? (decimal?)importeEstimado : null
+                ImporteEstimado = importeValido ? (decimal?)importeEstimado : null,
+                IdTipoDocumento = Convert.ToInt32(cboTipoDocumento.SelectedValue),
+                IdDivisaEstimada = Convert.ToInt32(cboMonedaEstimada.SelectedValue),
+                Notas = string.IsNullOrWhiteSpace(txtNotas.Text) ? null : txtNotas.Text.Trim()
             };
         }
 
@@ -994,8 +1049,7 @@ namespace GestionFacturas.Formularios
                 FechaFactura = dtpFechaFactura.Value.Date,
                 CodigoFactura = txtCodigoFactura.Text.Trim(),
                 ImporteFactura = importe,
-                IdDivisa = Convert.ToInt32(cboDivisa.SelectedValue),
-                IdTipoFactura = Convert.ToInt32(cboTipoFactura.SelectedValue)
+                IdDivisa = Convert.ToInt32(cboDivisa.SelectedValue)
             };
         }
 

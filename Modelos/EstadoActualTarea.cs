@@ -34,7 +34,5 @@ namespace GestionFacturas.Modelos
         public decimal? ImporteFactura { get; set; }
         public int? IdDivisa { get; set; }
         public string CodigoDivisa { get; set; }
-        public int? IdTipoFactura { get; set; }
-        public string DescripcionTipoFactura { get; set; }
     }
 }

@@ -38,14 +38,22 @@ namespace GestionFacturas
             this.dtpFechaDesde = new System.Windows.Forms.DateTimePicker();
             this.lblFechaHasta = new System.Windows.Forms.Label();
             this.dtpFechaHasta = new System.Windows.Forms.DateTimePicker();
+            this.lblFiltroProyecto = new System.Windows.Forms.Label();
+            this.cboFiltroProyecto = new System.Windows.Forms.ComboBox();
+            this.lblFiltroSegmento = new System.Windows.Forms.Label();
+            this.cboFiltroSegmento = new System.Windows.Forms.ComboBox();
             this.pnlBotonesFiltro = new System.Windows.Forms.Panel();
             this.btnLimpiarFiltros = new System.Windows.Forms.Button();
             this.btnAplicarFiltros = new System.Windows.Forms.Button();
             this.splitPrincipal = new System.Windows.Forms.SplitContainer();
             this.grpTareas = new System.Windows.Forms.GroupBox();
+            this.pnlTareasHeader = new System.Windows.Forms.Panel();
+            this.btnColapsarDetalle = new System.Windows.Forms.Button();
             this.dgvTareas = new System.Windows.Forms.DataGridView();
             this.grpDetalle = new System.Windows.Forms.GroupBox();
             this.dgvDetalle = new System.Windows.Forms.DataGridView();
+            this.pnlResumenSeleccion = new System.Windows.Forms.Panel();
+            this.lblResumenSeleccion = new System.Windows.Forms.Label();
             this.grpAsignacion = new System.Windows.Forms.GroupBox();
             this.lblUsuarioAsignado = new System.Windows.Forms.Label();
             this.cboUsuarioAsignado = new System.Windows.Forms.ComboBox();
@@ -63,9 +71,11 @@ namespace GestionFacturas
             this.splitPrincipal.Panel2.SuspendLayout();
             this.splitPrincipal.SuspendLayout();
             this.grpTareas.SuspendLayout();
+            this.pnlTareasHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTareas)).BeginInit();
             this.grpDetalle.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetalle)).BeginInit();
+            this.pnlResumenSeleccion.SuspendLayout();
             this.grpAsignacion.SuspendLayout();
             this.SuspendLayout();
             //
@@ -77,7 +87,7 @@ namespace GestionFacturas
             this.grpFiltros.Location = new System.Drawing.Point(0, 0);
             this.grpFiltros.Name = "grpFiltros";
             this.grpFiltros.Padding = new System.Windows.Forms.Padding(10);
-            this.grpFiltros.Size = new System.Drawing.Size(1184, 150);
+            this.grpFiltros.Size = new System.Drawing.Size(1184, 182);
             this.grpFiltros.TabIndex = 0;
             this.grpFiltros.TabStop = false;
             this.grpFiltros.Text = "Filtros";
@@ -95,11 +105,12 @@ namespace GestionFacturas
             this.tblFiltros.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tblFiltros.Location = new System.Drawing.Point(10, 23);
             this.tblFiltros.Name = "tblFiltros";
-            this.tblFiltros.RowCount = 3;
+            this.tblFiltros.RowCount = 4;
+            this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
-            this.tblFiltros.Size = new System.Drawing.Size(1164, 117);
+            this.tblFiltros.Size = new System.Drawing.Size(1164, 149);
             this.tblFiltros.TabIndex = 0;
             //
             // Fila 0: Estado / Usuario
@@ -180,18 +191,56 @@ namespace GestionFacturas
             this.dtpFechaHasta.TabIndex = 7;
             this.tblFiltros.Controls.Add(this.dtpFechaHasta, 3, 1);
             //
-            // Fila 2: barra de botones de filtro (ocupa todo el ancho)
+            // Fila 2: Proyecto / Segmento
+            //
+            this.lblFiltroProyecto.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblFiltroProyecto.AutoSize = true;
+            this.lblFiltroProyecto.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.lblFiltroProyecto.Name = "lblFiltroProyecto";
+            this.lblFiltroProyecto.Size = new System.Drawing.Size(52, 13);
+            this.lblFiltroProyecto.TabIndex = 7;
+            this.lblFiltroProyecto.Text = "Proyecto:";
+            this.tblFiltros.Controls.Add(this.lblFiltroProyecto, 0, 2);
+            //
+            this.cboFiltroProyecto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboFiltroProyecto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboFiltroProyecto.FormattingEnabled = true;
+            this.cboFiltroProyecto.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.cboFiltroProyecto.Name = "cboFiltroProyecto";
+            this.cboFiltroProyecto.Size = new System.Drawing.Size(130, 21);
+            this.cboFiltroProyecto.TabIndex = 8;
+            this.tblFiltros.Controls.Add(this.cboFiltroProyecto, 1, 2);
+            //
+            this.lblFiltroSegmento.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblFiltroSegmento.AutoSize = true;
+            this.lblFiltroSegmento.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.lblFiltroSegmento.Name = "lblFiltroSegmento";
+            this.lblFiltroSegmento.Size = new System.Drawing.Size(61, 13);
+            this.lblFiltroSegmento.TabIndex = 9;
+            this.lblFiltroSegmento.Text = "Segmento:";
+            this.tblFiltros.Controls.Add(this.lblFiltroSegmento, 2, 2);
+            //
+            this.cboFiltroSegmento.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboFiltroSegmento.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboFiltroSegmento.FormattingEnabled = true;
+            this.cboFiltroSegmento.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.cboFiltroSegmento.Name = "cboFiltroSegmento";
+            this.cboFiltroSegmento.Size = new System.Drawing.Size(130, 21);
+            this.cboFiltroSegmento.TabIndex = 10;
+            this.tblFiltros.Controls.Add(this.cboFiltroSegmento, 3, 2);
+            //
+            // Fila 3: barra de botones de filtro (ocupa todo el ancho)
             //
             this.tblFiltros.SetColumnSpan(this.pnlBotonesFiltro, 4);
             this.pnlBotonesFiltro.Controls.Add(this.btnLimpiarFiltros);
             this.pnlBotonesFiltro.Controls.Add(this.btnAplicarFiltros);
             this.pnlBotonesFiltro.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlBotonesFiltro.Location = new System.Drawing.Point(0, 64);
+            this.pnlBotonesFiltro.Location = new System.Drawing.Point(0, 96);
             this.pnlBotonesFiltro.Margin = new System.Windows.Forms.Padding(0);
             this.pnlBotonesFiltro.Name = "pnlBotonesFiltro";
             this.pnlBotonesFiltro.Size = new System.Drawing.Size(1164, 46);
-            this.pnlBotonesFiltro.TabIndex = 8;
-            this.tblFiltros.Controls.Add(this.pnlBotonesFiltro, 0, 2);
+            this.pnlBotonesFiltro.TabIndex = 11;
+            this.tblFiltros.Controls.Add(this.pnlBotonesFiltro, 0, 3);
             //
             // btnAplicarFiltros
             //
@@ -222,7 +271,7 @@ namespace GestionFacturas
             // ambos paneles se adaptan al tamaño de la ventana.
             this.splitPrincipal.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitPrincipal.FixedPanel = System.Windows.Forms.FixedPanel.None;
-            this.splitPrincipal.Location = new System.Drawing.Point(0, 150);
+            this.splitPrincipal.Location = new System.Drawing.Point(0, 182);
             this.splitPrincipal.Name = "splitPrincipal";
             this.splitPrincipal.Orientation = System.Windows.Forms.Orientation.Horizontal;
             //
@@ -242,6 +291,7 @@ namespace GestionFacturas
             // grpTareas
             //
             this.grpTareas.Controls.Add(this.dgvTareas);
+            this.grpTareas.Controls.Add(this.pnlTareasHeader);
             this.grpTareas.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpTareas.Location = new System.Drawing.Point(0, 0);
             this.grpTareas.Name = "grpTareas";
@@ -251,18 +301,44 @@ namespace GestionFacturas
             this.grpTareas.TabStop = false;
             this.grpTareas.Text = "Tareas";
             //
+            // pnlTareasHeader
+            //
+            // Franja superior dentro de grpTareas con el botón que
+            // colapsa/despliega el panel de detalle (Panel2 del
+            // SplitContainer), igual que FrmFacturar. Se coloca aquí
+            // (no en grpDetalle) para que siga siendo accesible aunque
+            // el detalle esté oculto del todo.
+            this.pnlTareasHeader.Controls.Add(this.btnColapsarDetalle);
+            this.pnlTareasHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlTareasHeader.Location = new System.Drawing.Point(10, 23);
+            this.pnlTareasHeader.Name = "pnlTareasHeader";
+            this.pnlTareasHeader.Size = new System.Drawing.Size(1164, 28);
+            this.pnlTareasHeader.TabIndex = 1;
+            //
+            // btnColapsarDetalle
+            //
+            this.btnColapsarDetalle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnColapsarDetalle.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnColapsarDetalle.Location = new System.Drawing.Point(1004, 0);
+            this.btnColapsarDetalle.Name = "btnColapsarDetalle";
+            this.btnColapsarDetalle.Size = new System.Drawing.Size(160, 26);
+            this.btnColapsarDetalle.TabIndex = 0;
+            this.btnColapsarDetalle.Text = "▼ Ocultar detalle";
+            this.btnColapsarDetalle.UseVisualStyleBackColor = true;
+            this.btnColapsarDetalle.Click += new System.EventHandler(this.btnColapsarDetalle_Click);
+            //
             // dgvTareas
             //
             this.dgvTareas.AllowUserToAddRows = false;
             this.dgvTareas.AllowUserToDeleteRows = false;
             this.dgvTareas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvTareas.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvTareas.Location = new System.Drawing.Point(10, 23);
+            this.dgvTareas.Location = new System.Drawing.Point(10, 51);
             this.dgvTareas.MultiSelect = true;
             this.dgvTareas.Name = "dgvTareas";
             this.dgvTareas.ReadOnly = true;
             this.dgvTareas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvTareas.Size = new System.Drawing.Size(1164, 212);
+            this.dgvTareas.Size = new System.Drawing.Size(1164, 184);
             this.dgvTareas.TabIndex = 0;
             this.dgvTareas.SelectionChanged += new System.EventHandler(this.dgvTareas_SelectionChanged);
             //
@@ -292,6 +368,32 @@ namespace GestionFacturas
             this.dgvDetalle.Size = new System.Drawing.Size(1164, 218);
             this.dgvDetalle.TabIndex = 0;
             //
+            // pnlResumenSeleccion
+            //
+            // Franja de resumen, al estilo de la barra de estado de
+            // Excel: cuando hay más de una tarea seleccionada en
+            // dgvTareas, muestra la suma de su Importe Estimado (ver
+            // FrmPoolTareas.ActualizarResumenSeleccion). Oculta
+            // (Height 0) si no aplica.
+            this.pnlResumenSeleccion.Controls.Add(this.lblResumenSeleccion);
+            this.pnlResumenSeleccion.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlResumenSeleccion.Location = new System.Drawing.Point(0, 630);
+            this.pnlResumenSeleccion.Name = "pnlResumenSeleccion";
+            this.pnlResumenSeleccion.Padding = new System.Windows.Forms.Padding(12, 0, 12, 0);
+            this.pnlResumenSeleccion.Size = new System.Drawing.Size(1184, 28);
+            this.pnlResumenSeleccion.TabIndex = 2;
+            //
+            // lblResumenSeleccion
+            //
+            this.lblResumenSeleccion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblResumenSeleccion.AutoSize = true;
+            this.lblResumenSeleccion.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold);
+            this.lblResumenSeleccion.Location = new System.Drawing.Point(700, 7);
+            this.lblResumenSeleccion.Name = "lblResumenSeleccion";
+            this.lblResumenSeleccion.Size = new System.Drawing.Size(15, 15);
+            this.lblResumenSeleccion.TabIndex = 0;
+            this.lblResumenSeleccion.Text = "";
+            //
             // grpAsignacion
             //
             // Anclado al fondo del formulario, con alto fijo; los
@@ -307,7 +409,7 @@ namespace GestionFacturas
             this.grpAsignacion.Controls.Add(this.cboUsuarioAsignado);
             this.grpAsignacion.Controls.Add(this.lblUsuarioAsignado);
             this.grpAsignacion.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpAsignacion.Location = new System.Drawing.Point(0, 610);
+            this.grpAsignacion.Location = new System.Drawing.Point(0, 720);
             this.grpAsignacion.Name = "grpAsignacion";
             this.grpAsignacion.Size = new System.Drawing.Size(1184, 180);
             this.grpAsignacion.TabIndex = 3;
@@ -404,8 +506,9 @@ namespace GestionFacturas
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 840);
+            this.ClientSize = new System.Drawing.Size(1184, 900);
             this.Controls.Add(this.splitPrincipal);
+            this.Controls.Add(this.pnlResumenSeleccion);
             this.Controls.Add(this.grpAsignacion);
             this.Controls.Add(this.grpFiltros);
             this.MinimumSize = new System.Drawing.Size(900, 590);
@@ -421,9 +524,12 @@ namespace GestionFacturas
             ((System.ComponentModel.ISupportInitialize)(this.splitPrincipal)).EndInit();
             this.splitPrincipal.ResumeLayout(false);
             this.grpTareas.ResumeLayout(false);
+            this.pnlTareasHeader.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvTareas)).EndInit();
             this.grpDetalle.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvDetalle)).EndInit();
+            this.pnlResumenSeleccion.ResumeLayout(false);
+            this.pnlResumenSeleccion.PerformLayout();
             this.grpAsignacion.ResumeLayout(false);
             this.grpAsignacion.PerformLayout();
             this.ResumeLayout(false);
@@ -445,11 +551,19 @@ namespace GestionFacturas
         private System.Windows.Forms.DateTimePicker dtpFechaHasta;
         private System.Windows.Forms.Label lblFechaHasta;
         private System.Windows.Forms.DateTimePicker dtpFechaDesde;
+        private System.Windows.Forms.Label lblFiltroProyecto;
+        private System.Windows.Forms.ComboBox cboFiltroProyecto;
+        private System.Windows.Forms.Label lblFiltroSegmento;
+        private System.Windows.Forms.ComboBox cboFiltroSegmento;
         private System.Windows.Forms.SplitContainer splitPrincipal;
         private System.Windows.Forms.GroupBox grpTareas;
+        private System.Windows.Forms.Panel pnlTareasHeader;
+        private System.Windows.Forms.Button btnColapsarDetalle;
         private System.Windows.Forms.DataGridView dgvTareas;
         private System.Windows.Forms.GroupBox grpDetalle;
         private System.Windows.Forms.DataGridView dgvDetalle;
+        private System.Windows.Forms.Panel pnlResumenSeleccion;
+        private System.Windows.Forms.Label lblResumenSeleccion;
         private System.Windows.Forms.GroupBox grpAsignacion;
         private System.Windows.Forms.Button btnAbrirTarea;
         private System.Windows.Forms.Button btnActualizar;

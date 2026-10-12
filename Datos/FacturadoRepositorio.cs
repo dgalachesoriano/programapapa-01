@@ -28,8 +28,7 @@ namespace GestionFacturas.Datos
                     FEC_FACT,
                     COD_FACT,
                     IMP_FACT,
-                    COD_SEQ_MON,
-                    COD_SEQ_TPF
+                    COD_SEQ_MON
                 )
                 VALUES
                 (
@@ -37,8 +36,7 @@ namespace GestionFacturas.Datos
                     @FEC_FACT,
                     @COD_FACT,
                     @IMP_FACT,
-                    @COD_SEQ_MON,
-                    @COD_SEQ_TPF
+                    @COD_SEQ_MON
                 );
 
                 SELECT CAST(SCOPE_IDENTITY() AS INT);";
@@ -68,8 +66,7 @@ namespace GestionFacturas.Datos
                     FEC_FACT = @FEC_FACT,
                     COD_FACT = @COD_FACT,
                     IMP_FACT = @IMP_FACT,
-                    COD_SEQ_MON = @COD_SEQ_MON,
-                    COD_SEQ_TPF = @COD_SEQ_TPF
+                    COD_SEQ_MON = @COD_SEQ_MON
                 WHERE ID = @ID;";
 
             using (SqlCommand comando = new SqlCommand(sql, conexion, transaccion))
@@ -100,8 +97,6 @@ namespace GestionFacturas.Datos
             comando.Parameters.Add("@IMP_FACT", SqlDbType.Decimal).Value = facturado.ImporteFactura;
 
             comando.Parameters.Add("@COD_SEQ_MON", SqlDbType.Int).Value = facturado.IdDivisa;
-
-            comando.Parameters.Add("@COD_SEQ_TPF", SqlDbType.Int).Value = facturado.IdTipoFactura;
         }
     }
 }

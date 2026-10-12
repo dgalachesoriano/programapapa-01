@@ -56,6 +56,7 @@
     <Compile Include="Datos\FacturadoRepositorio.cs" />
     <Compile Include="Datos\InformeRepositorio.cs" />
     <Compile Include="Datos\MotivoRepositorio.cs" />
+    <Compile Include="Datos\OrganizacionVentaRepositorio.cs" />
     <Compile Include="Datos\ProyectoRepositorio.cs" />
     <Compile Include="Datos\ResumenPrincipalRepositorio.cs" />
     <Compile Include="Datos\SegmentoRepositorio.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="Modelos\Facturado.cs" />
     <Compile Include="Modelos\FiltroBusquedaTareas.cs" />
     <Compile Include="Modelos\Motivo.cs" />
+    <Compile Include="Modelos\OrganizacionVenta.cs" />
     <Compile Include="Modelos\Proyecto.cs" />
     <Compile Include="Modelos\Segmento.cs" />
     <Compile Include="Modelos\Tarea.cs" />

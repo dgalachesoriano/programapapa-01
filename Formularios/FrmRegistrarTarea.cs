@@ -11,15 +11,22 @@ namespace GestionFacturas.Formularios
     /// <summary>
     /// Pantalla de alta de una tarea nueva, incluyendo sus líneas de
     /// detalle. Crea además el evento inicial de TBL_CONTROL con
-    /// estado "Registrado" (ver TareaRepositorio.Insertar). Editar una
+    /// estado "Registrado" (ver TareaRepositorio.Insertar). Tras
+    /// grabar correctamente, el formulario NO se cierra: se reinicia
+    /// en blanco (ver GrabarTarea/LimpiarFormularioParaNuevaTarea)
+    /// para registrar varias tareas seguidas sin tener que volver a
+    /// abrirlo; solo se cierra con el botón Cancelar. Editar una
     /// tarea ya existente (cabecera, detalle, estado, usuario y
     /// facturación) es responsabilidad de FrmDetalleTarea, que se abre
     /// desde el Pool de Tareas.
     /// </summary>
     public partial class FrmRegistrarTarea : Form
     {
+        private readonly OrganizacionVentaRepositorio organizacionVentaRepositorio = new OrganizacionVentaRepositorio();
         private readonly ProyectoRepositorio proyectoRepositorio = new ProyectoRepositorio();
         private readonly SegmentoRepositorio segmentoRepositorio = new SegmentoRepositorio();
+        private readonly TipoFacturaRepositorio tipoFacturaRepositorio = new TipoFacturaRepositorio();
+        private readonly DivisaRepositorio divisaRepositorio = new DivisaRepositorio();
         private readonly TareaRepositorio tareaRepositorio = new TareaRepositorio();
 
         private readonly PegadoPortapapelesServicio pegadoPortapapelesServicio =
@@ -44,8 +51,11 @@ namespace GestionFacturas.Formularios
 
             ConfigurarGridDetalle();
             ConfigurarLimpiezaDeBordes();
+            CargarOrganizacionesVenta();
             CargarProyectos();
             CargarSegmentos();
+            CargarTiposDocumento();
+            CargarMonedasEstimadas();
         }
 
         /// <summary>
@@ -59,10 +69,12 @@ namespace GestionFacturas.Formularios
         private void ConfigurarLimpiezaDeBordes()
         {
             txtDocumento.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlDocumentoBorde);
-            txtOrgVentas.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlOrgVentasBorde);
+            cboOrgVentas.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlOrgVentasBorde);
             cboProyecto.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlProyectoBorde);
             cboSegmento.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlSegmentoBorde);
             txtImporteEstimado.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlImporteEstimadoBorde);
+            cboTipoDocumento.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlTipoDocumentoBorde);
+            cboMonedaEstimada.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlMonedaEstimadaBorde);
             dgvDetalle.CellBeginEdit += (s, e) => ValidadorCampos.Limpiar(pnlDetalleBorde);
         }
 
@@ -218,6 +230,30 @@ namespace GestionFacturas.Formularios
         }
 
         /// <summary>
+        /// Carga en el combo de organizaciones de ventas las
+        /// organizaciones de ventas activas.
+        /// </summary>
+        private void CargarOrganizacionesVenta()
+        {
+            try
+            {
+                List<OrganizacionVenta> organizaciones = organizacionVentaRepositorio.ObtenerActivos();
+
+                cboOrgVentas.DataSource = organizaciones;
+                cboOrgVentas.DisplayMember = "Descripcion";
+                cboOrgVentas.ValueMember = "Id";
+                cboOrgVentas.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmRegistrarTarea.CargarOrganizacionesVenta",
+                    "No se han podido cargar las organizaciones de ventas.",
+                    ex);
+            }
+        }
+
+        /// <summary>
         /// Carga en el combo de proyectos los proyectos activos.
         /// </summary>
         private void CargarProyectos()
@@ -259,6 +295,52 @@ namespace GestionFacturas.Formularios
                 Dialogos.MostrarError(
                     "FrmRegistrarTarea.CargarSegmentos",
                     "No se han podido cargar los segmentos.",
+                    ex);
+            }
+        }
+
+        /// <summary>
+        /// Carga en el combo de tipo de documento los tipos activos.
+        /// </summary>
+        private void CargarTiposDocumento()
+        {
+            try
+            {
+                List<TipoFactura> tipos = tipoFacturaRepositorio.ObtenerActivos();
+
+                cboTipoDocumento.DataSource = tipos;
+                cboTipoDocumento.DisplayMember = "Descripcion";
+                cboTipoDocumento.ValueMember = "Id";
+                cboTipoDocumento.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmRegistrarTarea.CargarTiposDocumento",
+                    "No se han podido cargar los tipos de documento.",
+                    ex);
+            }
+        }
+
+        /// <summary>
+        /// Carga en el combo de moneda estimada las divisas activas.
+        /// </summary>
+        private void CargarMonedasEstimadas()
+        {
+            try
+            {
+                List<Divisa> divisas = divisaRepositorio.ObtenerActivas();
+
+                cboMonedaEstimada.DataSource = divisas;
+                cboMonedaEstimada.DisplayMember = "Codigo";
+                cboMonedaEstimada.ValueMember = "Id";
+                cboMonedaEstimada.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmRegistrarTarea.CargarMonedasEstimadas",
+                    "No se han podido cargar las divisas.",
                     ex);
             }
         }
@@ -320,14 +402,17 @@ namespace GestionFacturas.Formularios
         private bool ValidarDatos()
         {
             bool documentoValido = ValidadorCampos.ValidarTexto(txtDocumento, pnlDocumentoBorde);
-            bool orgVentasValido = ValidadorCampos.ValidarTexto(txtOrgVentas, pnlOrgVentasBorde);
+            bool orgVentasValido = ValidadorCampos.ValidarCombo(cboOrgVentas, pnlOrgVentasBorde);
             bool proyectoValido = ValidadorCampos.ValidarCombo(cboProyecto, pnlProyectoBorde);
             bool segmentoValido = ValidadorCampos.ValidarCombo(cboSegmento, pnlSegmentoBorde);
             bool importeValido = ValidarImporteEstimado();
+            bool tipoDocumentoValido = ValidadorCampos.ValidarCombo(cboTipoDocumento, pnlTipoDocumentoBorde);
+            bool monedaEstimadaValida = ValidadorCampos.ValidarCombo(cboMonedaEstimada, pnlMonedaEstimadaBorde);
             bool detalleValido = ValidarDetalle();
 
             return documentoValido && orgVentasValido && proyectoValido
-                && segmentoValido && importeValido && detalleValido;
+                && segmentoValido && importeValido && tipoDocumentoValido
+                && monedaEstimadaValida && detalleValido;
         }
 
         /// <summary>
@@ -402,6 +487,9 @@ namespace GestionFacturas.Formularios
         /// <summary>
         /// Construye la cabecera y el detalle a partir de los
         /// controles de pantalla y delega en el repositorio el alta.
+        /// No cierra el formulario al terminar: lo reinicia (ver
+        /// <see cref="LimpiarFormularioParaNuevaTarea"/>) para poder
+        /// registrar varias tareas seguidas sin volver a abrirlo.
         /// </summary>
         private void GrabarTarea()
         {
@@ -416,8 +504,7 @@ namespace GestionFacturas.Formularios
                     "La tarea se ha registrado correctamente.",
                     "Grabación correcta");
 
-                DialogResult = DialogResult.OK;
-                Close();
+                LimpiarFormularioParaNuevaTarea();
             }
             catch (Exception ex)
             {
@@ -426,6 +513,29 @@ namespace GestionFacturas.Formularios
                     "No se ha podido grabar la tarea.",
                     ex);
             }
+        }
+
+        /// <summary>
+        /// Deja la pantalla como recién abierta (todos los campos en
+        /// blanco, sin filas de detalle) tras un alta correcta, y
+        /// devuelve el foco al Documento para poder encadenar el
+        /// registro de la siguiente tarea.
+        /// </summary>
+        private void LimpiarFormularioParaNuevaTarea()
+        {
+            txtDocumento.Clear();
+            dtpFEntCalidad.Value = DateTime.Today;
+            dtpFRegistro.Value = DateTime.Today;
+            cboOrgVentas.SelectedIndex = -1;
+            cboProyecto.SelectedIndex = -1;
+            cboSegmento.SelectedIndex = -1;
+            cboTipoDocumento.SelectedIndex = -1;
+            cboMonedaEstimada.SelectedIndex = -1;
+            txtImporteEstimado.Clear();
+            txtNotas.Clear();
+            dgvDetalle.Rows.Clear();
+
+            txtDocumento.Focus();
         }
 
         /// <summary>
@@ -443,10 +553,13 @@ namespace GestionFacturas.Formularios
                 Documento = txtDocumento.Text.Trim(),
                 FechaEntradaCalidad = dtpFEntCalidad.Value.Date,
                 FechaRegistro = dtpFRegistro.Value.Date,
-                OrganizacionVentas = txtOrgVentas.Text.Trim(),
+                IdOrganizacionVentas = Convert.ToInt32(cboOrgVentas.SelectedValue),
                 IdProyecto = Convert.ToInt32(cboProyecto.SelectedValue),
                 IdSegmento = Convert.ToInt32(cboSegmento.SelectedValue),
-                ImporteEstimado = importeValido ? (decimal?)importeEstimado : null
+                ImporteEstimado = importeValido ? (decimal?)importeEstimado : null,
+                IdTipoDocumento = Convert.ToInt32(cboTipoDocumento.SelectedValue),
+                IdDivisaEstimada = Convert.ToInt32(cboMonedaEstimada.SelectedValue),
+                Notas = string.IsNullOrWhiteSpace(txtNotas.Text) ? null : txtNotas.Text.Trim()
             };
         }
 

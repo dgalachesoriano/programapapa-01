@@ -121,10 +121,13 @@ namespace GestionFacturas.Datos
                     DES_DOC,
                     FEC_ENT_CAL,
                     FEC_REG,
-                    DES_ORG_VENTAS,
+                    COD_SEQ_ORG_VTA,
                     COD_SEQ_PRY,
                     COD_SEQ_SEG,
-                    IMP_ESTIMADO
+                    IMP_ESTIMADO,
+                    COD_SEQ_TPF,
+                    COD_SEQ_MON,
+                    DES_NOTAS
 
                 FROM dbo.TBL_TAREAS
 
@@ -146,13 +149,18 @@ namespace GestionFacturas.Datos
                         Documento = lector["DES_DOC"].ToString(),
                         FechaEntradaCalidad = Convert.ToDateTime(lector["FEC_ENT_CAL"]),
                         FechaRegistro = Convert.ToDateTime(lector["FEC_REG"]),
-                        OrganizacionVentas = lector["DES_ORG_VENTAS"].ToString(),
+                        IdOrganizacionVentas = Convert.ToInt32(lector["COD_SEQ_ORG_VTA"]),
                         IdProyecto = Convert.ToInt32(lector["COD_SEQ_PRY"]),
                         IdSegmento = Convert.ToInt32(lector["COD_SEQ_SEG"]),
 
                         ImporteEstimado = lector["IMP_ESTIMADO"] == DBNull.Value
                             ? (decimal?)null
-                            : Convert.ToDecimal(lector["IMP_ESTIMADO"])
+                            : Convert.ToDecimal(lector["IMP_ESTIMADO"]),
+
+                        IdTipoDocumento = Convert.ToInt32(lector["COD_SEQ_TPF"]),
+                        IdDivisaEstimada = Convert.ToInt32(lector["COD_SEQ_MON"]),
+
+                        Notas = ObtenerTextoONulo(lector, "DES_NOTAS")
                     };
                 }
             }
@@ -317,7 +325,7 @@ namespace GestionFacturas.Datos
                     COD_SEQ_USER, NOMBRE_USUARIO,
                     COD_SEQ_MOTIVO, DES_MOTIVO,
                     COD_SEQ_FAC, COD_ENT_SAL, FEC_FACT, COD_FACT, IMP_FACT,
-                    COD_SEQ_MON, COD_DIV, COD_SEQ_TPF, DES_TIP_FACT
+                    COD_SEQ_MON_FAC, COD_DIV_FAC
 
                 FROM dbo.VW_TAREAS_ESTADO_ACTUAL
 
@@ -357,10 +365,8 @@ namespace GestionFacturas.Datos
                             ? (decimal?)null
                             : Convert.ToDecimal(lector["IMP_FACT"]),
 
-                        IdDivisa = ObtenerIntONulo(lector, "COD_SEQ_MON"),
-                        CodigoDivisa = ObtenerTextoONulo(lector, "COD_DIV"),
-                        IdTipoFactura = ObtenerIntONulo(lector, "COD_SEQ_TPF"),
-                        DescripcionTipoFactura = ObtenerTextoONulo(lector, "DES_TIP_FACT")
+                        IdDivisa = ObtenerIntONulo(lector, "COD_SEQ_MON_FAC"),
+                        CodigoDivisa = ObtenerTextoONulo(lector, "COD_DIV_FAC")
                     };
                 }
             }
@@ -681,20 +687,26 @@ namespace GestionFacturas.Datos
                     DES_DOC,
                     FEC_ENT_CAL,
                     FEC_REG,
-                    DES_ORG_VENTAS,
+                    COD_SEQ_ORG_VTA,
                     COD_SEQ_PRY,
                     COD_SEQ_SEG,
-                    IMP_ESTIMADO
+                    IMP_ESTIMADO,
+                    COD_SEQ_TPF,
+                    COD_SEQ_MON,
+                    DES_NOTAS
                 )
                 VALUES
                 (
                     @DES_DOC,
                     @FEC_ENT_CAL,
                     @FEC_REG,
-                    @DES_ORG_VENTAS,
+                    @COD_SEQ_ORG_VTA,
                     @COD_SEQ_PRY,
                     @COD_SEQ_SEG,
-                    @IMP_ESTIMADO
+                    @IMP_ESTIMADO,
+                    @COD_SEQ_TPF,
+                    @COD_SEQ_MON,
+                    @DES_NOTAS
                 );
 
                 SELECT CAST(SCOPE_IDENTITY() AS INT);";
@@ -719,10 +731,13 @@ namespace GestionFacturas.Datos
                     DES_DOC = @DES_DOC,
                     FEC_ENT_CAL = @FEC_ENT_CAL,
                     FEC_REG = @FEC_REG,
-                    DES_ORG_VENTAS = @DES_ORG_VENTAS,
+                    COD_SEQ_ORG_VTA = @COD_SEQ_ORG_VTA,
                     COD_SEQ_PRY = @COD_SEQ_PRY,
                     COD_SEQ_SEG = @COD_SEQ_SEG,
-                    IMP_ESTIMADO = @IMP_ESTIMADO
+                    IMP_ESTIMADO = @IMP_ESTIMADO,
+                    COD_SEQ_TPF = @COD_SEQ_TPF,
+                    COD_SEQ_MON = @COD_SEQ_MON,
+                    DES_NOTAS = @DES_NOTAS
                 WHERE ID = @ID;";
 
             using (SqlCommand comando = new SqlCommand(sql, conexion, transaccion))
@@ -751,12 +766,18 @@ namespace GestionFacturas.Datos
             comando.Parameters.AddWithValue("@DES_DOC", tarea.Documento ?? string.Empty);
             comando.Parameters.AddWithValue("@FEC_ENT_CAL", tarea.FechaEntradaCalidad);
             comando.Parameters.AddWithValue("@FEC_REG", tarea.FechaRegistro);
-            comando.Parameters.AddWithValue("@DES_ORG_VENTAS", tarea.OrganizacionVentas ?? string.Empty);
+            comando.Parameters.Add("@COD_SEQ_ORG_VTA", SqlDbType.Int).Value = tarea.IdOrganizacionVentas;
             comando.Parameters.Add("@COD_SEQ_PRY", SqlDbType.Int).Value = tarea.IdProyecto;
             comando.Parameters.Add("@COD_SEQ_SEG", SqlDbType.Int).Value = tarea.IdSegmento;
 
             comando.Parameters.Add("@IMP_ESTIMADO", SqlDbType.Decimal).Value =
                 tarea.ImporteEstimado.HasValue ? (object)tarea.ImporteEstimado.Value : DBNull.Value;
+
+            comando.Parameters.Add("@COD_SEQ_TPF", SqlDbType.Int).Value = tarea.IdTipoDocumento;
+            comando.Parameters.Add("@COD_SEQ_MON", SqlDbType.Int).Value = tarea.IdDivisaEstimada;
+
+            comando.Parameters.Add("@DES_NOTAS", SqlDbType.NVarChar, 255).Value =
+                string.IsNullOrWhiteSpace(tarea.Notas) ? (object)DBNull.Value : tarea.Notas;
         }
 
         /// <summary>

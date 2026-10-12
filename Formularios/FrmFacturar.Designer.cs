@@ -63,9 +63,6 @@ namespace GestionFacturas.Formularios
             this.lblDivisa = new System.Windows.Forms.Label();
             this.pnlDivisaBorde = new System.Windows.Forms.Panel();
             this.cboDivisa = new System.Windows.Forms.ComboBox();
-            this.lblTipoFactura = new System.Windows.Forms.Label();
-            this.pnlTipoFacturaBorde = new System.Windows.Forms.Panel();
-            this.cboTipoFactura = new System.Windows.Forms.ComboBox();
             this.btnGrabar = new System.Windows.Forms.Button();
             this.btnCerrar = new System.Windows.Forms.Button();
             this.grpFiltros.SuspendLayout();
@@ -81,7 +78,6 @@ namespace GestionFacturas.Formularios
             this.pnlCodigoFacturaBorde.SuspendLayout();
             this.pnlImporteFacturaBorde.SuspendLayout();
             this.pnlDivisaBorde.SuspendLayout();
-            this.pnlTipoFacturaBorde.SuspendLayout();
             this.SuspendLayout();
             //
             // grpFiltros
@@ -330,8 +326,6 @@ namespace GestionFacturas.Formularios
             this.grpFacturacion.Controls.Add(this.pnlImporteFacturaBorde);
             this.grpFacturacion.Controls.Add(this.lblDivisa);
             this.grpFacturacion.Controls.Add(this.pnlDivisaBorde);
-            this.grpFacturacion.Controls.Add(this.lblTipoFactura);
-            this.grpFacturacion.Controls.Add(this.pnlTipoFacturaBorde);
             this.grpFacturacion.Controls.Add(this.btnGrabar);
             this.grpFacturacion.Controls.Add(this.btnCerrar);
             this.grpFacturacion.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -467,34 +461,6 @@ namespace GestionFacturas.Formularios
             this.cboDivisa.Size = new System.Drawing.Size(116, 21);
             this.cboDivisa.TabIndex = 0;
             //
-            // lblTipoFactura
-            //
-            this.lblTipoFactura.AutoSize = true;
-            this.lblTipoFactura.Location = new System.Drawing.Point(360, 103);
-            this.lblTipoFactura.Name = "lblTipoFactura";
-            this.lblTipoFactura.Size = new System.Drawing.Size(75, 13);
-            this.lblTipoFactura.TabIndex = 10;
-            this.lblTipoFactura.Text = "Tipo Factura:";
-            //
-            // pnlTipoFacturaBorde
-            //
-            this.pnlTipoFacturaBorde.BackColor = System.Drawing.SystemColors.Control;
-            this.pnlTipoFacturaBorde.Controls.Add(this.cboTipoFactura);
-            this.pnlTipoFacturaBorde.Location = new System.Drawing.Point(440, 100);
-            this.pnlTipoFacturaBorde.Name = "pnlTipoFacturaBorde";
-            this.pnlTipoFacturaBorde.Padding = new System.Windows.Forms.Padding(2);
-            this.pnlTipoFacturaBorde.Size = new System.Drawing.Size(250, 25);
-            this.pnlTipoFacturaBorde.TabIndex = 11;
-            //
-            this.cboTipoFactura.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cboTipoFactura.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboTipoFactura.FormattingEnabled = true;
-            this.cboTipoFactura.Location = new System.Drawing.Point(2, 2);
-            this.cboTipoFactura.Margin = new System.Windows.Forms.Padding(0);
-            this.cboTipoFactura.Name = "cboTipoFactura";
-            this.cboTipoFactura.Size = new System.Drawing.Size(246, 21);
-            this.cboTipoFactura.TabIndex = 0;
-            //
             // btnGrabar
             //
             this.btnGrabar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -549,7 +515,6 @@ namespace GestionFacturas.Formularios
             this.pnlImporteFacturaBorde.ResumeLayout(false);
             this.pnlImporteFacturaBorde.PerformLayout();
             this.pnlDivisaBorde.ResumeLayout(false);
-            this.pnlTipoFacturaBorde.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -591,9 +556,6 @@ namespace GestionFacturas.Formularios
         private System.Windows.Forms.Label lblDivisa;
         private System.Windows.Forms.Panel pnlDivisaBorde;
         private System.Windows.Forms.ComboBox cboDivisa;
-        private System.Windows.Forms.Label lblTipoFactura;
-        private System.Windows.Forms.Panel pnlTipoFacturaBorde;
-        private System.Windows.Forms.ComboBox cboTipoFactura;
         private System.Windows.Forms.Button btnGrabar;
         private System.Windows.Forms.Button btnCerrar;
     }

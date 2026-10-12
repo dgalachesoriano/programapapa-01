@@ -22,7 +22,6 @@ namespace GestionFacturas.Formularios
         private readonly TareaRepositorio tareaRepositorio = new TareaRepositorio();
         private readonly UsuarioRepositorio usuarioRepositorio = new UsuarioRepositorio();
         private readonly DivisaRepositorio divisaRepositorio = new DivisaRepositorio();
-        private readonly TipoFacturaRepositorio tipoFacturaRepositorio = new TipoFacturaRepositorio();
 
         /// <summary>
         /// Cultura usada para interpretar y formatear el importe de
@@ -53,7 +52,6 @@ namespace GestionFacturas.Formularios
 
             CargarFiltroUsuarios();
             CargarDivisas();
-            CargarTiposFactura();
             BuscarTareasPendientes();
         }
 
@@ -69,7 +67,6 @@ namespace GestionFacturas.Formularios
             txtCodigoFactura.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlCodigoFacturaBorde);
             txtImporteFactura.TextChanged += (s, e) => ValidadorCampos.Limpiar(pnlImporteFacturaBorde);
             cboDivisa.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlDivisaBorde);
-            cboTipoFactura.SelectedIndexChanged += (s, e) => ValidadorCampos.Limpiar(pnlTipoFacturaBorde);
         }
 
         /// <summary>
@@ -117,29 +114,6 @@ namespace GestionFacturas.Formularios
                 Dialogos.MostrarError(
                     "FrmFacturar.CargarDivisas",
                     "No se han podido cargar las divisas.",
-                    ex);
-            }
-        }
-
-        /// <summary>
-        /// Carga en el combo de tipos de factura los tipos activos.
-        /// </summary>
-        private void CargarTiposFactura()
-        {
-            try
-            {
-                List<TipoFactura> tipos = tipoFacturaRepositorio.ObtenerActivos();
-
-                cboTipoFactura.DataSource = tipos;
-                cboTipoFactura.DisplayMember = "Descripcion";
-                cboTipoFactura.ValueMember = "Id";
-                cboTipoFactura.SelectedIndex = -1;
-            }
-            catch (Exception ex)
-            {
-                Dialogos.MostrarError(
-                    "FrmFacturar.CargarTiposFactura",
-                    "No se han podido cargar los tipos de factura.",
                     ex);
             }
         }
@@ -343,8 +317,8 @@ namespace GestionFacturas.Formularios
 
         /// <summary>
         /// Valida que todos los campos de facturación (Entidad de
-        /// Salida, Código de Factura, Importe, Divisa y Tipo de
-        /// Factura) estén informados. No se detiene en el primero que
+        /// Salida, Código de Factura, Importe y Divisa) estén
+        /// informados. No se detiene en el primero que
         /// falla: comprueba todos y marca en rojo cada uno de los que
         /// falten, para que se vean todos a la vez (igual que
         /// FrmRegistrarTarea.ValidarDatos). La Fecha de Factura no se
@@ -356,10 +330,9 @@ namespace GestionFacturas.Formularios
             bool codigoFacturaValido = ValidadorCampos.ValidarTexto(txtCodigoFactura, pnlCodigoFacturaBorde);
             bool importeValido = ValidarImporteFactura();
             bool divisaValida = ValidadorCampos.ValidarCombo(cboDivisa, pnlDivisaBorde);
-            bool tipoFacturaValido = ValidadorCampos.ValidarCombo(cboTipoFactura, pnlTipoFacturaBorde);
 
             return entidadSalidaValida && codigoFacturaValido && importeValido
-                && divisaValida && tipoFacturaValido;
+                && divisaValida;
         }
 
         /// <summary>
@@ -393,8 +366,7 @@ namespace GestionFacturas.Formularios
                 FechaFactura = dtpFechaFactura.Value.Date,
                 CodigoFactura = txtCodigoFactura.Text.Trim(),
                 ImporteFactura = importe,
-                IdDivisa = Convert.ToInt32(cboDivisa.SelectedValue),
-                IdTipoFactura = Convert.ToInt32(cboTipoFactura.SelectedValue)
+                IdDivisa = Convert.ToInt32(cboDivisa.SelectedValue)
             };
         }
 
@@ -434,7 +406,6 @@ namespace GestionFacturas.Formularios
             txtCodigoFactura.Clear();
             txtImporteFactura.Clear();
             cboDivisa.SelectedIndex = -1;
-            cboTipoFactura.SelectedIndex = -1;
         }
 
         /// <summary>

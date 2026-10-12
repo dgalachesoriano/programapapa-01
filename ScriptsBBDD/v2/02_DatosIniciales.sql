@@ -46,6 +46,18 @@ IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ESTADOS_TAREA WHERE DES_ESTADO = N'Cancelad
 GO
 
 -- --------------------------------------------------------
+-- TBL_ORGANIZACIONES_VENTAS
+-- --------------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ORGANIZACIONES_VENTAS WHERE DES_ORG_VENTAS = N'ACME Ingeniería SL')
+    INSERT INTO dbo.TBL_ORGANIZACIONES_VENTAS (DES_ORG_VENTAS) VALUES (N'ACME Ingeniería SL');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ORGANIZACIONES_VENTAS WHERE DES_ORG_VENTAS = N'Grupo Industrial Norte SA')
+    INSERT INTO dbo.TBL_ORGANIZACIONES_VENTAS (DES_ORG_VENTAS) VALUES (N'Grupo Industrial Norte SA');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.TBL_ORGANIZACIONES_VENTAS WHERE DES_ORG_VENTAS = N'Suministros del Sur SL')
+    INSERT INTO dbo.TBL_ORGANIZACIONES_VENTAS (DES_ORG_VENTAS) VALUES (N'Suministros del Sur SL');
+
+-- --------------------------------------------------------
 -- TBL_PROYECTOS
 -- --------------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM dbo.TBL_PROYECTOS WHERE DES_PROYECTO = N'Proyecto1')
