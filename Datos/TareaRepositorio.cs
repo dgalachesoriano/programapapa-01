@@ -60,6 +60,14 @@ namespace GestionFacturas.Datos
 
                     AND
 
+                    (@COD_SEQ_PRY = 0 OR COD_SEQ_PRY = @COD_SEQ_PRY)
+
+                    AND
+
+                    (@COD_SEQ_SEG = 0 OR COD_SEQ_SEG = @COD_SEQ_SEG)
+
+                    AND
+
                     (@DES_DOC = '' OR DES_DOC LIKE '%' + @DES_DOC + '%')
 
                     AND
@@ -79,6 +87,10 @@ namespace GestionFacturas.Datos
                 comando.Parameters.Add("@COD_SEQ_EST", SqlDbType.Int).Value = filtro.IdEstado;
 
                 comando.Parameters.Add("@COD_SEQ_USER", SqlDbType.Int).Value = filtro.IdUsuario;
+
+                comando.Parameters.Add("@COD_SEQ_PRY", SqlDbType.Int).Value = filtro.IdProyecto;
+
+                comando.Parameters.Add("@COD_SEQ_SEG", SqlDbType.Int).Value = filtro.IdSegmento;
 
                 comando.Parameters.Add("@DES_DOC", SqlDbType.NVarChar).Value = filtro.Documento ?? string.Empty;
 

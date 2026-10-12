@@ -16,12 +16,15 @@ namespace GestionFacturas.Formularios
     /// gráfica de líneas con la evolución mensual de tres importes -
     /// facturado, pendiente de facturar (estimado de las tareas "En
     /// Proceso") y bloqueado (estimado de las tareas "Bloqueado") -,
-    /// filtrable por rango de fechas y usuario.
+    /// filtrable por rango de fechas y usuario, con tarjetas KPI de
+    /// los totales del periodo filtrado.
     /// </summary>
     public partial class FrmInformeFacturacion : Form
     {
         private readonly InformeRepositorio informeRepositorio = new InformeRepositorio();
         private readonly UsuarioRepositorio usuarioRepositorio = new UsuarioRepositorio();
+
+        private static readonly CultureInfo CulturaDecimal = new CultureInfo("es-ES");
 
         /// <summary>
         /// Valor usado en el combo de filtro de usuario para
@@ -35,10 +38,15 @@ namespace GestionFacturas.Formularios
         private const string SeriePendiente = "PENDIENTE";
         private const string SerieBloqueado = "BLOQUEADO";
 
+        private FlowLayoutPanel flpKpis;
+
         public FrmInformeFacturacion()
         {
             InitializeComponent();
 
+            this.BackColor = EstiloDashboard.ColorCanvas;
+
+            ConstruirPanelKpis();
             ConfigurarGrafica();
             CargarFiltroUsuarios();
 
@@ -46,24 +54,36 @@ namespace GestionFacturas.Formularios
         }
 
         /// <summary>
-        /// Prepara el área de la gráfica y da de alta las tres
-        /// series (una línea por cada importe), sin puntos todavía.
+        /// Inserta, encima de la gráfica (dentro de grpGrafica), la
+        /// franja de tarjetas KPI con los totales del periodo
+        /// filtrado. Se hace por código en vez de en el diseñador para
+        /// no tener que reordenar a mano el resto de controles ya
+        /// generados.
+        /// </summary>
+        private void ConstruirPanelKpis()
+        {
+            Panel pnl = new Panel { Dock = DockStyle.Top, Height = 110, Padding = new Padding(0, 0, 0, 15) };
+
+            flpKpis = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                AutoScroll = true
+            };
+
+            pnl.Controls.Add(flpKpis);
+            grpGrafica.Controls.Add(pnl);
+        }
+
+        /// <summary>
+        /// Prepara el área de la gráfica (estilo compartido del
+        /// cuadro de mando) y da de alta las tres series (una línea
+        /// por cada importe), sin puntos todavía.
         /// </summary>
         private void ConfigurarGrafica()
         {
-            chartFacturacion.Series.Clear();
-            chartFacturacion.ChartAreas.Clear();
-            chartFacturacion.Legends.Clear();
-
-            ChartArea area = new ChartArea("AreaPrincipal");
-            area.AxisX.Title = "Mes";
-            area.AxisY.Title = "Importe (€)";
-            area.AxisX.MajorGrid.LineColor = Color.Gainsboro;
-            area.AxisY.MajorGrid.LineColor = Color.Gainsboro;
-            area.AxisX.Interval = 1;
-
-            chartFacturacion.ChartAreas.Add(area);
-            chartFacturacion.Legends.Add(new Legend("Leyenda"));
+            EstiloDashboard.PrepararGrafica(chartFacturacion);
 
             AgregarSerie(SerieFacturado, "Facturado", Color.FromArgb(76, 175, 80));
             AgregarSerie(SeriePendiente, "Pendiente de Facturar", Color.FromArgb(33, 150, 243));
@@ -153,6 +173,7 @@ namespace GestionFacturas.Formularios
                 DataTable resumen = informeRepositorio.ObtenerResumenFacturacion(
                     fechaDesde, fechaHasta, idUsuario);
 
+                PintarKpis(resumen);
                 PintarGrafica(resumen);
             }
             catch (Exception ex)
@@ -162,6 +183,38 @@ namespace GestionFacturas.Formularios
                     "No se ha podido generar la gráfica.",
                     ex);
             }
+        }
+
+        /// <summary>
+        /// Suma el importe de cada serie a lo largo de todo el
+        /// periodo filtrado y lo muestra en tres tarjetas KPI.
+        /// </summary>
+        private void PintarKpis(DataTable resumen)
+        {
+            flpKpis.Controls.Clear();
+
+            decimal totalFacturado = 0m, totalPendiente = 0m, totalBloqueado = 0m;
+
+            foreach (DataRow fila in resumen.Rows)
+            {
+                decimal importe = fila["IMPORTE"] == DBNull.Value ? 0m : Convert.ToDecimal(fila["IMPORTE"]);
+
+                switch (fila["SERIE"].ToString())
+                {
+                    case SerieFacturado: totalFacturado += importe; break;
+                    case SeriePendiente: totalPendiente += importe; break;
+                    case SerieBloqueado: totalBloqueado += importe; break;
+                }
+            }
+
+            flpKpis.Controls.Add(EstiloDashboard.CrearTarjetaKpi(
+                this.Font, "FACTURADO", totalFacturado.ToString("N2", CulturaDecimal), Color.FromArgb(76, 175, 80)));
+
+            flpKpis.Controls.Add(EstiloDashboard.CrearTarjetaKpi(
+                this.Font, "PENDIENTE DE FACTURAR", totalPendiente.ToString("N2", CulturaDecimal), Color.FromArgb(33, 150, 243)));
+
+            flpKpis.Controls.Add(EstiloDashboard.CrearTarjetaKpi(
+                this.Font, "BLOQUEADO", totalBloqueado.ToString("N2", CulturaDecimal), Color.FromArgb(244, 67, 54)));
         }
 
         /// <summary>

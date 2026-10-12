@@ -473,5 +473,79 @@ namespace GestionFacturas
 
             formulario.ShowDialog();
         }
+
+        /// <summary>
+        /// Abre, como diálogo modal, el informe de motivos de bloqueo.
+        /// </summary>
+        private void motivosBloqueoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmInformeMotivosBloqueo formulario = new FrmInformeMotivosBloqueo();
+
+            formulario.ShowDialog();
+        }
+
+        /// <summary>
+        /// Abre, como diálogo modal, el informe de antigüedad de
+        /// tareas abiertas.
+        /// </summary>
+        private void antiguedadTareasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmInformeAntiguedadTareas formulario = new FrmInformeAntiguedadTareas();
+
+            formulario.ShowDialog();
+        }
+
+        /// <summary>
+        /// Abre, como diálogo modal, el informe de ranking de usuarios.
+        /// </summary>
+        private void rankingUsuariosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmInformeRankingUsuarios formulario = new FrmInformeRankingUsuarios();
+
+            formulario.ShowDialog();
+        }
+
+        /// <summary>
+        /// Abre, como diálogo modal, el informe de facturación por
+        /// proyecto/segmento.
+        /// </summary>
+        private void facturacionProyectoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmInformeFacturacionProyecto formulario = new FrmInformeFacturacionProyecto();
+
+            formulario.ShowDialog();
+        }
+
+        /// <summary>
+        /// Abre, como diálogo modal, el informe de desviación entre
+        /// importe estimado e importe facturado.
+        /// </summary>
+        private void desviacionEstimadoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmInformeDesviacion formulario = new FrmInformeDesviacion();
+
+            formulario.ShowDialog();
+        }
+
+        /// <summary>
+        /// Abre, como diálogo modal, el informe de trazabilidad de una
+        /// tarea.
+        /// </summary>
+        private void trazabilidadTareaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmInformeTrazabilidad formulario = new FrmInformeTrazabilidad();
+
+            formulario.ShowDialog();
+        }
+
+        /// <summary>
+        /// Abre, como diálogo modal, el informe de cancelaciones.
+        /// </summary>
+        private void cancelacionesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FrmInformeCancelaciones formulario = new FrmInformeCancelaciones();
+
+            formulario.ShowDialog();
+        }
     }
 }

@@ -39,6 +39,13 @@ namespace GestionFacturas
             this.consultasSQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.informesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.facturaciónToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.motivosBloqueoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.antiguedadTareasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rankingUsuariosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.facturacionProyectoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.desviacionEstimadoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.trazabilidadTareaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cancelacionesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCanvas = new System.Windows.Forms.Panel();
             this.splitInferior = new System.Windows.Forms.SplitContainer();
             this.grpPorUsuario = new System.Windows.Forms.GroupBox();
@@ -137,7 +144,14 @@ namespace GestionFacturas
             // informesToolStripMenuItem
             //
             this.informesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.facturaciónToolStripMenuItem});
+            this.facturaciónToolStripMenuItem,
+            this.motivosBloqueoToolStripMenuItem,
+            this.antiguedadTareasToolStripMenuItem,
+            this.rankingUsuariosToolStripMenuItem,
+            this.facturacionProyectoToolStripMenuItem,
+            this.desviacionEstimadoToolStripMenuItem,
+            this.trazabilidadTareaToolStripMenuItem,
+            this.cancelacionesToolStripMenuItem});
             this.informesToolStripMenuItem.Name = "informesToolStripMenuItem";
             this.informesToolStripMenuItem.Size = new System.Drawing.Size(66, 20);
             this.informesToolStripMenuItem.Text = "Informes";
@@ -145,9 +159,58 @@ namespace GestionFacturas
             // facturaciónToolStripMenuItem
             //
             this.facturaciónToolStripMenuItem.Name = "facturaciónToolStripMenuItem";
-            this.facturaciónToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.facturaciónToolStripMenuItem.Size = new System.Drawing.Size(260, 22);
             this.facturaciónToolStripMenuItem.Text = "Facturación";
             this.facturaciónToolStripMenuItem.Click += new System.EventHandler(this.facturaciónToolStripMenuItem_Click);
+            //
+            // motivosBloqueoToolStripMenuItem
+            //
+            this.motivosBloqueoToolStripMenuItem.Name = "motivosBloqueoToolStripMenuItem";
+            this.motivosBloqueoToolStripMenuItem.Size = new System.Drawing.Size(260, 22);
+            this.motivosBloqueoToolStripMenuItem.Text = "Motivos de Bloqueo";
+            this.motivosBloqueoToolStripMenuItem.Click += new System.EventHandler(this.motivosBloqueoToolStripMenuItem_Click);
+            //
+            // antiguedadTareasToolStripMenuItem
+            //
+            this.antiguedadTareasToolStripMenuItem.Name = "antiguedadTareasToolStripMenuItem";
+            this.antiguedadTareasToolStripMenuItem.Size = new System.Drawing.Size(260, 22);
+            this.antiguedadTareasToolStripMenuItem.Text = "Antigüedad de Tareas";
+            this.antiguedadTareasToolStripMenuItem.Click += new System.EventHandler(this.antiguedadTareasToolStripMenuItem_Click);
+            //
+            // rankingUsuariosToolStripMenuItem
+            //
+            this.rankingUsuariosToolStripMenuItem.Name = "rankingUsuariosToolStripMenuItem";
+            this.rankingUsuariosToolStripMenuItem.Size = new System.Drawing.Size(260, 22);
+            this.rankingUsuariosToolStripMenuItem.Text = "Ranking de Usuarios";
+            this.rankingUsuariosToolStripMenuItem.Click += new System.EventHandler(this.rankingUsuariosToolStripMenuItem_Click);
+            //
+            // facturacionProyectoToolStripMenuItem
+            //
+            this.facturacionProyectoToolStripMenuItem.Name = "facturacionProyectoToolStripMenuItem";
+            this.facturacionProyectoToolStripMenuItem.Size = new System.Drawing.Size(260, 22);
+            this.facturacionProyectoToolStripMenuItem.Text = "Facturación por Proyecto/Segmento";
+            this.facturacionProyectoToolStripMenuItem.Click += new System.EventHandler(this.facturacionProyectoToolStripMenuItem_Click);
+            //
+            // desviacionEstimadoToolStripMenuItem
+            //
+            this.desviacionEstimadoToolStripMenuItem.Name = "desviacionEstimadoToolStripMenuItem";
+            this.desviacionEstimadoToolStripMenuItem.Size = new System.Drawing.Size(260, 22);
+            this.desviacionEstimadoToolStripMenuItem.Text = "Desviación Estimado vs. Facturado";
+            this.desviacionEstimadoToolStripMenuItem.Click += new System.EventHandler(this.desviacionEstimadoToolStripMenuItem_Click);
+            //
+            // trazabilidadTareaToolStripMenuItem
+            //
+            this.trazabilidadTareaToolStripMenuItem.Name = "trazabilidadTareaToolStripMenuItem";
+            this.trazabilidadTareaToolStripMenuItem.Size = new System.Drawing.Size(260, 22);
+            this.trazabilidadTareaToolStripMenuItem.Text = "Trazabilidad de Tarea";
+            this.trazabilidadTareaToolStripMenuItem.Click += new System.EventHandler(this.trazabilidadTareaToolStripMenuItem_Click);
+            //
+            // cancelacionesToolStripMenuItem
+            //
+            this.cancelacionesToolStripMenuItem.Name = "cancelacionesToolStripMenuItem";
+            this.cancelacionesToolStripMenuItem.Size = new System.Drawing.Size(260, 22);
+            this.cancelacionesToolStripMenuItem.Text = "Cancelaciones";
+            this.cancelacionesToolStripMenuItem.Click += new System.EventHandler(this.cancelacionesToolStripMenuItem_Click);
             //
             // pnlCanvas
             //
@@ -331,6 +394,13 @@ namespace GestionFacturas
         private System.Windows.Forms.ToolStripMenuItem consultasSQLToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem informesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem facturaciónToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem motivosBloqueoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem antiguedadTareasToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem rankingUsuariosToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem facturacionProyectoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem desviacionEstimadoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem trazabilidadTareaToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cancelacionesToolStripMenuItem;
         private System.Windows.Forms.Panel pnlCanvas;
         private System.Windows.Forms.Panel pnlKpis;
         private System.Windows.Forms.Label lblTituloResumen;

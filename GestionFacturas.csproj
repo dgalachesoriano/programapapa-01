@@ -80,11 +80,53 @@
     <Compile Include="Formularios\FrmFaltaInformacion.Designer.cs">
       <DependentUpon>FrmFaltaInformacion.cs</DependentUpon>
     </Compile>
+    <Compile Include="Formularios\FrmInformeAntiguedadTareas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeAntiguedadTareas.Designer.cs">
+      <DependentUpon>FrmInformeAntiguedadTareas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeDesviacion.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeDesviacion.Designer.cs">
+      <DependentUpon>FrmInformeDesviacion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeCancelaciones.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeCancelaciones.Designer.cs">
+      <DependentUpon>FrmInformeCancelaciones.cs</DependentUpon>
+    </Compile>
     <Compile Include="Formularios\FrmInformeFacturacion.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Formularios\FrmInformeFacturacion.Designer.cs">
       <DependentUpon>FrmInformeFacturacion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeTrazabilidad.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeTrazabilidad.Designer.cs">
+      <DependentUpon>FrmInformeTrazabilidad.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeFacturacionProyecto.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeFacturacionProyecto.Designer.cs">
+      <DependentUpon>FrmInformeFacturacionProyecto.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeRankingUsuarios.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeRankingUsuarios.Designer.cs">
+      <DependentUpon>FrmInformeRankingUsuarios.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeMotivosBloqueo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Formularios\FrmInformeMotivosBloqueo.Designer.cs">
+      <DependentUpon>FrmInformeMotivosBloqueo.cs</DependentUpon>
     </Compile>
     <Compile Include="Formularios\FrmRegistrarTarea.cs">
       <SubType>Form</SubType>
@@ -114,6 +156,7 @@
     <Compile Include="Modelos\DetalleTarea.cs" />
     <Compile Include="Modelos\EstadoActualTarea.cs" />
     <Compile Include="Modelos\EstadoTarea.cs" />
+    <Compile Include="Modelos\EventoTarea.cs" />
     <Compile Include="Modelos\Facturado.cs" />
     <Compile Include="Modelos\FiltroBusquedaTareas.cs" />
     <Compile Include="Modelos\Motivo.cs" />
@@ -123,6 +166,7 @@
     <Compile Include="Modelos\TipoFactura.cs" />
     <Compile Include="Modelos\Usuario.cs" />
     <Compile Include="Servicios\Dialogos.cs" />
+    <Compile Include="Servicios\EstiloDashboard.cs" />
     <Compile Include="Servicios\FormateadorGridTareas.cs" />
     <Compile Include="Servicios\PegadoPortapapelesServicio.cs" />
     <Compile Include="Servicios\RegistradorErrores.cs" />
