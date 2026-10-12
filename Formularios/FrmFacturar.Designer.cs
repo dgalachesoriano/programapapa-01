@@ -34,6 +34,10 @@ namespace GestionFacturas.Formularios
             this.txtFiltroDocumento = new System.Windows.Forms.TextBox();
             this.lblFiltroUsuario = new System.Windows.Forms.Label();
             this.cboFiltroUsuario = new System.Windows.Forms.ComboBox();
+            this.lblFiltroProyecto = new System.Windows.Forms.Label();
+            this.cboFiltroProyecto = new System.Windows.Forms.ComboBox();
+            this.lblFiltroSegmento = new System.Windows.Forms.Label();
+            this.cboFiltroSegmento = new System.Windows.Forms.ComboBox();
             this.lblFechaDesde = new System.Windows.Forms.Label();
             this.dtpFechaDesde = new System.Windows.Forms.DateTimePicker();
             this.lblFechaHasta = new System.Windows.Forms.Label();
@@ -88,7 +92,7 @@ namespace GestionFacturas.Formularios
             this.grpFiltros.Location = new System.Drawing.Point(0, 0);
             this.grpFiltros.Name = "grpFiltros";
             this.grpFiltros.Padding = new System.Windows.Forms.Padding(10);
-            this.grpFiltros.Size = new System.Drawing.Size(1184, 150);
+            this.grpFiltros.Size = new System.Drawing.Size(1184, 182);
             this.grpFiltros.TabIndex = 0;
             this.grpFiltros.TabStop = false;
             this.grpFiltros.Text = "Filtros (tareas en estado \"En Proceso\")";
@@ -98,16 +102,17 @@ namespace GestionFacturas.Formularios
             this.tblFiltros.ColumnCount = 4;
             this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+            this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 75F));
             this.tblFiltros.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tblFiltros.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tblFiltros.Location = new System.Drawing.Point(10, 23);
             this.tblFiltros.Name = "tblFiltros";
-            this.tblFiltros.RowCount = 3;
+            this.tblFiltros.RowCount = 4;
+            this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
-            this.tblFiltros.Size = new System.Drawing.Size(1164, 117);
+            this.tblFiltros.Size = new System.Drawing.Size(1164, 149);
             this.tblFiltros.TabIndex = 0;
             //
             // Fila 0: Documento / Usuario
@@ -186,18 +191,56 @@ namespace GestionFacturas.Formularios
             this.dtpFechaHasta.TabIndex = 7;
             this.tblFiltros.Controls.Add(this.dtpFechaHasta, 3, 1);
             //
-            // Fila 2: barra de botones de filtro (ocupa todo el ancho)
+            // Fila 2: Proyecto / Segmento
+            //
+            this.lblFiltroProyecto.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblFiltroProyecto.AutoSize = true;
+            this.lblFiltroProyecto.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.lblFiltroProyecto.Name = "lblFiltroProyecto";
+            this.lblFiltroProyecto.Size = new System.Drawing.Size(52, 13);
+            this.lblFiltroProyecto.TabIndex = 8;
+            this.lblFiltroProyecto.Text = "Proyecto:";
+            this.tblFiltros.Controls.Add(this.lblFiltroProyecto, 0, 2);
+            //
+            this.cboFiltroProyecto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboFiltroProyecto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboFiltroProyecto.FormattingEnabled = true;
+            this.cboFiltroProyecto.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.cboFiltroProyecto.Name = "cboFiltroProyecto";
+            this.cboFiltroProyecto.Size = new System.Drawing.Size(130, 21);
+            this.cboFiltroProyecto.TabIndex = 9;
+            this.tblFiltros.Controls.Add(this.cboFiltroProyecto, 1, 2);
+            //
+            this.lblFiltroSegmento.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblFiltroSegmento.AutoSize = true;
+            this.lblFiltroSegmento.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.lblFiltroSegmento.Name = "lblFiltroSegmento";
+            this.lblFiltroSegmento.Size = new System.Drawing.Size(58, 13);
+            this.lblFiltroSegmento.TabIndex = 10;
+            this.lblFiltroSegmento.Text = "Segmento:";
+            this.tblFiltros.Controls.Add(this.lblFiltroSegmento, 2, 2);
+            //
+            this.cboFiltroSegmento.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboFiltroSegmento.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboFiltroSegmento.FormattingEnabled = true;
+            this.cboFiltroSegmento.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.cboFiltroSegmento.Name = "cboFiltroSegmento";
+            this.cboFiltroSegmento.Size = new System.Drawing.Size(130, 21);
+            this.cboFiltroSegmento.TabIndex = 11;
+            this.tblFiltros.Controls.Add(this.cboFiltroSegmento, 3, 2);
+            //
+            // Fila 3: barra de botones de filtro (ocupa todo el ancho)
             //
             this.tblFiltros.SetColumnSpan(this.pnlBotonesFiltro, 4);
             this.pnlBotonesFiltro.Controls.Add(this.btnLimpiarFiltros);
             this.pnlBotonesFiltro.Controls.Add(this.btnAplicarFiltros);
             this.pnlBotonesFiltro.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlBotonesFiltro.Location = new System.Drawing.Point(0, 64);
+            this.pnlBotonesFiltro.Location = new System.Drawing.Point(0, 96);
             this.pnlBotonesFiltro.Margin = new System.Windows.Forms.Padding(0);
             this.pnlBotonesFiltro.Name = "pnlBotonesFiltro";
             this.pnlBotonesFiltro.Size = new System.Drawing.Size(1164, 46);
-            this.pnlBotonesFiltro.TabIndex = 8;
-            this.tblFiltros.Controls.Add(this.pnlBotonesFiltro, 0, 2);
+            this.pnlBotonesFiltro.TabIndex = 12;
+            this.tblFiltros.Controls.Add(this.pnlBotonesFiltro, 0, 3);
             //
             // btnAplicarFiltros
             //
@@ -228,7 +271,7 @@ namespace GestionFacturas.Formularios
             // (abajo).
             this.grpTareas.Controls.Add(this.dgvTareas);
             this.grpTareas.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpTareas.Location = new System.Drawing.Point(0, 150);
+            this.grpTareas.Location = new System.Drawing.Point(0, 182);
             this.grpTareas.Name = "grpTareas";
             this.grpTareas.Padding = new System.Windows.Forms.Padding(10);
             this.grpTareas.Size = new System.Drawing.Size(1184, 200);
@@ -527,6 +570,10 @@ namespace GestionFacturas.Formularios
         private System.Windows.Forms.TextBox txtFiltroDocumento;
         private System.Windows.Forms.Label lblFiltroUsuario;
         private System.Windows.Forms.ComboBox cboFiltroUsuario;
+        private System.Windows.Forms.Label lblFiltroProyecto;
+        private System.Windows.Forms.ComboBox cboFiltroProyecto;
+        private System.Windows.Forms.Label lblFiltroSegmento;
+        private System.Windows.Forms.ComboBox cboFiltroSegmento;
         private System.Windows.Forms.Label lblFechaDesde;
         private System.Windows.Forms.DateTimePicker dtpFechaDesde;
         private System.Windows.Forms.Label lblFechaHasta;

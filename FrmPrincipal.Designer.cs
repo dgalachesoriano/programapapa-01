@@ -47,23 +47,35 @@ namespace GestionFacturas
             this.trazabilidadTareaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cancelacionesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCanvas = new System.Windows.Forms.Panel();
-            this.splitInferior = new System.Windows.Forms.SplitContainer();
-            this.grpPorUsuario = new System.Windows.Forms.GroupBox();
+            this.tblDashboard = new System.Windows.Forms.TableLayoutPanel();
+            this.pnlPorUsuario = new System.Windows.Forms.Panel();
             this.dgvPorUsuario = new System.Windows.Forms.DataGridView();
-            this.grpGraficoMensual = new System.Windows.Forms.GroupBox();
+            this.lblPorUsuario = new System.Windows.Forms.Label();
+            this.pnlPorSegmento = new System.Windows.Forms.Panel();
+            this.dgvPorSegmento = new System.Windows.Forms.DataGridView();
+            this.lblPorSegmento = new System.Windows.Forms.Label();
+            this.pnlPorTipoDocumento = new System.Windows.Forms.Panel();
+            this.dgvPorTipoDocumento = new System.Windows.Forms.DataGridView();
+            this.lblPorTipoDocumento = new System.Windows.Forms.Label();
+            this.pnlGraficoMensual = new System.Windows.Forms.Panel();
             this.chartMensual = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.lblGraficoMensual = new System.Windows.Forms.Label();
             this.pnlKpis = new System.Windows.Forms.Panel();
             this.flpKpis = new System.Windows.Forms.FlowLayoutPanel();
             this.lblTituloResumen = new System.Windows.Forms.Label();
+            this.pnlCabeceraResumen = new System.Windows.Forms.Panel();
+            this.btnActualizarResumen = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
+            this.pnlCabeceraResumen.SuspendLayout();
             this.pnlCanvas.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitInferior)).BeginInit();
-            this.splitInferior.Panel1.SuspendLayout();
-            this.splitInferior.Panel2.SuspendLayout();
-            this.splitInferior.SuspendLayout();
-            this.grpPorUsuario.SuspendLayout();
+            this.tblDashboard.SuspendLayout();
+            this.pnlPorUsuario.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPorUsuario)).BeginInit();
-            this.grpGraficoMensual.SuspendLayout();
+            this.pnlPorSegmento.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPorSegmento)).BeginInit();
+            this.pnlPorTipoDocumento.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPorTipoDocumento)).BeginInit();
+            this.pnlGraficoMensual.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartMensual)).BeginInit();
             this.pnlKpis.SuspendLayout();
             this.SuspendLayout();
@@ -216,11 +228,11 @@ namespace GestionFacturas
             //
             // Lienzo de fondo del cuadro de mando (gris muy claro),
             // sobre el que resaltan las tarjetas KPI (blancas) y la
-            // tabla/gráfica de abajo. Contiene, de arriba a abajo,
+            // tablas/gráfica de abajo. Contiene, de arriba a abajo,
             // la franja de tarjetas KPI (alto fijo, ajustado a su
-            // contenido) y el área inferior partida en dos.
+            // contenido) y la rejilla de paneles del cuadro de mando.
             this.pnlCanvas.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(246)))), ((int)(((byte)(248)))));
-            this.pnlCanvas.Controls.Add(this.splitInferior);
+            this.pnlCanvas.Controls.Add(this.tblDashboard);
             this.pnlCanvas.Controls.Add(this.pnlKpis);
             this.pnlCanvas.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlCanvas.Location = new System.Drawing.Point(0, 24);
@@ -231,25 +243,59 @@ namespace GestionFacturas
             //
             // pnlKpis
             //
-            // Franja superior con las tarjetas KPI (una por divisa
-            // facturada este mes, más "Pendiente de Facturar"),
+            // Franja superior con las tarjetas KPI (una de "Facturado"
+            // y otra de "Pendiente de Facturar" por cada divisa),
             // generadas dinámicamente en FrmPrincipal.PintarTarjetasKpi
             // según los datos reales: su número y contenido varían,
             // por eso el alto de esta franja es fijo pero pequeño
             // (ajustado a lo que necesita una tarjeta), no a toda la
             // altura de la ventana.
             this.pnlKpis.Controls.Add(this.flpKpis);
-            this.pnlKpis.Controls.Add(this.lblTituloResumen);
+            this.pnlKpis.Controls.Add(this.pnlCabeceraResumen);
             this.pnlKpis.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlKpis.Location = new System.Drawing.Point(15, 15);
             this.pnlKpis.Name = "pnlKpis";
-            this.pnlKpis.Size = new System.Drawing.Size(1254, 130);
+            this.pnlKpis.Size = new System.Drawing.Size(1254, 160);
             this.pnlKpis.TabIndex = 0;
+            //
+            // pnlCabeceraResumen
+            //
+            // Franja de título del cuadro de mando: el título (con la
+            // hora de la última actualización) a la izquierda y el
+            // botón Actualizar a la derecha.
+            this.pnlCabeceraResumen.Controls.Add(this.lblTituloResumen);
+            this.pnlCabeceraResumen.Controls.Add(this.btnActualizarResumen);
+            this.pnlCabeceraResumen.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlCabeceraResumen.Location = new System.Drawing.Point(0, 0);
+            this.pnlCabeceraResumen.Name = "pnlCabeceraResumen";
+            this.pnlCabeceraResumen.Padding = new System.Windows.Forms.Padding(0, 0, 0, 8);
+            this.pnlCabeceraResumen.Size = new System.Drawing.Size(1254, 40);
+            this.pnlCabeceraResumen.TabIndex = 1;
+            //
+            // btnActualizarResumen
+            //
+            this.btnActualizarResumen.BackColor = System.Drawing.Color.White;
+            this.btnActualizarResumen.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnActualizarResumen.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnActualizarResumen.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(205)))), ((int)(((byte)(210)))));
+            this.btnActualizarResumen.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(227)))), ((int)(((byte)(242)))), ((int)(((byte)(253)))));
+            this.btnActualizarResumen.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnActualizarResumen.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(71)))), ((int)(((byte)(79)))));
+            this.btnActualizarResumen.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnActualizarResumen.Name = "btnActualizarResumen";
+            this.btnActualizarResumen.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
+            this.btnActualizarResumen.Size = new System.Drawing.Size(130, 32);
+            this.btnActualizarResumen.TabIndex = 0;
+            this.btnActualizarResumen.Text = "Actualizar (F5)";
+            this.btnActualizarResumen.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnActualizarResumen.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnActualizarResumen.UseVisualStyleBackColor = false;
+            this.btnActualizarResumen.Click += new System.EventHandler(this.btnActualizarResumen_Click);
             //
             // lblTituloResumen
             //
             this.lblTituloResumen.AutoSize = true;
-            this.lblTituloResumen.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblTituloResumen.Dock = System.Windows.Forms.DockStyle.Left;
             this.lblTituloResumen.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold);
             this.lblTituloResumen.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(71)))), ((int)(((byte)(79)))));
             this.lblTituloResumen.Location = new System.Drawing.Point(0, 0);
@@ -267,45 +313,58 @@ namespace GestionFacturas
             this.flpKpis.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.flpKpis.Location = new System.Drawing.Point(0, 29);
             this.flpKpis.Name = "flpKpis";
-            this.flpKpis.Size = new System.Drawing.Size(1254, 101);
+            this.flpKpis.Size = new System.Drawing.Size(1254, 121);
             this.flpKpis.TabIndex = 0;
             this.flpKpis.WrapContents = false;
             //
-            // splitInferior
+            // tblDashboard
             //
-            // Divide el espacio restante entre la tabla por usuario
-            // (izquierda, más estrecha) y la gráfica mensual (derecha,
-            // más ancha porque necesita sitio para los 12 meses).
-            this.splitInferior.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitInferior.FixedPanel = System.Windows.Forms.FixedPanel.None;
-            this.splitInferior.Location = new System.Drawing.Point(15, 145);
-            this.splitInferior.Name = "splitInferior";
+            // Rejilla de paneles del cuadro de mando bajo las tarjetas
+            // KPI: arriba, los desgloses por usuario, por segmento y
+            // por tipo de documento, a partes iguales; abajo, ocupando
+            // todo el ancho, la gráfica mensual (necesita sitio para
+            // los 12 meses). Todo se adapta al tamaño de la ventana.
+            this.tblDashboard.ColumnCount = 3;
+            this.tblDashboard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+            this.tblDashboard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+            this.tblDashboard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.34F));
+            this.tblDashboard.Controls.Add(this.pnlPorUsuario, 0, 0);
+            this.tblDashboard.Controls.Add(this.pnlPorSegmento, 1, 0);
+            this.tblDashboard.Controls.Add(this.pnlPorTipoDocumento, 2, 0);
+            this.tblDashboard.Controls.Add(this.pnlGraficoMensual, 0, 1);
+            this.tblDashboard.SetColumnSpan(this.pnlGraficoMensual, 3);
+            this.tblDashboard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tblDashboard.Location = new System.Drawing.Point(15, 145);
+            this.tblDashboard.Name = "tblDashboard";
+            this.tblDashboard.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.tblDashboard.RowCount = 2;
+            this.tblDashboard.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tblDashboard.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tblDashboard.Size = new System.Drawing.Size(1254, 616);
+            this.tblDashboard.TabIndex = 1;
             //
-            // splitInferior.Panel1
+            // pnlPorUsuario
             //
-            this.splitInferior.Panel1.Controls.Add(this.grpPorUsuario);
-            this.splitInferior.Panel1MinSize = 260;
+            // Panel blanco tipo "widget" de cuadro de mando: título
+            // arriba y la rejilla ocupando el resto.
+            this.pnlPorUsuario.BackColor = System.Drawing.Color.White;
+            this.pnlPorUsuario.Controls.Add(this.dgvPorUsuario);
+            this.pnlPorUsuario.Controls.Add(this.lblPorUsuario);
+            this.pnlPorUsuario.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlPorUsuario.Margin = new System.Windows.Forms.Padding(0, 0, 8, 8);
+            this.pnlPorUsuario.Name = "pnlPorUsuario";
+            this.pnlPorUsuario.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
+            this.pnlPorUsuario.TabIndex = 0;
             //
-            // splitInferior.Panel2
+            // lblPorUsuario
             //
-            this.splitInferior.Panel2.Controls.Add(this.grpGraficoMensual);
-            this.splitInferior.Panel2MinSize = 320;
-            this.splitInferior.Size = new System.Drawing.Size(1254, 616);
-            this.splitInferior.SplitterDistance = 460;
-            this.splitInferior.SplitterWidth = 10;
-            this.splitInferior.TabIndex = 1;
-            //
-            // grpPorUsuario
-            //
-            this.grpPorUsuario.Controls.Add(this.dgvPorUsuario);
-            this.grpPorUsuario.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpPorUsuario.Location = new System.Drawing.Point(0, 0);
-            this.grpPorUsuario.Name = "grpPorUsuario";
-            this.grpPorUsuario.Padding = new System.Windows.Forms.Padding(12);
-            this.grpPorUsuario.Size = new System.Drawing.Size(460, 616);
-            this.grpPorUsuario.TabIndex = 0;
-            this.grpPorUsuario.TabStop = false;
-            this.grpPorUsuario.Text = "Por usuario (mes actual)";
+            this.lblPorUsuario.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblPorUsuario.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.lblPorUsuario.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(71)))), ((int)(((byte)(79)))));
+            this.lblPorUsuario.Name = "lblPorUsuario";
+            this.lblPorUsuario.Size = new System.Drawing.Size(400, 30);
+            this.lblPorUsuario.TabIndex = 1;
+            this.lblPorUsuario.Text = "Por usuario  ·  facturado en el mes / pendiente total";
             //
             // dgvPorUsuario
             //
@@ -317,35 +376,115 @@ namespace GestionFacturas
             this.dgvPorUsuario.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvPorUsuario.EnableHeadersVisualStyles = false;
             this.dgvPorUsuario.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(230)))));
-            this.dgvPorUsuario.Location = new System.Drawing.Point(12, 30);
             this.dgvPorUsuario.Name = "dgvPorUsuario";
             this.dgvPorUsuario.ReadOnly = true;
             this.dgvPorUsuario.RowHeadersVisible = false;
             this.dgvPorUsuario.RowTemplate.Height = 28;
             this.dgvPorUsuario.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvPorUsuario.Size = new System.Drawing.Size(436, 574);
             this.dgvPorUsuario.TabIndex = 0;
             //
-            // grpGraficoMensual
+            // pnlPorSegmento
             //
-            this.grpGraficoMensual.Controls.Add(this.chartMensual);
-            this.grpGraficoMensual.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpGraficoMensual.Location = new System.Drawing.Point(0, 0);
-            this.grpGraficoMensual.Name = "grpGraficoMensual";
-            this.grpGraficoMensual.Padding = new System.Windows.Forms.Padding(12);
-            this.grpGraficoMensual.Size = new System.Drawing.Size(784, 616);
-            this.grpGraficoMensual.TabIndex = 0;
-            this.grpGraficoMensual.TabStop = false;
-            this.grpGraficoMensual.Text = "Facturado por mes (año actual)";
+            this.pnlPorSegmento.BackColor = System.Drawing.Color.White;
+            this.pnlPorSegmento.Controls.Add(this.dgvPorSegmento);
+            this.pnlPorSegmento.Controls.Add(this.lblPorSegmento);
+            this.pnlPorSegmento.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlPorSegmento.Margin = new System.Windows.Forms.Padding(8, 0, 8, 8);
+            this.pnlPorSegmento.Name = "pnlPorSegmento";
+            this.pnlPorSegmento.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
+            this.pnlPorSegmento.TabIndex = 1;
+            //
+            // lblPorSegmento
+            //
+            this.lblPorSegmento.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblPorSegmento.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.lblPorSegmento.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(71)))), ((int)(((byte)(79)))));
+            this.lblPorSegmento.Name = "lblPorSegmento";
+            this.lblPorSegmento.Size = new System.Drawing.Size(400, 30);
+            this.lblPorSegmento.TabIndex = 1;
+            this.lblPorSegmento.Text = "Por segmento  ·  facturado en el mes / pendiente total";
+            //
+            // dgvPorSegmento
+            //
+            this.dgvPorSegmento.AllowUserToAddRows = false;
+            this.dgvPorSegmento.AllowUserToDeleteRows = false;
+            this.dgvPorSegmento.BackgroundColor = System.Drawing.Color.White;
+            this.dgvPorSegmento.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvPorSegmento.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvPorSegmento.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvPorSegmento.EnableHeadersVisualStyles = false;
+            this.dgvPorSegmento.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(230)))));
+            this.dgvPorSegmento.Name = "dgvPorSegmento";
+            this.dgvPorSegmento.ReadOnly = true;
+            this.dgvPorSegmento.RowHeadersVisible = false;
+            this.dgvPorSegmento.RowTemplate.Height = 28;
+            this.dgvPorSegmento.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvPorSegmento.TabIndex = 0;
+            //
+            // pnlPorTipoDocumento
+            //
+            this.pnlPorTipoDocumento.BackColor = System.Drawing.Color.White;
+            this.pnlPorTipoDocumento.Controls.Add(this.dgvPorTipoDocumento);
+            this.pnlPorTipoDocumento.Controls.Add(this.lblPorTipoDocumento);
+            this.pnlPorTipoDocumento.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlPorTipoDocumento.Margin = new System.Windows.Forms.Padding(8, 0, 0, 8);
+            this.pnlPorTipoDocumento.Name = "pnlPorTipoDocumento";
+            this.pnlPorTipoDocumento.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
+            this.pnlPorTipoDocumento.TabIndex = 2;
+            //
+            // lblPorTipoDocumento
+            //
+            this.lblPorTipoDocumento.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblPorTipoDocumento.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.lblPorTipoDocumento.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(71)))), ((int)(((byte)(79)))));
+            this.lblPorTipoDocumento.Name = "lblPorTipoDocumento";
+            this.lblPorTipoDocumento.Size = new System.Drawing.Size(400, 30);
+            this.lblPorTipoDocumento.TabIndex = 1;
+            this.lblPorTipoDocumento.Text = "Por tipo de documento  ·  facturado en el mes / pendiente total";
+            //
+            // dgvPorTipoDocumento
+            //
+            this.dgvPorTipoDocumento.AllowUserToAddRows = false;
+            this.dgvPorTipoDocumento.AllowUserToDeleteRows = false;
+            this.dgvPorTipoDocumento.BackgroundColor = System.Drawing.Color.White;
+            this.dgvPorTipoDocumento.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvPorTipoDocumento.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvPorTipoDocumento.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvPorTipoDocumento.EnableHeadersVisualStyles = false;
+            this.dgvPorTipoDocumento.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(230)))));
+            this.dgvPorTipoDocumento.Name = "dgvPorTipoDocumento";
+            this.dgvPorTipoDocumento.ReadOnly = true;
+            this.dgvPorTipoDocumento.RowHeadersVisible = false;
+            this.dgvPorTipoDocumento.RowTemplate.Height = 28;
+            this.dgvPorTipoDocumento.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvPorTipoDocumento.TabIndex = 0;
+            //
+            // pnlGraficoMensual
+            //
+            this.pnlGraficoMensual.BackColor = System.Drawing.Color.White;
+            this.pnlGraficoMensual.Controls.Add(this.chartMensual);
+            this.pnlGraficoMensual.Controls.Add(this.lblGraficoMensual);
+            this.pnlGraficoMensual.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlGraficoMensual.Margin = new System.Windows.Forms.Padding(0, 8, 0, 0);
+            this.pnlGraficoMensual.Name = "pnlGraficoMensual";
+            this.pnlGraficoMensual.Padding = new System.Windows.Forms.Padding(14, 10, 14, 14);
+            this.pnlGraficoMensual.TabIndex = 2;
+            //
+            // lblGraficoMensual
+            //
+            this.lblGraficoMensual.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblGraficoMensual.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.lblGraficoMensual.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(71)))), ((int)(((byte)(79)))));
+            this.lblGraficoMensual.Name = "lblGraficoMensual";
+            this.lblGraficoMensual.Size = new System.Drawing.Size(400, 30);
+            this.lblGraficoMensual.TabIndex = 1;
+            this.lblGraficoMensual.Text = "Facturado por mes (año actual)   ·   K = miles, M = millones, MM = miles de millones";
             //
             // chartMensual
             //
             this.chartMensual.BackColor = System.Drawing.Color.White;
-            this.chartMensual.BorderlineColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(230)))));
             this.chartMensual.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chartMensual.Location = new System.Drawing.Point(12, 30);
             this.chartMensual.Name = "chartMensual";
-            this.chartMensual.Size = new System.Drawing.Size(760, 574);
             this.chartMensual.TabIndex = 0;
             this.chartMensual.Text = "chartMensual";
             //
@@ -366,14 +505,17 @@ namespace GestionFacturas
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.pnlCanvas.ResumeLayout(false);
-            this.splitInferior.Panel1.ResumeLayout(false);
-            this.splitInferior.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitInferior)).EndInit();
-            this.splitInferior.ResumeLayout(false);
-            this.grpPorUsuario.ResumeLayout(false);
+            this.tblDashboard.ResumeLayout(false);
+            this.pnlPorUsuario.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvPorUsuario)).EndInit();
-            this.grpGraficoMensual.ResumeLayout(false);
+            this.pnlPorSegmento.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPorSegmento)).EndInit();
+            this.pnlPorTipoDocumento.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPorTipoDocumento)).EndInit();
+            this.pnlGraficoMensual.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chartMensual)).EndInit();
+            this.pnlCabeceraResumen.ResumeLayout(false);
+            this.pnlCabeceraResumen.PerformLayout();
             this.pnlKpis.ResumeLayout(false);
             this.pnlKpis.PerformLayout();
             this.ResumeLayout(false);
@@ -404,11 +546,21 @@ namespace GestionFacturas
         private System.Windows.Forms.Panel pnlCanvas;
         private System.Windows.Forms.Panel pnlKpis;
         private System.Windows.Forms.Label lblTituloResumen;
+        private System.Windows.Forms.Panel pnlCabeceraResumen;
+        private System.Windows.Forms.Button btnActualizarResumen;
         private System.Windows.Forms.FlowLayoutPanel flpKpis;
-        private System.Windows.Forms.SplitContainer splitInferior;
-        private System.Windows.Forms.GroupBox grpPorUsuario;
+        private System.Windows.Forms.TableLayoutPanel tblDashboard;
+        private System.Windows.Forms.Panel pnlPorUsuario;
+        private System.Windows.Forms.Label lblPorUsuario;
         private System.Windows.Forms.DataGridView dgvPorUsuario;
-        private System.Windows.Forms.GroupBox grpGraficoMensual;
+        private System.Windows.Forms.Panel pnlPorSegmento;
+        private System.Windows.Forms.Label lblPorSegmento;
+        private System.Windows.Forms.DataGridView dgvPorSegmento;
+        private System.Windows.Forms.Panel pnlPorTipoDocumento;
+        private System.Windows.Forms.Label lblPorTipoDocumento;
+        private System.Windows.Forms.DataGridView dgvPorTipoDocumento;
+        private System.Windows.Forms.Panel pnlGraficoMensual;
+        private System.Windows.Forms.Label lblGraficoMensual;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartMensual;
     }
 }

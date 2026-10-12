@@ -28,6 +28,7 @@ namespace GestionFacturas
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.grpFiltros = new System.Windows.Forms.GroupBox();
             this.tblFiltros = new System.Windows.Forms.TableLayoutPanel();
             this.lblEstado = new System.Windows.Forms.Label();
@@ -42,6 +43,9 @@ namespace GestionFacturas
             this.cboFiltroProyecto = new System.Windows.Forms.ComboBox();
             this.lblFiltroSegmento = new System.Windows.Forms.Label();
             this.cboFiltroSegmento = new System.Windows.Forms.ComboBox();
+            this.lblFiltroDocumento = new System.Windows.Forms.Label();
+            this.txtFiltroDocumento = new System.Windows.Forms.TextBox();
+            this.tmrBusquedaDocumento = new System.Windows.Forms.Timer(this.components);
             this.pnlBotonesFiltro = new System.Windows.Forms.Panel();
             this.btnLimpiarFiltros = new System.Windows.Forms.Button();
             this.btnAplicarFiltros = new System.Windows.Forms.Button();
@@ -87,7 +91,7 @@ namespace GestionFacturas
             this.grpFiltros.Location = new System.Drawing.Point(0, 0);
             this.grpFiltros.Name = "grpFiltros";
             this.grpFiltros.Padding = new System.Windows.Forms.Padding(10);
-            this.grpFiltros.Size = new System.Drawing.Size(1184, 182);
+            this.grpFiltros.Size = new System.Drawing.Size(1184, 214);
             this.grpFiltros.TabIndex = 0;
             this.grpFiltros.TabStop = false;
             this.grpFiltros.Text = "Filtros";
@@ -105,12 +109,13 @@ namespace GestionFacturas
             this.tblFiltros.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tblFiltros.Location = new System.Drawing.Point(10, 23);
             this.tblFiltros.Name = "tblFiltros";
-            this.tblFiltros.RowCount = 4;
+            this.tblFiltros.RowCount = 5;
+            this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.tblFiltros.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
-            this.tblFiltros.Size = new System.Drawing.Size(1164, 149);
+            this.tblFiltros.Size = new System.Drawing.Size(1164, 181);
             this.tblFiltros.TabIndex = 0;
             //
             // Fila 0: Estado / Usuario
@@ -229,18 +234,49 @@ namespace GestionFacturas
             this.cboFiltroSegmento.TabIndex = 10;
             this.tblFiltros.Controls.Add(this.cboFiltroSegmento, 3, 2);
             //
-            // Fila 3: barra de botones de filtro (ocupa todo el ancho)
+            // Fila 3: Documento (búsqueda predictiva, ocupa el resto
+            // del ancho; admite * como comodín, ver
+            // FrmPoolTareas.txtFiltroDocumento_TextChanged)
+            //
+            this.lblFiltroDocumento.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblFiltroDocumento.AutoSize = true;
+            this.lblFiltroDocumento.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.lblFiltroDocumento.Name = "lblFiltroDocumento";
+            this.lblFiltroDocumento.Size = new System.Drawing.Size(65, 13);
+            this.lblFiltroDocumento.TabIndex = 11;
+            this.lblFiltroDocumento.Text = "Documento:";
+            this.tblFiltros.Controls.Add(this.lblFiltroDocumento, 0, 3);
+            //
+            this.tblFiltros.SetColumnSpan(this.txtFiltroDocumento, 3);
+            this.txtFiltroDocumento.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtFiltroDocumento.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtFiltroDocumento.Name = "txtFiltroDocumento";
+            this.txtFiltroDocumento.Size = new System.Drawing.Size(400, 20);
+            this.txtFiltroDocumento.TabIndex = 12;
+            this.txtFiltroDocumento.TextChanged += new System.EventHandler(this.txtFiltroDocumento_TextChanged);
+            this.txtFiltroDocumento.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFiltroDocumento_KeyDown);
+            this.tblFiltros.Controls.Add(this.txtFiltroDocumento, 1, 3);
+            //
+            // tmrBusquedaDocumento
+            //
+            // Retardo tras la última pulsación en txtFiltroDocumento
+            // antes de relanzar la búsqueda, para no consultar la BD
+            // con cada tecla.
+            this.tmrBusquedaDocumento.Interval = 400;
+            this.tmrBusquedaDocumento.Tick += new System.EventHandler(this.tmrBusquedaDocumento_Tick);
+            //
+            // Fila 4: barra de botones de filtro (ocupa todo el ancho)
             //
             this.tblFiltros.SetColumnSpan(this.pnlBotonesFiltro, 4);
             this.pnlBotonesFiltro.Controls.Add(this.btnLimpiarFiltros);
             this.pnlBotonesFiltro.Controls.Add(this.btnAplicarFiltros);
             this.pnlBotonesFiltro.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlBotonesFiltro.Location = new System.Drawing.Point(0, 96);
+            this.pnlBotonesFiltro.Location = new System.Drawing.Point(0, 128);
             this.pnlBotonesFiltro.Margin = new System.Windows.Forms.Padding(0);
             this.pnlBotonesFiltro.Name = "pnlBotonesFiltro";
             this.pnlBotonesFiltro.Size = new System.Drawing.Size(1164, 46);
-            this.pnlBotonesFiltro.TabIndex = 11;
-            this.tblFiltros.Controls.Add(this.pnlBotonesFiltro, 0, 3);
+            this.pnlBotonesFiltro.TabIndex = 13;
+            this.tblFiltros.Controls.Add(this.pnlBotonesFiltro, 0, 4);
             //
             // btnAplicarFiltros
             //
@@ -271,7 +307,7 @@ namespace GestionFacturas
             // ambos paneles se adaptan al tamaño de la ventana.
             this.splitPrincipal.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitPrincipal.FixedPanel = System.Windows.Forms.FixedPanel.None;
-            this.splitPrincipal.Location = new System.Drawing.Point(0, 182);
+            this.splitPrincipal.Location = new System.Drawing.Point(0, 214);
             this.splitPrincipal.Name = "splitPrincipal";
             this.splitPrincipal.Orientation = System.Windows.Forms.Orientation.Horizontal;
             //
@@ -341,6 +377,7 @@ namespace GestionFacturas
             this.dgvTareas.Size = new System.Drawing.Size(1164, 184);
             this.dgvTareas.TabIndex = 0;
             this.dgvTareas.SelectionChanged += new System.EventHandler(this.dgvTareas_SelectionChanged);
+            this.dgvTareas.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.dgvTareas_CellPainting);
             //
             // grpDetalle
             //
@@ -555,6 +592,9 @@ namespace GestionFacturas
         private System.Windows.Forms.ComboBox cboFiltroProyecto;
         private System.Windows.Forms.Label lblFiltroSegmento;
         private System.Windows.Forms.ComboBox cboFiltroSegmento;
+        private System.Windows.Forms.Label lblFiltroDocumento;
+        private System.Windows.Forms.TextBox txtFiltroDocumento;
+        private System.Windows.Forms.Timer tmrBusquedaDocumento;
         private System.Windows.Forms.SplitContainer splitPrincipal;
         private System.Windows.Forms.GroupBox grpTareas;
         private System.Windows.Forms.Panel pnlTareasHeader;

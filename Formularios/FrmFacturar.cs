@@ -22,6 +22,8 @@ namespace GestionFacturas.Formularios
         private readonly TareaRepositorio tareaRepositorio = new TareaRepositorio();
         private readonly UsuarioRepositorio usuarioRepositorio = new UsuarioRepositorio();
         private readonly DivisaRepositorio divisaRepositorio = new DivisaRepositorio();
+        private readonly ProyectoRepositorio proyectoRepositorio = new ProyectoRepositorio();
+        private readonly SegmentoRepositorio segmentoRepositorio = new SegmentoRepositorio();
 
         /// <summary>
         /// Cultura usada para interpretar y formatear el importe de
@@ -30,8 +32,8 @@ namespace GestionFacturas.Formularios
         private static readonly CultureInfo CulturaDecimal = new CultureInfo("es-ES");
 
         /// <summary>
-        /// Valor usado en el combo de filtro de usuario para
-        /// representar "no filtrar por este campo".
+        /// Valor usado en los combos de filtro (Usuario, Proyecto y
+        /// Segmento) para representar "no filtrar por este campo".
         /// </summary>
         private const int IdTodos = 0;
 
@@ -51,6 +53,8 @@ namespace GestionFacturas.Formularios
             ConfigurarLimpiezaDeBordes();
 
             CargarFiltroUsuarios();
+            CargarFiltroProyectos();
+            CargarFiltroSegmentos();
             CargarDivisas();
             BuscarTareasPendientes();
         }
@@ -96,6 +100,58 @@ namespace GestionFacturas.Formularios
         }
 
         /// <summary>
+        /// Carga en el combo de filtro de proyectos todos los
+        /// proyectos activos más la opción "Todos" (Id = 0).
+        /// </summary>
+        private void CargarFiltroProyectos()
+        {
+            try
+            {
+                List<Proyecto> proyectos = proyectoRepositorio.ObtenerActivos();
+
+                proyectos.Insert(0, new Proyecto { Id = IdTodos, Descripcion = "Todos" });
+
+                cboFiltroProyecto.DataSource = proyectos;
+                cboFiltroProyecto.DisplayMember = "Descripcion";
+                cboFiltroProyecto.ValueMember = "Id";
+                cboFiltroProyecto.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmFacturar.CargarFiltroProyectos",
+                    "No se han podido cargar los proyectos.",
+                    ex);
+            }
+        }
+
+        /// <summary>
+        /// Carga en el combo de filtro de segmentos todos los
+        /// segmentos activos más la opción "Todos" (Id = 0).
+        /// </summary>
+        private void CargarFiltroSegmentos()
+        {
+            try
+            {
+                List<Segmento> segmentos = segmentoRepositorio.ObtenerActivos();
+
+                segmentos.Insert(0, new Segmento { Id = IdTodos, Descripcion = "Todos" });
+
+                cboFiltroSegmento.DataSource = segmentos;
+                cboFiltroSegmento.DisplayMember = "Descripcion";
+                cboFiltroSegmento.ValueMember = "Id";
+                cboFiltroSegmento.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                Dialogos.MostrarError(
+                    "FrmFacturar.CargarFiltroSegmentos",
+                    "No se han podido cargar los segmentos.",
+                    ex);
+            }
+        }
+
+        /// <summary>
         /// Carga en el combo de divisas las divisas activas.
         /// </summary>
         private void CargarDivisas()
@@ -121,8 +177,8 @@ namespace GestionFacturas.Formularios
         /// <summary>
         /// Busca y muestra las tareas actualmente en estado "En
         /// Proceso" (las únicas candidatas a facturar), aplicando
-        /// además los filtros de Documento, Usuario y fechas de
-        /// pantalla.
+        /// además los filtros de Documento, Usuario, Proyecto,
+        /// Segmento y fechas de pantalla.
         /// </summary>
         private void BuscarTareasPendientes()
         {
@@ -134,6 +190,14 @@ namespace GestionFacturas.Formularios
 
                     IdUsuario = cboFiltroUsuario.SelectedValue != null
                         ? Convert.ToInt32(cboFiltroUsuario.SelectedValue)
+                        : IdTodos,
+
+                    IdProyecto = cboFiltroProyecto.SelectedValue != null
+                        ? Convert.ToInt32(cboFiltroProyecto.SelectedValue)
+                        : IdTodos,
+
+                    IdSegmento = cboFiltroSegmento.SelectedValue != null
+                        ? Convert.ToInt32(cboFiltroSegmento.SelectedValue)
                         : IdTodos,
 
                     Documento = txtFiltroDocumento.Text.Trim(),
@@ -226,6 +290,8 @@ namespace GestionFacturas.Formularios
         {
             txtFiltroDocumento.Clear();
             cboFiltroUsuario.SelectedIndex = 0;
+            cboFiltroProyecto.SelectedIndex = 0;
+            cboFiltroSegmento.SelectedIndex = 0;
             dtpFechaDesde.Checked = false;
             dtpFechaHasta.Checked = false;
 

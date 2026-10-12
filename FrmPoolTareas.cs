@@ -13,8 +13,9 @@ namespace GestionFacturas
 {
     /// <summary>
     /// Pantalla del "pool de tareas": permite consultar las tareas
-    /// filtrando por estado, usuario asignado, proyecto, segmento y
-    /// rango de fechas de registro, ver el detalle de cada una (panel
+    /// filtrando por estado, usuario asignado, proyecto, segmento,
+    /// documento (búsqueda predictiva, con * como comodín) y rango de
+    /// fechas de registro, ver el detalle de cada una (panel
     /// colapsable, ver btnColapsarDetalle_Click), asignar (paso 2 del
     /// flujo: pasa a estado "En Proceso") de una sola vez el usuario
     /// responsable de una o varias tareas seleccionadas, y bloquear
@@ -44,15 +45,28 @@ namespace GestionFacturas
         private static readonly CultureInfo CulturaDecimal = new CultureInfo("es-ES");
 
         /// <summary>
-        /// Colores pastel de fondo para las filas de la rejilla de
-        /// tareas, según su estado (identificado por ID, ver
-        /// Datos/EstadosTareaConocidos.cs).
+        /// Colores del indicador (punto) de estado que se dibuja en la
+        /// columna Estado de la rejilla de tareas, según su estado
+        /// (identificado por ID, ver Datos/EstadosTareaConocidos.cs).
+        /// Tonos de la paleta de Windows, más saturados que un fondo
+        /// pastel porque solo ocupan un punto pequeño.
         /// </summary>
-        private static readonly Color ColorRegistrado = Color.FromArgb(224, 224, 224);
-        private static readonly Color ColorEnProceso = Color.FromArgb(187, 222, 251);
-        private static readonly Color ColorPendiente = Color.FromArgb(255, 245, 157);
-        private static readonly Color ColorFacturado = Color.FromArgb(200, 230, 201);
-        private static readonly Color ColorCancelado = Color.FromArgb(255, 205, 210);
+        private static readonly Color ColorRegistrado = Color.FromArgb(138, 136, 134);
+        private static readonly Color ColorEnProceso = Color.FromArgb(0, 120, 212);
+        private static readonly Color ColorPendiente = Color.FromArgb(255, 185, 0);
+        private static readonly Color ColorFacturado = Color.FromArgb(16, 124, 16);
+        private static readonly Color ColorCancelado = Color.FromArgb(209, 52, 56);
+
+        /// <summary>
+        /// Color de resaltado de las filas seleccionadas, como el del
+        /// Explorador de Windows (azul claro con texto oscuro), para
+        /// que el indicador de estado siga viéndose bien al
+        /// seleccionar.
+        /// </summary>
+        private static readonly Color ColorSeleccion = Color.FromArgb(204, 232, 255);
+
+        /// <summary>Diámetro, en píxeles, del indicador de estado.</summary>
+        private const int DiametroIndicador = 10;
 
         public FrmPoolTareas()
         {
@@ -79,14 +93,28 @@ namespace GestionFacturas
             dgvTareas.AutoGenerateColumns = true;
             dgvTareas.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-            // El formato de columnas y el coloreado por estado se
-            // aplican aquí, tras que la rejilla termine de enlazar
-            // los datos (evento DataBindingComplete), en vez de justo
-            // después de asignar DataSource: si se hace justo después
-            // y la rejilla todavía no tiene ventana creada (p. ej. la
-            // primera búsqueda, lanzada desde el propio constructor
-            // antes de mostrar el formulario), sus filas aún no
-            // existen de verdad y no hay nada que colorear.
+            // Aspecto de lista de Windows (tipo Explorador): fondo
+            // blanco, solo líneas horizontales suaves, sin cabeceras
+            // de fila y resaltado azul claro. El estado se indica con
+            // un punto de color en la columna Estado (ver
+            // dgvTareas_CellPainting), no coloreando la fila entera.
+            dgvTareas.BackgroundColor = SystemColors.Window;
+            dgvTareas.BorderStyle = BorderStyle.None;
+            dgvTareas.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvTareas.GridColor = Color.FromArgb(235, 235, 235);
+            dgvTareas.RowHeadersVisible = false;
+            dgvTareas.RowTemplate.Height = 24;
+            dgvTareas.DefaultCellStyle.SelectionBackColor = ColorSeleccion;
+            dgvTareas.DefaultCellStyle.SelectionForeColor = SystemColors.ControlText;
+            dgvTareas.DefaultCellStyle.Padding = new Padding(4, 0, 4, 0);
+
+            // El formato de columnas se aplica tras que la rejilla
+            // termine de enlazar los datos (evento
+            // DataBindingComplete), en vez de justo después de asignar
+            // DataSource: si se hace justo después y la rejilla
+            // todavía no tiene ventana creada (p. ej. la primera
+            // búsqueda, lanzada desde el propio constructor antes de
+            // mostrar el formulario), sus columnas aún no existen.
             dgvTareas.DataBindingComplete += dgvTareas_DataBindingComplete;
             dgvTareas.CellDoubleClick += dgvTareas_CellDoubleClick;
 
@@ -96,17 +124,12 @@ namespace GestionFacturas
 
         /// <summary>
         /// Una vez la rejilla de tareas ha terminado de enlazar sus
-        /// datos, aplica el formato de columnas y el coloreado por
-        /// estado. Se dispara tanto en la carga inicial como en cada
-        /// búsqueda posterior.
+        /// datos, aplica el formato de columnas. Se dispara tanto en
+        /// la carga inicial como en cada búsqueda posterior.
         /// </summary>
         private void dgvTareas_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
             FormateadorGridTareas.AplicarFormato(dgvTareas);
-
-            ColorearFilasPorEstado();
-
-            AplicarEstiloSeleccion();
         }
 
         /// <summary>
@@ -275,15 +298,17 @@ namespace GestionFacturas
                         ? Convert.ToInt32(cboFiltroSegmento.SelectedValue)
                         : IdTodos,
 
+                    Documento = txtFiltroDocumento.Text.Trim(),
+
                     FechaDesde = dtpFechaDesde.Checked ? (DateTime?)dtpFechaDesde.Value.Date : null,
                     FechaHasta = dtpFechaHasta.Checked ? (DateTime?)dtpFechaHasta.Value.Date : null
                 };
 
                 DataTable resultado = tareaRepositorio.BuscarPorFiltro(filtro);
 
-                // El formato de columnas y el coloreado por estado se
-                // aplican en el evento DataBindingComplete de
-                // dgvTareas (ver ConfigurarGrids), no aquí.
+                // El formato de columnas se aplica en el evento
+                // DataBindingComplete de dgvTareas (ver
+                // ConfigurarGrids), no aquí.
                 dgvTareas.DataSource = resultado;
             }
             catch (Exception ex)
@@ -296,34 +321,83 @@ namespace GestionFacturas
         }
 
         /// <summary>
-        /// Colorea el fondo de cada fila de la rejilla de tareas
-        /// según su estado actual (Registrado en gris, En Proceso en
-        /// azul, Pendiente/bloqueado en rojo, Facturado en verde,
-        /// Cancelado en naranja, todos en tonos pastel), para poder
-        /// distinguirlas de un vistazo. Identifica el estado por su
-        /// ID (columna oculta COD_SEQ_EST), no por su texto: ver
-        /// Datos/EstadosTareaConocidos.cs.
+        /// Dibuja la celda de la columna Estado con un punto de color
+        /// delante del texto (Registrado en gris, En Proceso en azul,
+        /// Pendiente/bloqueado en ámbar, Facturado en verde, Cancelado
+        /// en rojo), al estilo de los indicadores de estado de
+        /// Windows, para distinguir las tareas de un vistazo sin
+        /// colorear la fila entera. Identifica el estado por su ID
+        /// (columna oculta COD_SEQ_EST), no por su texto: ver
+        /// Datos/EstadosTareaConocidos.cs. El resto de celdas se
+        /// dibujan de forma normal.
         /// </summary>
-        private void ColorearFilasPorEstado()
+        private void dgvTareas_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
-            if (dgvTareas.Columns.Count == 0)
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
                 return;
 
-            foreach (DataGridViewRow fila in dgvTareas.Rows)
+            if (dgvTareas.Columns[e.ColumnIndex].Name != "DES_ESTADO")
+                return;
+
+            object valor = dgvTareas.Rows[e.RowIndex].Cells["COD_SEQ_EST"].Value;
+
+            if (valor == null || valor == DBNull.Value)
+                return;
+
+            Color colorEstado = ColorDeEstado(Convert.ToInt32(valor));
+
+            if (colorEstado.IsEmpty)
+                return;
+
+            // Fondo, bordes y resaltado de selección como siempre;
+            // solo el contenido (el texto) se dibuja a mano, desplazado
+            // para dejar sitio al punto.
+            e.Paint(e.CellBounds, DataGridViewPaintParts.All & ~DataGridViewPaintParts.ContentForeground);
+
+            int margenIzquierdo = e.CellBounds.Left + e.CellStyle.Padding.Left + 2;
+
+            Rectangle punto = new Rectangle(
+                margenIzquierdo,
+                e.CellBounds.Top + (e.CellBounds.Height - DiametroIndicador) / 2,
+                DiametroIndicador,
+                DiametroIndicador);
+
+            System.Drawing.Drawing2D.SmoothingMode suavizadoAnterior = e.Graphics.SmoothingMode;
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            using (SolidBrush pincel = new SolidBrush(colorEstado))
             {
-                if (fila.Cells["COD_SEQ_EST"].Value == null)
-                    continue;
-
-                int idEstado = Convert.ToInt32(fila.Cells["COD_SEQ_EST"].Value);
-
-                fila.DefaultCellStyle.BackColor = ColorDeEstado(idEstado);
+                e.Graphics.FillEllipse(pincel, punto);
             }
+
+            e.Graphics.SmoothingMode = suavizadoAnterior;
+
+            int inicioTexto = punto.Right + 6;
+
+            Rectangle areaTexto = new Rectangle(
+                inicioTexto,
+                e.CellBounds.Top,
+                Math.Max(0, e.CellBounds.Right - inicioTexto - e.CellStyle.Padding.Right),
+                e.CellBounds.Height);
+
+            bool seleccionada = (e.State & DataGridViewElementStates.Selected) != 0;
+
+            TextRenderer.DrawText(
+                e.Graphics,
+                Convert.ToString(e.FormattedValue),
+                e.CellStyle.Font,
+                areaTexto,
+                seleccionada ? e.CellStyle.SelectionForeColor : e.CellStyle.ForeColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter |
+                TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine);
+
+            e.Handled = true;
         }
 
         /// <summary>
-        /// Traduce el ID de un estado al color pastel que le
-        /// corresponde en la rejilla. Devuelve el color de fondo por
-        /// defecto de la rejilla si no es ninguno de los conocidos.
+        /// Traduce el ID de un estado al color de su indicador en la
+        /// rejilla. Devuelve Color.Empty (sin indicador) si no es
+        /// ninguno de los conocidos.
         /// </summary>
         private Color ColorDeEstado(int idEstado)
         {
@@ -345,53 +419,8 @@ namespace GestionFacturas
                     return ColorCancelado;
 
                 default:
-                    return dgvTareas.DefaultCellStyle.BackColor;
+                    return Color.Empty;
             }
-        }
-
-        /// <summary>
-        /// Ajusta el color de selección de cada fila según cuántas
-        /// tareas haya seleccionadas: con una sola fila seleccionada,
-        /// se resalta con una versión más oscura de su propio color
-        /// de estado (en vez del azul de selección por defecto), para
-        /// que se siga viendo a qué estado pertenece; con selección
-        /// múltiple se mantiene el resaltado azul estándar, más fácil
-        /// de distinguir cuando hay varias filas marcadas a la vez.
-        /// </summary>
-        private void AplicarEstiloSeleccion()
-        {
-            bool seleccionUnica = dgvTareas.SelectedRows.Count == 1;
-
-            foreach (DataGridViewRow fila in dgvTareas.Rows)
-            {
-                if (seleccionUnica && fila.Selected)
-                {
-                    int idEstado = fila.Cells["COD_SEQ_EST"].Value == null
-                        ? 0
-                        : Convert.ToInt32(fila.Cells["COD_SEQ_EST"].Value);
-
-                    fila.DefaultCellStyle.SelectionBackColor = Oscurecer(ColorDeEstado(idEstado), 0.75f);
-                    fila.DefaultCellStyle.SelectionForeColor = Color.Black;
-                }
-                else
-                {
-                    fila.DefaultCellStyle.SelectionBackColor = SystemColors.Highlight;
-                    fila.DefaultCellStyle.SelectionForeColor = SystemColors.HighlightText;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Oscurece un color multiplicando cada componente RGB por
-        /// <paramref name="factor"/> (p. ej. 0.75 = un 25% más oscuro),
-        /// conservando su tonalidad.
-        /// </summary>
-        private Color Oscurecer(Color color, float factor)
-        {
-            return Color.FromArgb(
-                (int)(color.R * factor),
-                (int)(color.G * factor),
-                (int)(color.B * factor));
         }
 
         /// <summary>
@@ -425,8 +454,6 @@ namespace GestionFacturas
         /// </summary>
         private void dgvTareas_SelectionChanged(object sender, EventArgs e)
         {
-            AplicarEstiloSeleccion();
-
             ActualizarUsuarioAsignadoSegunSeleccion();
 
             ActualizarResumenSeleccion();
@@ -597,6 +624,52 @@ namespace GestionFacturas
             cboFiltroSegmento.SelectedIndex = 0;
             dtpFechaDesde.Checked = false;
             dtpFechaHasta.Checked = false;
+            txtFiltroDocumento.Clear();
+
+            // Vaciar el texto arranca el temporizador de búsqueda
+            // predictiva; se detiene porque ya se busca justo abajo.
+            tmrBusquedaDocumento.Stop();
+
+            BuscarTareas();
+        }
+
+        /// <summary>
+        /// Búsqueda predictiva por Documento: cada vez que cambia el
+        /// texto se reinicia el temporizador, de modo que la búsqueda
+        /// se lanza sola cuando el usuario deja de escribir un
+        /// momento (ver tmrBusquedaDocumento_Tick), sin tener que
+        /// pulsar "Aplicar filtros". Admite * como comodín (ver
+        /// TareaRepositorio.PatronLikeDocumento).
+        /// </summary>
+        private void txtFiltroDocumento_TextChanged(object sender, EventArgs e)
+        {
+            tmrBusquedaDocumento.Stop();
+            tmrBusquedaDocumento.Start();
+        }
+
+        /// <summary>
+        /// Con Intro se busca inmediatamente, sin esperar al
+        /// temporizador de la búsqueda predictiva.
+        /// </summary>
+        private void txtFiltroDocumento_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter)
+                return;
+
+            e.SuppressKeyPress = true;
+
+            tmrBusquedaDocumento.Stop();
+
+            BuscarTareas();
+        }
+
+        /// <summary>
+        /// El usuario ha dejado de escribir en el filtro de Documento:
+        /// relanza la búsqueda con todos los filtros actuales.
+        /// </summary>
+        private void tmrBusquedaDocumento_Tick(object sender, EventArgs e)
+        {
+            tmrBusquedaDocumento.Stop();
 
             BuscarTareas();
         }

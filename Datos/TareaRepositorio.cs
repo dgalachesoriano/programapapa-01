@@ -43,6 +43,7 @@ namespace GestionFacturas.Datos
                     DES_PROYECTO,
                     DES_SEGMENTO,
                     IMP_ESTIMADO,
+                    COD_DIV_EST,
                     COD_SEQ_EST,
                     DES_ESTADO,
                     COD_SEQ_USER,
@@ -68,7 +69,7 @@ namespace GestionFacturas.Datos
 
                     AND
 
-                    (@DES_DOC = '' OR DES_DOC LIKE '%' + @DES_DOC + '%')
+                    (@DES_DOC = '' OR DES_DOC LIKE @DES_DOC)
 
                     AND
 
@@ -92,7 +93,7 @@ namespace GestionFacturas.Datos
 
                 comando.Parameters.Add("@COD_SEQ_SEG", SqlDbType.Int).Value = filtro.IdSegmento;
 
-                comando.Parameters.Add("@DES_DOC", SqlDbType.NVarChar).Value = filtro.Documento ?? string.Empty;
+                comando.Parameters.Add("@DES_DOC", SqlDbType.NVarChar).Value = PatronLikeDocumento(filtro.Documento);
 
                 comando.Parameters.Add("@FEC_DESDE", SqlDbType.Date).Value =
                     filtro.FechaDesde.HasValue ? (object)filtro.FechaDesde.Value.Date : DBNull.Value;
@@ -107,6 +108,36 @@ namespace GestionFacturas.Datos
             }
 
             return tabla;
+        }
+
+        /// <summary>
+        /// Convierte el texto de búsqueda de Documento en un patrón
+        /// LIKE de SQL Server. Sin asterisco, busca el texto en
+        /// cualquier posición (p. ej. "2024" → "%2024%"). Con
+        /// asterisco, cada * equivale a "cualquier texto" y el patrón
+        /// se ancla al principio del documento pero queda abierto al
+        /// final, para que la búsqueda sea predictiva mientras se
+        /// escribe (p. ej. "FAC*24" → "FAC%24%", "*24" → "%24%").
+        /// Los caracteres especiales de LIKE escritos por el usuario
+        /// (%, _, [) se escapan para que se busquen literalmente.
+        /// Devuelve cadena vacía si no hay texto (= no filtrar).
+        /// </summary>
+        private static string PatronLikeDocumento(string documento)
+        {
+            if (string.IsNullOrWhiteSpace(documento))
+                return string.Empty;
+
+            string texto = documento.Trim()
+                .Replace("[", "[[]")
+                .Replace("%", "[%]")
+                .Replace("_", "[_]");
+
+            if (texto.IndexOf('*') < 0)
+                return "%" + texto + "%";
+
+            string patron = texto.Replace('*', '%');
+
+            return patron.EndsWith("%") ? patron : patron + "%";
         }
 
         /// <summary>

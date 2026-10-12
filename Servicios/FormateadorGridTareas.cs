@@ -38,6 +38,7 @@ namespace GestionFacturas.Servicios
             grid.Columns["DES_PROYECTO"].HeaderText = "Proyecto";
             grid.Columns["DES_SEGMENTO"].HeaderText = "Segmento";
             grid.Columns["IMP_ESTIMADO"].HeaderText = "Importe Estimado";
+            grid.Columns["COD_DIV_EST"].HeaderText = "Moneda";
             grid.Columns["DES_ESTADO"].HeaderText = "Estado";
             grid.Columns["NOMBRE_USUARIO"].HeaderText = "Usuario";
             grid.Columns["DES_MOTIVO"].HeaderText = "Motivo";
@@ -46,6 +47,12 @@ namespace GestionFacturas.Servicios
             grid.Columns["FEC_REG"].DefaultCellStyle.Format = "dd/MM/yyyy";
             grid.Columns["IMP_ESTIMADO"].DefaultCellStyle.Format = "N2";
             grid.Columns["IMP_ESTIMADO"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+
+            // Moneda estimada de la tarea, justo a la derecha de su
+            // importe; columna estrecha y centrada.
+            grid.Columns["COD_DIV_EST"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            grid.Columns["COD_DIV_EST"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            grid.Columns["COD_DIV_EST"].FillWeight = 50;
         }
     }
 }

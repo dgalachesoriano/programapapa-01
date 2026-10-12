@@ -20,7 +20,10 @@ namespace GestionFacturas.Modelos
 
         public int IdSegmento { get; set; }
 
-        /// <summary>Coincidencia parcial sobre el Documento de la tarea.</summary>
+        /// <summary>
+        /// Coincidencia parcial sobre el Documento de la tarea; admite
+        /// * como comodín (ver TareaRepositorio.PatronLikeDocumento).
+        /// </summary>
         public string Documento { get; set; } = string.Empty;
 
         /// <summary>
